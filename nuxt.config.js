@@ -5,7 +5,7 @@ import * as SITE_INFO from './assets/content/site/info.json'
 const dynamicContentPath = 'assets/content' // ? No prepending/appending backslashes here
 const dynamicRoutes = getDynamicPaths(
   {
-    blog: 'blog/*.json',
+    news: 'news/*.json',
     projects: 'projects/*.json'
   },
   dynamicContentPath
@@ -86,13 +86,13 @@ export default {
  * Create an array of URLs from a list of files
  * @param {*} urlFilepathTable - example below
  * {
- *   blog: 'blog/*.json',
+ *   news: 'news/*.json',
  *   projects: 'projects/*.json'
  * }
  *
  * @return {Array} - Will return those files into urls for SSR generated .html's like
  * [
- *   /blog/2019-08-27-incidunt-laborum-e ,
+ *   /news/2019-08-27-incidunt-laborum-e ,
  *   /projects/story-test-story-1
  * ]
  */

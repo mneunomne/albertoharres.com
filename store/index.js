@@ -1,20 +1,17 @@
-import { SET_BLOG_POSTS, SET_PROJECT_POSTS, SET_CONNECTIONS } from './mutations.type'
+import { SET_NEWS_POSTS, SET_PROJECT_POSTS } from './mutations.type'
 
 export const state = () => ({
-  blogPosts: [],
+  newsPosts: [],
   projectPosts: [],
   connections: [],
 })
 
 export const mutations = {
-  [SET_BLOG_POSTS](state, list) {
-    state.blogPosts = list
+  [SET_NEWS_POSTS](state, list) {
+    state.newsPosts = list
   },
   [SET_PROJECT_POSTS](state, list) {
     state.projectPosts = list
-  },
-  [SET_CONNECTIONS](state, list) {
-    state.connections = list
   }
 }
 
@@ -27,17 +24,13 @@ export const actions = {
     })
   },
   async nuxtServerInit({ commit }) {
-    // Blog collection type
-    let blogFiles = await require.context('~/assets/content/blog/', false, /\.json$/)
-    await commit(SET_BLOG_POSTS, actions.getPosts(blogFiles))
+    // News collection type
+    let newsFiles = await require.context('~/assets/content/news/', false, /\.json$/)
+    await commit(SET_NEWS_POSTS, actions.getPosts(newsFiles))
 
     // Project collection type
     let projectFiles = await require.context('~/assets/content/projects/', false, /\.json$/)
     await commit(SET_PROJECT_POSTS, actions.getPosts(projectFiles))
-
-    // Project collection type
-    let connections = await require.context('~/assets/content/connections/', false, /\.json$/)
-    await commit(SET_CONNECTIONS, actions.getPosts(connections))
 
     // ? When adding/changing NetlifyCMS collection types, make sure to:
     // ? 1. Add/rename exact slugs here
