@@ -37,7 +37,7 @@ collections:
           # - { label: Site Email, name: siteemail, widget: string, required: false }
   - name: 'projects'
     label: 'Projects'
-    identifier_field: name_en
+    identifier_field: title_en
     folder: 'assets/content/projects'
     create: true
     format: 'json'
