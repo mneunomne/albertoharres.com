@@ -6,6 +6,9 @@
   "description_en": "a social media experiment",
   "content_en": "",
   "title_en": "mneunomne",
-  "tags": [],
+  "tags": [
+    "web",
+    "performance"
+  ],
   "year": "2015"
 }
