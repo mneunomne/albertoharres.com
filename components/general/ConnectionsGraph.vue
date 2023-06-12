@@ -50,7 +50,7 @@ export default {
         .backgroundColor('rgba(0,0,0,0)')
         .linkWidth(1)
         .showNavInfo(false)
-        .numDimensions(2)
+        .numDimensions(3)
         .linkOpacity(1)
         .nodeLabel((node) => {
           return node.content_en.length > 0

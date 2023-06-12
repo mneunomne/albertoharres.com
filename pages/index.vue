@@ -1,7 +1,7 @@
 <template>
   <div class="main text-center flex flex-col items-center justify-center">
     <!-- <logo /> -->
-    <h1 class="title">DOTYK</h1>
+    <h1 class="title">alberto harres</h1>
   </div>
 </template>
 
@@ -14,8 +14,13 @@ export default {
   // },
   head() {
     return {
-      script: [{ src: 'https://identity.netlify.com/v1/netlify-identity-widget.js' }],
-    }
+      script: [
+        { src: "https://identity.netlify.com/v1/netlify-identity-widget.js" },
+      ],
+    };
   },
-}
+};
 </script>
+
+<style>
+</style>
