@@ -2,7 +2,7 @@
   "description_pt": "um experimento arqueológico especulativo",
   "content_pt": "",
   "title_pt": "arque-escrituras",
-  "thumbnail": "https://digitalmedia-bremen.de/wp-content/uploads/2022/07/MG_5443-630x420.jpeg",
+  "thumbnail": "/img/img_5334.png",
   "description_en": "a speculative archeological experiment",
   "content_en": "",
   "title_en": "arche-scriptures",
@@ -15,6 +15,6 @@
     "arduino",
     "elertronics"
   ],
-  "cover_img": "https://www.creativeapplications.net/wp-content/uploads/2022/08/MG_5443-1536x1024-1-1200x800.jpeg",
+  "cover_img": "/img/arche-scriptures_big.gif",
   "year": "2022"
 }
