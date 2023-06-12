@@ -1,7 +1,7 @@
 <template>
-  <main v-if="newsPosts" class="main">
+  <main v-if="news" class="main">
     <h1 class="title text-left">Blog</h1>
-    <ul v-for="(newsPosts, index) in newsPosts" :key="index" class="articles">
+    <ul v-for="(news, index) in news" :key="index" class="articles">
       <nuxt-link
         :to="`news/${newsPost.slug}`"
         class="article article--clickable"
@@ -25,8 +25,8 @@
 <script>
 export default {
   computed: {
-    newsPosts() {
-      return this.$store.state.newsPosts;
+    news() {
+      return this.$store.state.news;
     },
   },
   methods: {

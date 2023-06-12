@@ -1,17 +1,16 @@
-import { SET_NEWS_POSTS, SET_PROJECT_POSTS } from './mutations.type'
+import { SET_NEWS, SET_PROJECTS } from './mutations.type'
 
 export const state = () => ({
-  newsPosts: [],
-  projectPosts: [],
-  connections: [],
+  news: [],
+  projects: [],
 })
 
 export const mutations = {
-  [SET_NEWS_POSTS](state, list) {
-    state.newsPosts = list
+  [SET_NEWS](state, list) {
+    state.news = list
   },
-  [SET_PROJECT_POSTS](state, list) {
-    state.projectPosts = list
+  [SET_PROJECTS](state, list) {
+    state.projects = list
   }
 }
 
@@ -26,11 +25,11 @@ export const actions = {
   async nuxtServerInit({ commit }) {
     // News collection type
     let newsFiles = await require.context('~/assets/content/news/', false, /\.json$/)
-    await commit(SET_NEWS_POSTS, actions.getPosts(newsFiles))
+    await commit(SET_NEWS, actions.getPosts(newsFiles))
 
     // Project collection type
     let projectFiles = await require.context('~/assets/content/projects/', false, /\.json$/)
-    await commit(SET_PROJECT_POSTS, actions.getPosts(projectFiles))
+    await commit(SET_PROJECTS, actions.getPosts(projectFiles))
 
     // ? When adding/changing NetlifyCMS collection types, make sure to:
     // ? 1. Add/rename exact slugs here

@@ -61,6 +61,8 @@ collections:
           summary: '{{fields.image}}',
           field: { label: 'Image', name: 'image', widget: 'image' },
         }
+      - {label: "Disabled", name: "disabled", widget: "boolean", default: false}
+
   - name: 'news'
     label: 'News'
     folder: 'assets/content/news'
