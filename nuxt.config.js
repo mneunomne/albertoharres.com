@@ -48,12 +48,12 @@ export default {
   },
   /*
   ** Global CSS
-  */
   css: ['@/assets/css/main.scss'],
   buildModules: ['@nuxtjs/style-resources'],
   styleResources: {
     scss: ['./assets/css/*.scss']
   },
+  */
   /*
    ** Nuxt.js modules
    */
