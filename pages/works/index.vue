@@ -19,7 +19,7 @@ export default {
     },
     gData() {
       const data = this.projects;
-      console.log("data", data);
+      // console.log("data", data);
       const nodes = [];
       data.map((node) => {
         nodes.push({

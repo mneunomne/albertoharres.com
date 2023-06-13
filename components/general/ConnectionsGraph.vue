@@ -49,25 +49,43 @@ export default {
         .width(window.innerWidth)
         .height(window.innerHeight)
         .cooldownTicks(100)
+        .onNodeHover((node) => {
+          if (node && node.type !== "project") {
+            this.filterNodes(node);
+          }
+          // reset
+          if (!node) {
+            let { nodes, links } = this.g.graphData();
+            nodes.forEach((n) => {
+              n.__threeObj.children[0].material.opacity = 1;
+            });
+            links.forEach((l) => {
+              l.__lineObj.material.opacity = 0.5;
+            });
+          }
+          el.style.cursor = node ? "pointer" : null;
+        })
         .onNodeClick((node) => {
-          // Aim at node from outside it
-          const distance = 100;
-          const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+          if (node.type == "project") {
+            el.style.cursor = node ? "pointer" : null;
+            const distance = 100;
+            const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
 
-          const newPos =
-            node.x || node.y || node.z
-              ? {
-                  x: node.x * distRatio,
-                  y: node.y * distRatio,
-                  z: node.z * distRatio,
-                }
-              : { x: 0, y: 0, z: distance }; // special case if node is in (0,0,0)
+            const newPos =
+              node.x || node.y || node.z
+                ? {
+                    x: node.x * distRatio,
+                    y: node.y * distRatio,
+                    z: node.z * distRatio,
+                  }
+                : { x: 0, y: 0, z: distance }; // special case if node is in (0,0,0)
 
-          g.cameraPosition(
-            newPos, // new position
-            node, // lookAt ({ x, y, z })
-            3000 // ms transition duration
-          );
+            g.cameraPosition(
+              newPos, // new position
+              node, // lookAt ({ x, y, z })
+              3000 // ms transition duration
+            );
+          } else a;
         })
         .linkColor(() => "rgb(0,0,0)")
         .nodeThreeObject((node) => {
@@ -149,6 +167,34 @@ export default {
       sprite.material.depthTest = false;
       group.add(sprite);
       return group;
+    },
+    filterNodes(node) {
+      let { nodes, links } = this.g.graphData();
+      links = links.filter((l) => l.source === node || l.target === node);
+
+      var hidden_nodes = nodes.filter((n) => {
+        return (
+          n.id !== node.id &&
+          !links.some((l) => l.source.id === n.id || l.target.id === n.id)
+        );
+      });
+
+      hidden_nodes.forEach((n) => {
+        // n.__threeObj.material.opacity = 0.1;
+        // change opacity
+        n.__threeObj.children[0].material.opacity = 0.1;
+      });
+
+      // console.log("links", links);
+      // hide links that are not connected to the node
+      links.forEach((l) => {
+        if (l.source.id !== node.id || l.target.id !== node.id) {
+          // l.__lineObj.visible = false;
+          l.__lineObj.material.opacity = 0.1;
+        }
+      });
+
+      // this.g.graphData({ nodes, links });
     },
     onWindowResize() {
       console.log("on Window Resize");
