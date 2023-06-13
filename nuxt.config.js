@@ -1,5 +1,8 @@
 import glob from 'glob'
 import path from 'path'
+import postcssImport from 'postcss-import'
+import postcssNesting from 'postcss-nesting'
+import postcssPresetEnv from 'postcss-preset-env'
 import * as SITE_INFO from './assets/content/site/info.json'
 
 const dynamicContentPath = 'assets/content' // ? No prepending/appending backslashes here
@@ -38,25 +41,38 @@ export default {
       {
         rel: 'stylesheet',
         href: 'https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,700;1,400&display=swap'
+      },
+      {
+        rel: 'preload',
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap'
       }
-    ] // ? Imports the font 'Karla' and is optimized by the netlify plugin 'Subfont'
+    ]
   },
   generate: {
     routes: dynamicRoutes,
     fallback: true,
     subFolders: false
   },
+  render: {
+    bundleRenderer: {
+      shouldPreload: (file, type) => {
+        return ['script', 'style', 'font'].includes(type)
+      }
+    }
+  },
+  css: ['@/assets/css/main.pcss'],
   /*
   ** Global CSS
-  css: ['@/assets/css/main.scss'],
+  */
+  /*
+   css: ['@/assets/css/main.css'],
   buildModules: ['@nuxtjs/style-resources'],
   styleResources: {
     scss: ['./assets/css/*.scss']
   },
-  */
-  /*
-   ** Nuxt.js modules
-   */
+    ** Nuxt.js modules
+    */
   modules: ['@nuxtjs/markdownit'],
   markdownit: {
     injected: true
@@ -69,6 +85,19 @@ export default {
       'three',
       'three-spritetext'
     ],
+    extractCSS: true,
+    postcss: {
+      plugins: {
+        'postcss-import': postcssImport,
+        'postcss-nesting': postcssNesting,
+        'postcss-preset-env': postcssPresetEnv({
+          stage: 1,
+          features: {
+            'nesting-rules': false
+          }
+        })
+      }
+    },
     /*
      ** You can extend webpack config here
      */
