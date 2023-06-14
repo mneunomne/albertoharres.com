@@ -9,6 +9,8 @@ import SpriteText from "three-spritetext";
 
 const fontSize = 6;
 
+const lineOpacity = 0.1;
+
 export default {
   name: "ConnectionsGraph",
   props: {
@@ -44,6 +46,8 @@ export default {
 
       g.graphData(this.gData)
         .backgroundColor("rgba(0,0,0,0)")
+        .linkColor(() => "rgb(0,0,0)")
+        .linkOpacity(lineOpacity)
         .showNavInfo(false)
         .numDimensions(3)
         .width(window.innerWidth)
@@ -60,7 +64,7 @@ export default {
               n.__threeObj.children[0].material.opacity = 1;
             });
             links.forEach((l) => {
-              l.__lineObj.material.opacity = 0.5;
+              l.__lineObj.material.opacity = lineOpacity;
             });
           }
           el.style.cursor = node ? "pointer" : null;
@@ -87,7 +91,6 @@ export default {
             );
           } else a;
         })
-        .linkColor(() => "rgb(0,0,0)")
         .nodeThreeObject((node) => {
           var group = new THREE.Group();
           if (node.type == "project") {
@@ -141,13 +144,15 @@ export default {
     tagNode(node, group) {
       const sprite = new SpriteText(node.id);
       // sprite.fontFace = "Space Mono";
-      sprite.material.depthWrite = false; // make sprite background transparent
+      // sprite.material.depthWrite = false; // make sprite background transparent
       sprite.material.opacity = 1;
+      sprite.backgroundColor = "white";
+      sprite.padding = [0, 0];
       sprite.color = "black";
-      sprite.textHeight = 2 * node.val;
+      sprite.textHeight = 1 * node.val;
       sprite.padding = 2;
-      sprite.renderOrder = 999;
-      sprite.material.depthTest = false;
+      //sprite.renderOrder = 999;
+      //sprite.material.depthTest = false;
       sprite.position.set(0, 1.6, 0);
       group.add(sprite);
       return group;
@@ -163,7 +168,7 @@ export default {
       //const aspect = imgTexture.image.width / imgTexture.image.height;
       sprite.scale.set(1, 1);
       sprite.position.set(0, 0, 0);
-      //sprite.renderOrder = 999;
+      sprite.renderOrder = 999;
       sprite.material.depthTest = false;
       group.add(sprite);
       return group;

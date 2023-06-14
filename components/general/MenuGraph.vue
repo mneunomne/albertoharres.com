@@ -53,10 +53,10 @@ export default {
         .nodeThreeObject((node) => {
           var group = new THREE.Group();
           const sprite = new SpriteText(node.name);
-          sprite.fontFace = "Space Mono";
+          // sprite.fontFace = "Space Mono";
           sprite.material.depthWrite = false; // make sprite background transparent
           sprite.material.opacity = 1;
-
+          sprite.backgroundColor = "white";
           sprite.color = "black";
           sprite.textHeight = 10;
           sprite.padding = 2;

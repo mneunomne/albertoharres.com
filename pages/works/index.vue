@@ -61,8 +61,22 @@ export default {
           });
         });
       });
-      console.log("links", links);
+      // console.log("links", links);
       return links;
+    },
+    generateProjectContentNodes() {
+      /*
+      const nodes = [];
+      this.projects.map((node) => {
+        nodes.push({
+          id: node.slug,
+          val: 10,
+          type: "project",
+          thumbnail: node.thumbnail,
+        });
+      });
+      return nodes;
+      */
     },
   },
 };
