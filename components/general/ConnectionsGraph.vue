@@ -23,6 +23,7 @@ export default {
     return {
       g: null,
       hidden: true,
+      angle: 0,
     };
   },
   mounted() {
@@ -89,7 +90,8 @@ export default {
               node, // lookAt ({ x, y, z })
               3000 // ms transition duration
             );
-          } else a;
+            this.$emit("clickProject", node.id);
+          }
         })
         .nodeThreeObject((node) => {
           var group = new THREE.Group();
@@ -107,6 +109,7 @@ export default {
         //cameraPosition([{x,y,z}], [lookAt], [ms])
         //this.g.cameraPosition({ x: 0, y: 0, z: 400 }, 0, 1000);
       });
+
       setTimeout(() => {
         process.nextTick(() => {
           const linkForce = this.g.d3Force("link").distance((link) => 50);
@@ -137,13 +140,22 @@ export default {
             }
           });
         });
+        // camera orbit
+        this.angle = 0;
+        setInterval(() => {
+          g.cameraPosition({
+            x: distance * Math.sin(this.angle),
+            z: distance * Math.cos(this.angle),
+          });
+          this.angle += Math.PI / 30;
+        }, 10);
       }, 10);
       window.addEventListener("resize", this.onWindowResize, false);
     },
 
     tagNode(node, group) {
       const sprite = new SpriteText(node.id);
-      // sprite.fontFace = "Space Mono";
+      sprite.fontFace = "Libre Bodoni Italic";
       // sprite.material.depthWrite = false; // make sprite background transparent
       sprite.material.opacity = 1;
       sprite.backgroundColor = "white";
@@ -151,8 +163,8 @@ export default {
       sprite.color = "black";
       sprite.textHeight = 1 * node.val;
       sprite.padding = 2;
-      //sprite.renderOrder = 999;
-      //sprite.material.depthTest = false;
+      sprite.renderOrder = 999;
+      sprite.material.depthTest = false;
       sprite.position.set(0, 1.6, 0);
       group.add(sprite);
       return group;

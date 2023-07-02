@@ -1,6 +1,7 @@
 <template>
-  <div class="menu-graph">
-    <h1>Menu Graph</h1>
+  <div>
+    <!--<h1>Menu Graph</h1>-->
+    <div class="menu-graph"></div>
   </div>
 </template>
 
@@ -38,14 +39,19 @@ export default {
         return;
       }
       const el = document.querySelector(".menu-graph");
-      const g = ForceGraph3D()(el);
+      const g = ForceGraph3D({
+        rendererConfig: {
+          antialias: true,
+          powerPreference: "high-performance",
+        },
+      })(el);
 
       g.graphData(this.gData)
         .backgroundColor("rgba(0,0,0,0)")
         .showNavInfo(false)
         .numDimensions(2)
-        .width(250)
-        .height(250)
+        .width(300)
+        .height(300)
         .onNodeClick((node) => {
           this.$router.push({ path: node.route });
         })
@@ -53,8 +59,9 @@ export default {
         .nodeThreeObject((node) => {
           var group = new THREE.Group();
           const sprite = new SpriteText(node.name);
-          // sprite.fontFace = "Space Mono";
-          sprite.material.depthWrite = false; // make sprite background transparent
+          sprite.fontFace = "Libre Bodoni Italic";
+          // sprite.fontStyle = "italic";
+          sprite.material.depthWrite = true; // make sprite background transparent
           sprite.material.opacity = 1;
           sprite.backgroundColor = "white";
           sprite.color = "black";
@@ -62,11 +69,13 @@ export default {
           sprite.padding = 2;
 
           sprite.renderOrder = 999;
-          sprite.material.depthTest = false;
+          //sprite.material.depthTest = false;
           sprite.position.set(0, 1.6, 0);
           group.add(sprite);
           return group;
         });
+
+      g.renderer().setPixelRatio(window.devicePixelRatio);
 
       this.g = g;
 
@@ -84,8 +93,17 @@ export default {
 .menu-graph {
   position: absolute;
   top: 0;
-  width: 200px;
-  height: 200px;
+  width: 300px;
+  height: 300px;
   z-index: 999;
+}
+
+h1 {
+  font-family: "Libre Bodoni Italic";
+  z-index: 999;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-weight: 400;
 }
 </style>

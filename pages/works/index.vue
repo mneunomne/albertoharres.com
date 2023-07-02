@@ -1,14 +1,17 @@
 <template>
   <main class="main">
-    <ConnectionsGraph :gData="gData" />
+    <ConnectionsGraph :gData="gData" @clickProject="onClickProject" />
+    <Project v-show="currentProject" :project="currentProject" />
   </main>
 </template>
 <script>
 import ConnectionsGraph from "@/components/general/ConnectionsGraph.vue";
+import Project from "@/components/general/Project.vue";
 
 export default {
   components: {
     ConnectionsGraph,
+    Project,
   },
   mounted() {
     console.log("mounted!");
@@ -51,6 +54,12 @@ export default {
     },
   },
   methods: {
+    onClickProject(node_id) {
+      console.log("clicked project", node_id);
+      this.currentProject = this.projects.find(
+        (project) => project.slug === node_id
+      );
+    },
     generateLinks(data) {
       const links = [];
       data.forEach((node) => {
@@ -63,20 +72,6 @@ export default {
       });
       // console.log("links", links);
       return links;
-    },
-    generateProjectContentNodes() {
-      /*
-      const nodes = [];
-      this.projects.map((node) => {
-        nodes.push({
-          id: node.slug,
-          val: 10,
-          type: "project",
-          thumbnail: node.thumbnail,
-        });
-      });
-      return nodes;
-      */
     },
   },
 };
