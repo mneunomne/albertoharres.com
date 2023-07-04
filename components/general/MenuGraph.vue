@@ -97,13 +97,4 @@ export default {
   height: 300px;
   z-index: 999;
 }
-
-h1 {
-  font-family: "Libre Bodoni Italic";
-  z-index: 999;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-weight: 400;
-}
 </style>

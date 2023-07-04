@@ -1,7 +1,19 @@
 <template>
   <main class="main">
-    <ConnectionsGraph :gData="gData" @clickProject="onClickProject" />
-    <Project v-show="currentProject" :project="currentProject" />
+    <ConnectionsGraph
+      :gData="gData"
+      @clickProject="onClickProject"
+      @showProject="showProject"
+      :currentProject="currentProject"
+    />
+    <Project
+      v-if="currentProject"
+      :width="imageWidth"
+      :height="imageHeight"
+      :project="currentProject"
+      @closeProject="onCloseProject"
+      :show="showCurrentProject"
+    />
   </main>
 </template>
 <script>
@@ -15,6 +27,14 @@ export default {
   },
   mounted() {
     console.log("mounted!");
+  },
+  data() {
+    return {
+      currentProject: null,
+      imageWidth: 0,
+      imageHeight: 0,
+      showCurrentProject: false,
+    };
   },
   computed: {
     projects() {
@@ -54,11 +74,24 @@ export default {
     },
   },
   methods: {
-    onClickProject(node_id) {
-      console.log("clicked project", node_id);
+    onClickProject(data) {
+      const { id } = data;
+      // console.log("clicked project", id);
       this.currentProject = this.projects.find(
-        (project) => project.slug === node_id
+        (project) => project.slug === id
       );
+      console.log("this.currentProject", this.currentProject);
+    },
+    showProject(data) {
+      const { id, width, height } = data;
+      this.imageWidth = width;
+      this.imageHeight = height;
+      this.showCurrentProject = true;
+    },
+    onCloseProject() {
+      this.currentProject = null;
+      this.showCurrentProject = false;
+      this.$emit("closeProject");
     },
     generateLinks(data) {
       const links = [];
