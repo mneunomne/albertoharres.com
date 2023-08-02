@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import MenuGraph from "@/components/general/MenuGraph.vue";
+import MenuGraph from "~/components/MenuGraph.vue";
 
 export default {
   name: "Header",

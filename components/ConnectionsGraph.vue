@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="{ hidden, 'no-interaction': transition || currentProject !== null }"
+    :class="{ hidden, 'no-interaction': transition || openProject }"
     class="connections-graph"
   >
     .
@@ -11,6 +11,13 @@
 // import d3ForceLimit from 'd3-force-limit'
 import * as THREE from "three";
 import SpriteText from "three-spritetext";
+
+import {
+  CAMERA_FOV,
+  IMAGE_SCALE,
+  CANVAS_OUT_MARGIN,
+  CAMERA_DISTANCE,
+} from "~/utils";
 
 const fontSize = 6;
 const distance = 500;
@@ -24,10 +31,6 @@ export default {
       required: true,
       el: null,
     },
-    currentProject: {
-      type: Object,
-      required: false,
-    },
   },
   data() {
     return {
@@ -36,17 +39,22 @@ export default {
       angle: 0,
       transition: false,
       engineStoped: false,
+      canvasHeight: 0,
+      openProject: false,
     };
   },
   mounted() {
     if (!process.browser) {
       return;
     }
+    this.canvasHeight = window.innerHeight + CANVAS_OUT_MARGIN;
     process.nextTick(() => {
       this.buildGraph();
     });
-    // listen to event on parent component
-    this.$parent.$on("closeProject", () => {
+    // listen to event on root component
+    this.$root.$on("closeProject", () => {
+      console.log("closeProject");
+      this.openProject = false;
       this.showAllElements();
     });
   },
@@ -55,7 +63,6 @@ export default {
       handler: function (val, oldVal) {
         if (val == null) {
           this.showAllElements();
-          //this.focusOnNode(val);
         }
       },
       deep: true,
@@ -85,7 +92,7 @@ export default {
         .numDimensions(3)
         .cameraPosition({ x: 0, y: 0, z: distance })
         .width(window.innerWidth)
-        .height(window.innerHeight)
+        .height(this.canvasHeight)
         .enableNodeDrag(false)
         .cooldownTicks(1000)
         .cooldownTime(5000)
@@ -142,23 +149,26 @@ export default {
               if (node.__threeObj) {
                 const img = document.createElement("img");
                 img.src = node.thumbnail;
-                // console.log("img", img);
                 // on load
                 if (img.complete) {
-                  // console.log("img.complete");
                   // update to correct aspect ratio
                   const aspect = img.width / img.height;
-                  node.__threeObj.children[0].scale.set(35 * aspect, 35);
+                  node.__threeObj.children[0].scale.set(
+                    IMAGE_SCALE * aspect,
+                    IMAGE_SCALE
+                  );
                 } else {
                   img.onload = () => {
                     // update to correct aspect ratio
                     const aspect = img.width / img.height;
-                    node.__threeObj.children[0].scale.set(35 * aspect, 35);
+                    node.__threeObj.children[0].scale.set(
+                      IMAGE_SCALE * aspect,
+                      IMAGE_SCALE
+                    );
                     //node.__threeObj.children[0].material.map.needsUpdate = true; // update texture
                   };
                 }
               }
-              // update group
             }
           });
         });
@@ -183,6 +193,23 @@ export default {
       return group;
     },
 
+    addProjectName(node, group) {
+      const sprite = new SpriteText(node.id);
+      sprite.fontFace = "Libre Bodoni Italic";
+      // sprite.material.depthWrite = false; // make sprite background transparent
+      //sprite.material.opacity = 1;
+      sprite.backgroundColor = "white";
+      sprite.padding = [0, 0];
+      sprite.color = "black";
+      sprite.textHeight = 2;
+      sprite.padding = 2;
+      sprite.renderOrder = 999;
+      sprite.material.depthTest = false;
+      sprite.position.set(0, 20, 0);
+      group.add(sprite);
+      return group;
+    },
+
     projectNode(node, group) {
       const imgTexture = new THREE.TextureLoader().load(node.thumbnail);
       imgTexture.colorSpace = THREE.SRGBColorSpace;
@@ -193,6 +220,7 @@ export default {
       sprite.renderOrder = 9999;
       sprite.material.depthTest = false;
       group.add(sprite);
+      // group = this.addProjectName(node, group);
       return group;
     },
 
@@ -220,8 +248,6 @@ export default {
       });
 
       hidden_nodes.forEach((n) => {
-        // n.__threeObj.material.opacity = 0.1;
-        // change opacity
         n.__threeObj.children[0].material.opacity = 0.1;
       });
 
@@ -229,7 +255,6 @@ export default {
       // hide links that are not connected to the node
       links.forEach((l) => {
         if (l.source.id !== node.id || l.target.id !== node.id) {
-          // l.__lineObj.visible = false;
           l.__lineObj.material.opacity = 0.1;
         }
       });
@@ -243,7 +268,7 @@ export default {
         var node_el = nodes.find((n) => n.id === node.id);
         this.el.style.cursor = node ? "pointer" : null;
         var dist = 75;
-        var offsetY = -20;
+        var offsetY = -10;
         const distRatio = 1 + dist / Math.hypot(node.x, node.y, node.z);
         const newPos =
           node.x || node.y || node.z
@@ -260,55 +285,21 @@ export default {
           2000 // ms transition duration
         );
         this.transition = true;
-        // disable all graph interactions
 
-        this.$emit("clickProject", {
-          id: node.id,
-        });
         this.g.enablePointerInteraction(false);
+        this.openProject = true;
         setTimeout(() => {
-          // this.$emit("clickProject", node.id);
-          this.transition = false;
-          // Assuming you have a camera and an object
-          const camera = this.g.camera();
-          const objectSize = 1; // Real-world size of the object in meters
-          const distanceToObject = dist; // Distance from the camera to the object in meters
-
-          // Get the focal length of the camera
-          // const focalLength = camera.getFocalLength();
-
-          var vFOV = (camera.fov * Math.PI) / 180;
-          var height = 2 * Math.tan(vFOV / 2) * dist; // visible height
-
-          var objectHeight = node_el.__threeObj.children[0].scale.y;
-
-          var objectHeightOnScreen =
-            (objectHeight / height) * window.innerHeight; // visible height
-
-          var objectRatio =
-            node_el.__threeObj.children[0].scale.x /
-            node_el.__threeObj.children[0].scale.y;
-
-          var objectWidthOnScreen = objectHeightOnScreen * objectRatio;
-
           this.$emit("showProject", {
             id: node.id,
-            width: objectWidthOnScreen,
-            height: objectHeightOnScreen,
           });
-
+          this.transition = false;
+          // Assuming you have a camera and an object
           /*
           this.hideAllOtherElements(node);
           setTimeout(() => {
             node.__threeObj.children[0].material.opacity = 0;
           }, 100);
           */
-
-          console.log(
-            "Object size on screen:",
-            objectHeightOnScreen,
-            objectWidthOnScreen
-          );
         }, 2500);
       }
     },
@@ -316,7 +307,6 @@ export default {
       let { nodes, links } = this.g.graphData();
       nodes.forEach((n) => {
         if (n.id !== node.id) {
-          // n.__threeObj.visible = false;
           n.__threeObj.children[0].material.opacity = 0;
         }
       });
@@ -324,13 +314,15 @@ export default {
         l.__lineObj.material.opacity = 0;
       });
     },
-
     showAllElements() {
       this.g.cameraPosition(
         { x: 0, y: 0, z: distance },
         { x: 0, y: 0, z: 0 }, // lookAt ({ x, y, z })
         2000 // ms transition duration
       );
+      //setTimeout(() => {
+      this.$emit("backToInitialView");
+      //}, 2000);
       this.g.enablePointerInteraction(true);
       let { nodes, links } = this.g.graphData();
       nodes.forEach((n) => {
@@ -342,9 +334,10 @@ export default {
     },
 
     onWindowResize() {
+      this.canvasHeight = window.innerHeight + CANVAS_OUT_MARGIN;
       console.log("on Window Resize");
       this.g.width(window.innerWidth);
-      this.g.height(window.innerHeight);
+      this.g.height(this.canvasHeight);
     },
   },
 };
@@ -353,16 +346,20 @@ export default {
 <style global lang="postcss">
 .connections-graph {
   position: fixed;
-  top: 0;
+  top: -75px;
   left: 0;
   width: 100vw;
-  height: 100vh;
-  transition: opacity 0.25s ease-in-out;
+  height: calc(100vh + 150px);
+  transition: opacity 0.25s ease-in-out, top 2s ease-in-out;
   transform: scale(1);
 }
 
-.no-interaction canvas {
+.no-interaction canvas,
+.no-interaction .scene-container {
   pointer-events: none;
+}
+.no-interaction {
+  top: -150px;
 }
 
 .hidden {

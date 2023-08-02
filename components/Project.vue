@@ -2,10 +2,7 @@
   <!-- project -->
   <div class="project-wrapper" :class="{ show }">
     <div class="project-bg"></div>
-    <div
-      class="project"
-      :style="{ width: `${width}px`, height: `${height}px` }"
-    >
+    <div class="project">
       <div class="header">
         <div class="close">
           <a href="#" @click="closeProject">close</a>
@@ -20,7 +17,7 @@
         </div>
       </div>
       <div class="content">
-        <div class="image">
+        <div class="image" :style="{ height: `${height}px` }">
           <img class="image-el" :src="project.thumbnail" alt="" />
         </div>
         <div class="description" v-html="renderContent"></div>
@@ -41,11 +38,11 @@ export default {
     },
     width: {
       type: Number,
-      required: true,
+      required: false,
     },
     height: {
       type: Number,
-      required: true,
+      required: false,
     },
     show: {
       type: Boolean,
@@ -55,6 +52,7 @@ export default {
   methods: {
     closeProject() {
       this.$emit("closeProject");
+      this.$root.$emit("closeProject");
     },
   },
   mounted() {
@@ -75,12 +73,12 @@ export default {
 <style lang="postcss" scoped>
 .project {
   position: absolute;
-  top: 50%;
+  top: calc(50% - 75px);
   right: 50%;
   transform: translate(50%, -50%);
   pointer-events: all;
   padding: 1em;
-  width: 500px;
+  width: auto;
   .header {
     opacity: 0;
     position: absolute;
@@ -92,15 +90,18 @@ export default {
     font-style: italic;
   }
   .content {
-    transition: opacity 0.5s;
-    opacity: 0;
-    .description p {
-      margin: 1em 0em;
+    .description {
+      transition: opacity 0.5s;
+      opacity: 0;
     }
     width: 100%;
-    .image img {
-      max-width: 100%;
-      width: 100%;
+    .image {
+      transition: opacity 0;
+      opacity: 0;
+      .image-el {
+        max-width: 100%;
+        width: 100%;
+      }
     }
   }
 }
@@ -113,16 +114,16 @@ export default {
   height: 100vh;
   pointer-events: none;
   z-index: 9999;
-  &.show .project-bg {
-    opacity: 1;
-    pointer-events: all;
-  }
-  &.show .content {
-    opacity: 1;
-    pointer-events: all;
-  }
-  &.show .header {
-    opacity: 1;
+  &.show {
+    .description,
+    .header,
+    .image {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .project-bg {
+      opacity: 0.85;
+    }
   }
 }
 
@@ -134,11 +135,11 @@ export default {
   left: 0;
   width: 100vw;
   height: 100vh;
+  z-index: 0;
   background: radial-gradient(
     circle,
     rgba(217, 217, 217, 1) 0%,
     rgb(255, 255, 255) 100%
   );
-  z-index: 0;
 }
 </style>
