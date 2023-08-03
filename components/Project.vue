@@ -2,10 +2,13 @@
   <!-- project -->
   <div class="project-wrapper" :class="{ show }">
     <div class="project-bg"></div>
-    <div class="project">
+    <div
+      class="project"
+      :style="{ width: `${width}px`, height: `${height}px` }"
+    >
       <div class="header">
         <div class="close">
-          <a href="#" @click="closeProject">close</a>
+          <a href="#" @click="closeProject">X</a>
         </div>
         <div class="title">
           <h1>{{ project.title_en }}</h1>
@@ -20,6 +23,7 @@
         <div class="image" :style="{ height: `${height}px` }">
           <img class="image-el" :src="project.thumbnail" alt="" />
         </div>
+        <div class="description" v-html="renderContent"></div>
         <div class="description" v-html="renderContent"></div>
       </div>
     </div>
@@ -49,6 +53,12 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      imageWidth: 0,
+      imageHeight: 0,
+    };
+  },
   methods: {
     closeProject() {
       this.$emit("closeProject");
@@ -57,6 +67,13 @@ export default {
   },
   mounted() {
     console.log("mounted project", this.project);
+    // get width of image from src
+    const img = new Image();
+    img.src = this.project.thumbnail;
+    img.onload = () => {
+      this.imageWidth = img.width;
+      this.imageHeight = img.height;
+    };
   },
   computed: {
     renderContent() {
@@ -73,23 +90,43 @@ export default {
 <style lang="postcss" scoped>
 .project {
   position: absolute;
-  top: calc(50% - 75px);
+  top: calc(50% - 100px);
   right: 50%;
   transform: translate(50%, -50%);
   pointer-events: all;
-  padding: 1em;
   width: auto;
+  font-family: sans-serif;
   .header {
+    width: 100%;
     opacity: 0;
     position: absolute;
-    top: -3em;
+    top: -1em;
+    transform: translateY(calc(-100%));
+    .close {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      a {
+        text-decoration: none;
+        color: black;
+        font-size: 2em;
+        font-weight: bold;
+        font-size: 30px;
+      }
+    }
   }
   .tags li {
     display: inline-block;
     margin-right: 5px;
+    margin-top: 1em;
     font-style: italic;
+    font-family: "Libre Bodoni Italic";
+    background: white;
+    padding: 2px 5px;
+    filter: drop-shadow(0px 0px 6px rgba(0, 0, 0, 0.2));
   }
   .content {
+    padding-bottom: 4em;
     .description {
       transition: opacity 0.5s;
       opacity: 0;
@@ -107,12 +144,6 @@ export default {
 }
 
 .project-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
   z-index: 9999;
   &.show {
     .description,
@@ -130,7 +161,7 @@ export default {
 .project-bg {
   opacity: 0;
   transition: opacity 0.5s;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;

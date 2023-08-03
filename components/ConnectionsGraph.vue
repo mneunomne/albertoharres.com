@@ -47,6 +47,10 @@ export default {
     if (!process.browser) {
       return;
     }
+    // if router is on project page, hide graph
+    if (this.$route.path.includes("works/")) {
+      this.openProject = true;
+    }
     this.canvasHeight = window.innerHeight + CANVAS_OUT_MARGIN;
     process.nextTick(() => {
       this.buildGraph();
@@ -103,9 +107,7 @@ export default {
         // on mousedrag to navigate
         .cooldownTicks(100)
         .onNodeHover((node) => {
-          if (this.transition || true) {
-            return;
-          }
+          return;
           if (node && node.type !== "project") {
             this.filterNodes(node);
           }
@@ -179,7 +181,7 @@ export default {
     tagNode(node, group) {
       const sprite = new SpriteText(node.id);
       sprite.fontFace = "Libre Bodoni Italic";
-      // sprite.material.depthWrite = false; // make sprite background transparent
+      sprite.material.depthWrite = false; // make sprite background transparent
       //sprite.material.opacity = 1;
       sprite.backgroundColor = "white";
       sprite.padding = [0, 0];
@@ -204,7 +206,7 @@ export default {
       sprite.textHeight = 2;
       sprite.padding = 2;
       sprite.renderOrder = 999;
-      sprite.material.depthTest = false;
+      //sprite.material.depthTest = false;
       sprite.position.set(0, 20, 0);
       group.add(sprite);
       return group;
@@ -217,8 +219,8 @@ export default {
       const sprite = new THREE.Sprite(material);
       sprite.scale.set(1, 1);
       sprite.position.set(0, 0, 0);
-      sprite.renderOrder = 9999;
-      sprite.material.depthTest = false;
+      sprite.renderOrder = 999;
+      //sprite.material.depthTest = false;
       group.add(sprite);
       // group = this.addProjectName(node, group);
       return group;
@@ -267,10 +269,10 @@ export default {
         let { nodes, links } = this.g.graphData();
         var node_el = nodes.find((n) => n.id === node.id);
         this.el.style.cursor = node ? "pointer" : null;
-        var dist = 75;
+        var dist = CAMERA_DISTANCE;
         var offsetY = -10;
         const distRatio = 1 + dist / Math.hypot(node.x, node.y, node.z);
-        const newPos =
+        var newPos =
           node.x || node.y || node.z
             ? {
                 x: node.x * distRatio,
@@ -279,8 +281,36 @@ export default {
               }
             : { x: 0, y: 0, z: dist }; // special case if node is in (0,0,0)
 
+        // midway between current position from node position
+        newPos = {
+          x: (node.x + this.g.cameraPosition().x) / 2,
+          y: (node.y + this.g.cameraPosition().y) / 2,
+          z: (node.z + this.g.cameraPosition().z) / 2,
+        };
+
+        var cameraPos = this.g.cameraPosition();
+
+        // Calculate the direction vector from camera to new point
+        const direction = new THREE.Vector3(
+          node.x - cameraPos.x,
+          node.y - cameraPos.y,
+          node.z - cameraPos.z
+        );
+
+        // Normalize the direction vector (to get a unit vector)
+        direction.normalize();
+
+        // Calculate the new position that is 75 units distant from the new point
+        const newPosition = new THREE.Vector3(
+          node.x - direction.x * dist,
+          node.y - direction.y * dist,
+          node.z - direction.z * dist
+        );
+
+        console.log("distance", distance / CAMERA_DISTANCE);
+
         this.g.cameraPosition(
-          newPos, // new position
+          newPosition, // new position
           { x: node.x, y: node.y, z: node.z }, // lookAt ({ x, y, z })
           2000 // ms transition duration
         );
@@ -346,10 +376,10 @@ export default {
 <style global lang="postcss">
 .connections-graph {
   position: fixed;
-  top: -75px;
+  top: -100px;
   left: 0;
   width: 100vw;
-  height: calc(100vh + 150px);
+  height: calc(100vh + 200px);
   transition: opacity 0.25s ease-in-out, top 2s ease-in-out;
   transform: scale(1);
 }
@@ -359,7 +389,7 @@ export default {
   pointer-events: none;
 }
 .no-interaction {
-  top: -150px;
+  top: -200px;
 }
 
 .hidden {

@@ -91,10 +91,11 @@ export default {
 
 <style global lang="postcss">
 .menu-graph {
-  position: absolute;
+  position: fixed;
   top: 0;
   width: 300px;
   height: 300px;
   z-index: 999;
+  font-family: "Libre Bodoni Italic";
 }
 </style>

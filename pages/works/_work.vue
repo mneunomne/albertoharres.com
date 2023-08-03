@@ -3,6 +3,7 @@
     <Project
       v-if="project"
       :height="imageHeight"
+      :width="imageWidth"
       :project="project"
       @closeProject="onCloseProject"
       :show="showCurrentProject"
@@ -13,7 +14,7 @@
 <script>
 import Project from "~/components/Project.vue";
 
-import { getImageHeightOnScreen } from "/utils";
+import { getImageSizeOnScreen } from "/utils";
 
 export default {
   name: "Work",
@@ -31,19 +32,25 @@ export default {
   data() {
     return {
       imageHeight: 0,
+      imageWidth: 0,
       showCurrentProject: false,
     };
   },
   mounted() {
     console.log("mounted project", this.project);
-    this.imageHeight = getImageHeightOnScreen();
-    this.showCurrentProject = true;
+    getImageSizeOnScreen(this.project.thumbnail).then((size) => {
+      console.log("size", size);
+      this.imageHeight = size.height;
+      this.imageWidth = size.width;
+      this.showCurrentProject = true;
+    });
   },
   methods: {
     onCloseProject() {
       console.log("onCloseProject");
-      this.showCurrentProject = false;
-      this.$router.push("/works");
+      // go back to route "works"
+      //this.showCurrentProject = false;
+      this.$router.push({ path: "/works" });
     },
   },
   watch: {
