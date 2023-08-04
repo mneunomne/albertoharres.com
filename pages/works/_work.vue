@@ -14,7 +14,9 @@
 <script>
 import Project from "~/components/Project.vue";
 
-import { getImageSizeOnScreen } from "/utils";
+import { getImageSizeOnScreen, CAMERA_ANIMATION_DURATION } from "/utils";
+
+import { mapActions } from "vuex";
 
 export default {
   name: "Work",
@@ -22,7 +24,6 @@ export default {
     Project,
   },
   async asyncData({ params, payload }) {
-    console.log("params payload", params, payload);
     if (payload) return { project: payload };
     else
       return {
@@ -37,19 +38,23 @@ export default {
     };
   },
   mounted() {
-    console.log("mounted project", this.project);
+    this.setCurrentProject(this.project);
     getImageSizeOnScreen(this.project.thumbnail).then((size) => {
-      console.log("size", size);
       this.imageHeight = size.height;
       this.imageWidth = size.width;
-      this.showCurrentProject = true;
+      setTimeout(() => {
+        this.showCurrentProject = true;
+      }, CAMERA_ANIMATION_DURATION + 100);
     });
   },
   methods: {
+    ...mapActions({
+      setCurrentProject: "setCurrentProject",
+    }),
     onCloseProject() {
       console.log("onCloseProject");
       // go back to route "works"
-      //this.showCurrentProject = false;
+      this.showCurrentProject = false;
       this.$router.push({ path: "/works" });
     },
   },

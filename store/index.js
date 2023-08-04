@@ -1,8 +1,11 @@
-import { SET_NEWS, SET_PROJECTS } from './mutations.type'
+import Vuex from 'vuex'
+
+import { SET_NEWS, SET_PROJECTS, SET_CURRENT_PROJECT } from './mutations.type'
 
 export const state = () => ({
   news: [],
   projects: [],
+  currentProject: null,
 })
 
 export const mutations = {
@@ -11,10 +14,23 @@ export const mutations = {
   },
   [SET_PROJECTS](state, list) {
     state.projects = list
+  },
+  [SET_CURRENT_PROJECT](state, project) {
+    state.currentProject = project
   }
 }
 
+export const getters = {
+  getCurrentProject(state) {
+    return state.currentProject
+  }
+}
+
+
 export const actions = {
+  setCurrentProject({ commit }, project) {
+    commit('setCurrentProject', project)
+  },
   getPosts(files) {
     return files.keys().map((key) => {
       let res = files(key)
@@ -38,3 +54,9 @@ export const actions = {
     // ? If you are adding, add a state, mutation and commit (like above) for it too
   }
 }
+
+const vuex = new Vuex.Store({
+  state,
+  mutations,
+  actions,
+})

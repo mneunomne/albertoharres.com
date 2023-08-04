@@ -1,7 +1,11 @@
 <template>
   <div
-    :class="{ hidden, 'no-interaction': transition || openProject }"
+    :class="{ hidden, 'no-interaction': openProject }"
     class="connections-graph"
+    :style="{
+      top: `-${openProject ? canvasMargin + contentMargin : canvasMargin}px`,
+      height: `calc(${canvasHeight}px)`,
+    }"
   >
     .
   </div>
@@ -17,14 +21,24 @@ import {
   IMAGE_SCALE,
   CANVAS_OUT_MARGIN,
   CAMERA_DISTANCE,
+  getContentMargin,
+  getCanvasHeight,
+  CAMERA_ANIMATION_DURATION,
 } from "~/utils";
 
+import { mapGetters } from "vuex";
+
 const fontSize = 6;
-const distance = 500;
+const far_distance = 500;
 const lineOpacity = 0.1;
 
 export default {
   name: "ConnectionsGraph",
+  computed: {
+    ...mapGetters({
+      getCurrentProject: "getCurrentProject",
+    }),
+  },
   props: {
     gData: {
       type: Object,
@@ -41,36 +55,35 @@ export default {
       engineStoped: false,
       canvasHeight: 0,
       openProject: false,
+      contentMargin: 0,
+      canvasMargin: CANVAS_OUT_MARGIN,
+      currentNode: null,
     };
   },
+  created() {
+    // check if starting route is project
+  },
   mounted() {
+    this.canvasMargin = 0;
     if (!process.browser) {
       return;
     }
+    console.log("CANVAS_OUT_MARGIN", CANVAS_OUT_MARGIN);
+    // set values
+    this.canvasMargin = CANVAS_OUT_MARGIN;
+    this.contentMargin = getContentMargin(window);
+    this.canvasHeight = getCanvasHeight(window);
+
+    // TODO, add states to store to indicate a project is open
+    // AND add a watcher to watch for changes in currentProject
     // if router is on project page, hide graph
-    if (this.$route.path.includes("works/")) {
-      this.openProject = true;
-    }
-    this.canvasHeight = window.innerHeight + CANVAS_OUT_MARGIN;
+
     process.nextTick(() => {
       this.buildGraph();
+      if (this.$route.name == "works-work") {
+        this.setCurrentOpenNode();
+      }
     });
-    // listen to event on root component
-    this.$root.$on("closeProject", () => {
-      console.log("closeProject");
-      this.openProject = false;
-      this.showAllElements();
-    });
-  },
-  watch: {
-    currentProject: {
-      handler: function (val, oldVal) {
-        if (val == null) {
-          this.showAllElements();
-        }
-      },
-      deep: true,
-    },
   },
   methods: {
     buildGraph() {
@@ -94,7 +107,7 @@ export default {
         .linkOpacity(lineOpacity)
         .showNavInfo(false)
         .numDimensions(3)
-        .cameraPosition({ x: 0, y: 0, z: distance })
+        .cameraPosition({ x: 0, y: 0, z: far_distance })
         .width(window.innerWidth)
         .height(this.canvasHeight)
         .enableNodeDrag(false)
@@ -188,7 +201,7 @@ export default {
       sprite.color = "black";
       sprite.textHeight = 1 * node.val;
       sprite.padding = 2;
-      sprite.renderOrder = 999;
+      // sprite.renderOrder = 999;
       sprite.material.depthTest = false;
       sprite.position.set(0, 1.6, 0);
       group.add(sprite);
@@ -206,7 +219,7 @@ export default {
       sprite.textHeight = 2;
       sprite.padding = 2;
       sprite.renderOrder = 999;
-      //sprite.material.depthTest = false;
+      sprite.material.depthTest = false;
       sprite.position.set(0, 20, 0);
       group.add(sprite);
       return group;
@@ -220,7 +233,7 @@ export default {
       sprite.scale.set(1, 1);
       sprite.position.set(0, 0, 0);
       sprite.renderOrder = 999;
-      //sprite.material.depthTest = false;
+      sprite.material.depthTest = false;
       group.add(sprite);
       // group = this.addProjectName(node, group);
       return group;
@@ -231,8 +244,8 @@ export default {
       this.angle = 0;
       this.interval = setInterval(() => {
         g.cameraPosition({
-          x: distance * Math.sin(this.angle),
-          z: distance * Math.cos(this.angle),
+          x: far_distance * Math.sin(this.angle),
+          z: far_distance * Math.cos(this.angle),
         });
         this.angle += Math.PI / 900;
       }, 10);
@@ -263,76 +276,109 @@ export default {
     },
 
     focusOnNode(node) {
-      if (node.type == "project") {
-        // stop graph animation
-        // this.g.pauseAnimation();
-        let { nodes, links } = this.g.graphData();
-        var node_el = nodes.find((n) => n.id === node.id);
-        this.el.style.cursor = node ? "pointer" : null;
-        var dist = CAMERA_DISTANCE;
-        var offsetY = -10;
-        const distRatio = 1 + dist / Math.hypot(node.x, node.y, node.z);
-        var newPos =
-          node.x || node.y || node.z
-            ? {
-                x: node.x * distRatio,
-                y: node.y * distRatio,
-                z: node.z * distRatio,
-              }
-            : { x: 0, y: 0, z: dist }; // special case if node is in (0,0,0)
-
-        // midway between current position from node position
-        newPos = {
-          x: (node.x + this.g.cameraPosition().x) / 2,
-          y: (node.y + this.g.cameraPosition().y) / 2,
-          z: (node.z + this.g.cameraPosition().z) / 2,
-        };
-
-        var cameraPos = this.g.cameraPosition();
-
-        // Calculate the direction vector from camera to new point
-        const direction = new THREE.Vector3(
-          node.x - cameraPos.x,
-          node.y - cameraPos.y,
-          node.z - cameraPos.z
-        );
-
-        // Normalize the direction vector (to get a unit vector)
-        direction.normalize();
-
-        // Calculate the new position that is 75 units distant from the new point
-        const newPosition = new THREE.Vector3(
-          node.x - direction.x * dist,
-          node.y - direction.y * dist,
-          node.z - direction.z * dist
-        );
-
-        console.log("distance", distance / CAMERA_DISTANCE);
-
-        this.g.cameraPosition(
-          newPosition, // new position
-          { x: node.x, y: node.y, z: node.z }, // lookAt ({ x, y, z })
-          2000 // ms transition duration
-        );
-        this.transition = true;
-
-        this.g.enablePointerInteraction(false);
-        this.openProject = true;
-        setTimeout(() => {
-          this.$emit("showProject", {
-            id: node.id,
-          });
-          this.transition = false;
-          // Assuming you have a camera and an object
-          /*
-          this.hideAllOtherElements(node);
-          setTimeout(() => {
-            node.__threeObj.children[0].material.opacity = 0;
-          }, 100);
-          */
-        }, 2500);
+      if (node.type !== "project") {
+        return;
       }
+
+      this.currentNode = node;
+
+      this.el.style.cursor = node ? "pointer" : null;
+
+      var dist = CAMERA_DISTANCE;
+
+      var cameraPos = this.g.cameraPosition();
+
+      // Calculate the direction vector from camera to new point
+      this.direction = new THREE.Vector3(
+        node.x - cameraPos.x,
+        node.y - cameraPos.y,
+        node.z - cameraPos.z
+      );
+
+      // Normalize the direction vector (to get a unit vector)
+      this.direction.normalize();
+
+      // Calculate the new position that is 75 units distant from the new point
+      const newPosition = new THREE.Vector3(
+        node.x - this.direction.x * dist,
+        node.y - this.direction.y * dist,
+        node.z - this.direction.z * dist
+      );
+
+      this.g.cameraPosition(
+        newPosition, // new position
+        { x: node.x, y: node.y, z: node.z }, // lookAt ({ x, y, z })
+        CAMERA_ANIMATION_DURATION // ms transition duration
+      );
+
+      this.transition = true;
+      this.g.enablePointerInteraction(false);
+      this.openProject = true;
+
+      this.$emit("clickProject", {
+        id: node.id,
+      });
+
+      setTimeout(() => {
+        /*
+        this.$emit("showProject", {
+          id: node.id,
+        });
+        */
+        this.transition = false;
+        setTimeout(() => {
+          node.__threeObj.children[0].material.opacity = 0;
+        }, 100);
+      }, CAMERA_ANIMATION_DURATION + 500);
     },
+
+    onCloseProject() {
+      this.openProject = false;
+      var node = this.currentNode;
+
+      console.log("node", node);
+
+      // reset camera position
+
+      var cameraPos = this.g.cameraPosition();
+
+      // Calculate the direction vector from camera to new point
+      var direction = new THREE.Vector3(
+        node.x - cameraPos.x,
+        node.y - cameraPos.y,
+        node.z - cameraPos.z
+      );
+
+      var dist = far_distance;
+
+      // Normalize the direction vector (to get a unit vector)
+      direction.normalize();
+
+      // Calculate the new position that is 75 units distant from the new point
+      const newPosition = new THREE.Vector3(
+        node.x - direction.x * dist,
+        node.y - direction.y * dist,
+        node.z - direction.z * dist
+      );
+
+      this.g.cameraPosition(
+        newPosition,
+        { x: node.x, y: node.y, z: node.z }, // lookAt ({ x, y, z })
+        CAMERA_ANIMATION_DURATION // ms transition duration
+      );
+
+      let { nodes } = this.g.graphData();
+      nodes.forEach((n) => {
+        n.__threeObj.children[0].material.opacity = 1;
+      });
+
+      this.openProject = false;
+
+      this.g.enablePointerInteraction(true);
+
+      this.$emit("backToInitialView");
+    },
+
     hideAllOtherElements(node) {
       let { nodes, links } = this.g.graphData();
       nodes.forEach((n) => {
@@ -348,11 +394,11 @@ export default {
       this.g.cameraPosition(
         { x: 0, y: 0, z: distance },
         { x: 0, y: 0, z: 0 }, // lookAt ({ x, y, z })
-        2000 // ms transition duration
+        CAMERA_ANIMATION_DURATION // ms transition duration
       );
       //setTimeout(() => {
       this.$emit("backToInitialView");
-      //}, 2000);
+      //}, CAMERA_ANIMATION_DURATION);
       this.g.enablePointerInteraction(true);
       let { nodes, links } = this.g.graphData();
       nodes.forEach((n) => {
@@ -363,11 +409,43 @@ export default {
       });
     },
 
+    setCurrentOpenNode() {
+      this.openProject = true;
+      console.log("setCurrentOpenNode", this.getCurrentProject);
+      let { nodes, links } = this.g.graphData();
+      nodes.forEach((n) => {
+        if (n.id == this.getCurrentProject.slug) {
+          this.currentNode = n;
+        }
+      });
+    },
+
     onWindowResize() {
-      this.canvasHeight = window.innerHeight + CANVAS_OUT_MARGIN;
-      console.log("on Window Resize");
+      this.contentMargin = getContentMargin(window);
+      this.canvasHeight = getCanvasHeight(window);
       this.g.width(window.innerWidth);
       this.g.height(this.canvasHeight);
+    },
+  },
+  watch: {
+    getCurrentProject: {
+      handler: function (val, oldVal) {
+        console.log("watch getCurrentProject", val, oldVal);
+        if (val == null) {
+          // this.showAllElements();
+        }
+      },
+      deep: true,
+    },
+    // route change
+    $route(to, from) {
+      console.log("route change", to.name);
+      if (to.name == "works-work") {
+        this.setCurrentOpenNode();
+      }
+      if (from.name == "works-work" && to.name == "works") {
+        this.onCloseProject();
+      }
     },
   },
 };
@@ -376,12 +454,12 @@ export default {
 <style global lang="postcss">
 .connections-graph {
   position: fixed;
-  top: -100px;
   left: 0;
   width: 100vw;
-  height: calc(100vh + 200px);
-  transition: opacity 0.25s ease-in-out, top 2s ease-in-out;
+  transition: opacity 0.25s ease-in-out, top 2s ease-in-out,
+    filter 2s ease-in-out;
   transform: scale(1);
+  filter: blur(0px);
 }
 
 .no-interaction canvas,
@@ -389,7 +467,7 @@ export default {
   pointer-events: none;
 }
 .no-interaction {
-  top: -200px;
+  filter: blur(0px);
 }
 
 .hidden {

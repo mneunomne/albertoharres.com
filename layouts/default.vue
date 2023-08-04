@@ -3,7 +3,7 @@
     <Header />
     <ConnectionsGraph
       :gData="gData"
-      @showProject="showProject"
+      @clickProject="onClickProject"
       @backToInitialView="onBackToInitialView"
       :currentProject="currentProject"
     />
@@ -66,15 +66,12 @@ export default {
   },
   methods: {
     onClickProject(data) {
-      const { id } = data;
+      const { id, transitionTime } = data;
       this.$router.push(`/works/${id}`);
     },
     showProject(data) {
-      const { id, width, height } = data;
-      this.imageWidth = width;
-      this.imageHeight = height;
-      // root event show project
-      this.$router.push(`/works/${id}`);
+      // const { id } = data;
+      // this.$root.$emit("showProject", id);
     },
     onCloseProject() {
       // this.currentProject = null;

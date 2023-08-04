@@ -4,11 +4,15 @@
     <div class="project-bg"></div>
     <div
       class="project"
-      :style="{ width: `${width}px`, height: `${height}px` }"
+      :style="{
+        width: `${width}px`,
+        height: `${height}px`,
+        top: `calc(50% - ${contentMargin}px)`,
+      }"
     >
       <div class="header">
         <div class="close">
-          <a href="#" @click="closeProject">X</a>
+          <button @click="closeProject">X</button>
         </div>
         <div class="title">
           <h1>{{ project.title_en }}</h1>
@@ -33,6 +37,8 @@
 <script>
 import marked from "marked";
 
+import { CANVAS_OUT_MARGIN, getContentMargin } from "/utils";
+
 export default {
   name: "Project",
   props: {
@@ -50,6 +56,7 @@ export default {
     },
     show: {
       type: Boolean,
+      default: false,
       required: true,
     },
   },
@@ -57,6 +64,8 @@ export default {
     return {
       imageWidth: 0,
       imageHeight: 0,
+      contentMargin: CANVAS_OUT_MARGIN,
+      showBg: false,
     };
   },
   methods: {
@@ -66,6 +75,11 @@ export default {
     },
   },
   mounted() {
+    this.contentMargin = getContentMargin(window);
+    // add resize listener
+    window.addEventListener("resize", () => {
+      this.contentMargin = getContentMargin(window);
+    });
     console.log("mounted project", this.project);
     // get width of image from src
     const img = new Image();
@@ -74,6 +88,11 @@ export default {
       this.imageWidth = img.width;
       this.imageHeight = img.height;
     };
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", () => {
+      this.canvasMargin = getContentMargin(window);
+    });
   },
   computed: {
     renderContent() {
@@ -90,7 +109,6 @@ export default {
 <style lang="postcss" scoped>
 .project {
   position: absolute;
-  top: calc(50% - 100px);
   right: 50%;
   transform: translate(50%, -50%);
   pointer-events: all;
@@ -153,24 +171,28 @@ export default {
       pointer-events: all;
     }
     .project-bg {
-      opacity: 0.85;
+      opacity: 1;
+      backdrop-filter: blur(10px);
     }
   }
 }
 
 .project-bg {
   opacity: 0;
-  transition: opacity 0.5s;
+  transition: backdrop-filter 1s, opacity 0.5s;
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 0;
+  /*
   background: radial-gradient(
     circle,
-    rgba(217, 217, 217, 1) 0%,
-    rgb(255, 255, 255) 100%
-  );
+    rgba(217, 217, 217, 0.5) 0%,
+    rgba(255, 255, 255, 0.5) 100%
+  );*/
+  backdrop-filter: blur(0px);
+  background: rgba(255, 255, 255, 0.85);
 }
 </style>
