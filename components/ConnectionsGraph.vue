@@ -129,6 +129,12 @@ export default {
           // make current node renderOrder higher
           if (node && node.type) {
             node.__threeObj.children[0].renderOrder = 999;
+            if (node.type == "project") {
+              //this.el.style.cursor = "pointer";
+              this.$emit("hoverProject", {
+                imgUrl: node.thumbnail,
+              });
+            }
           } else {
             // reset
             let { nodes } = this.g.graphData();
@@ -336,7 +342,7 @@ export default {
 
       this.currentNode = node;
 
-      this.el.style.cursor = node ? "pointer" : null;
+      // this.el.style.cursor = node ? "pointer" : null;
 
       var dist = CAMERA_DISTANCE;
 
@@ -374,11 +380,6 @@ export default {
       });
 
       setTimeout(() => {
-        /*
-        this.$emit("showProject", {
-          id: node.id,
-        });
-        */
         this.transition = false;
         setTimeout(() => {
           node.__threeObj.children[0].material.opacity = 0;
@@ -390,10 +391,7 @@ export default {
       this.openProject = false;
       var node = this.currentNode;
 
-      console.log("node", node);
-
       // reset camera position
-
       var cameraPos = this.g.cameraPosition();
 
       // Calculate the direction vector from camera to new point
@@ -427,9 +425,7 @@ export default {
       });
 
       this.openProject = false;
-
       this.g.enablePointerInteraction(true);
-
       this.$emit("backToInitialView");
     },
 
@@ -445,9 +441,7 @@ export default {
       });
     },
     showAllElements() {
-      //setTimeout(() => {
       this.$emit("backToInitialView");
-      //}, CAMERA_ANIMATION_DURATION);
       this.g.enablePointerInteraction(true);
       this.g.graphData({
         nodes: [...this.allNodes],
@@ -462,7 +456,6 @@ export default {
 
     setCurrentOpenNode() {
       this.openProject = true;
-      console.log("setCurrentOpenNode", this.getCurrentProject);
       let { nodes, links } = this.g.graphData();
       nodes.forEach((n) => {
         if (n.id == this.getCurrentProject.slug) {
@@ -481,13 +474,11 @@ export default {
   watch: {
     // route change
     $route(to, from) {
-      console.log("route change", to.name);
       if (from.name == "works-work" && to.name == "works") {
         this.onCloseProject();
       }
     },
     getCurrentProject(newVal, oldVal) {
-      console.log("getCurrentProject", this.getCurrentProject);
       if (this.getCurrentProject) {
         this.setCurrentOpenNode();
       }

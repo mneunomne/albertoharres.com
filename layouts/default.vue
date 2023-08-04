@@ -1,11 +1,26 @@
 <template>
   <div class="main">
+    <div id="background">
+      <img
+        :src="prevImgUrl"
+        :style="{ opacity: imgUrl ? 1 : 0 }"
+        class="background-image prev"
+        :class="{ show: showBg }"
+      />
+      <!-- current image -->
+      <img
+        :src="imgUrl"
+        :style="{ opacity: imgUrl ? 1 : 0 }"
+        class="background-image prev"
+      />
+    </div>
     <Header />
     <ConnectionsGraph
       :gData="gData"
       @clickProject="onClickProject"
       @backToInitialView="onBackToInitialView"
       :currentProject="currentProject"
+      @hoverProject="onHoverProject"
     />
     <nuxt />
   </div>
@@ -26,6 +41,7 @@ export default {
       imageWidth: 0,
       imageHeight: 0,
       showCurrentProject: false,
+      imgUrl: "",
     };
   },
   computed: {
@@ -70,6 +86,16 @@ export default {
       const { id, transitionTime } = data;
       this.$router.push(`/works/${id}`);
     },
+    onHoverProject(data) {
+      const { imgUrl } = data;
+      this.prevImgUrl = this.imgUrl;
+      this.imgUrl = imgUrl;
+      this.showBg = true;
+      this.timeout && clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => {
+        this.showBg = false;
+      }, 1000);
+    },
     showProject(data) {
       // const { id } = data;
       // this.$root.$emit("showProject", id);
@@ -97,3 +123,39 @@ export default {
   },
 };
 </script>
+
+
+<style lang="postcss" scoped>
+#background {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+  transition: background-image 0.5s ease-in-out;
+}
+
+.background-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: -1;
+  transition: opacity 0.5s ease-in-out;
+  &.prev {
+    z-index: -2;
+    &.show {
+      z-index: 1;
+      opacity: 1;
+    }
+  }
+}
+</style>
