@@ -23,6 +23,9 @@ export const mutations = {
 export const getters = {
   getCurrentProject(state) {
     return state.currentProject
+  },
+  getProjects(state) {
+    return state.projects
   }
 }
 
@@ -38,7 +41,7 @@ export const actions = {
       return res
     })
   },
-  async nuxtServerInit({ commit }) {
+  async nuxtServerInit({ commit, state }, { req }) {
     // News collection type
     let newsFiles = await require.context('~/assets/content/news/', false, /\.json$/)
     await commit(SET_NEWS, actions.getPosts(newsFiles))
@@ -47,6 +50,13 @@ export const actions = {
     let projectFiles = await require.context('~/assets/content/projects/', false, /\.json$/)
     await commit(SET_PROJECTS, actions.getPosts(projectFiles))
 
+    // Set current project if it exists with regex if project name is after /works/
+    const projectId = req.url.split('/').pop()
+    if (projectId) {
+      const project = state.projects.find(project => project.slug === projectId)
+      if (project) await commit(SET_CURRENT_PROJECT, project)
+    }
+
     // ? When adding/changing NetlifyCMS collection types, make sure to:
     // ? 1. Add/rename exact slugs here
     // ? 2. Add/rename the MUTATION_TYPE names in `./mutations.type.js`
@@ -54,9 +64,3 @@ export const actions = {
     // ? If you are adding, add a state, mutation and commit (like above) for it too
   }
 }
-
-const vuex = new Vuex.Store({
-  state,
-  mutations,
-  actions,
-})

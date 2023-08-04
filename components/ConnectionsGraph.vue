@@ -1,13 +1,15 @@
 <template>
-  <div
-    :class="{ hidden, 'no-interaction': openProject }"
-    class="connections-graph"
-    :style="{
-      top: `-${openProject ? canvasMargin + contentMargin : canvasMargin}px`,
-      height: `calc(${canvasHeight}px)`,
-    }"
-  >
-    .
+  <div>
+    <div
+      :class="{ hidden, 'no-interaction': openProject }"
+      class="connections-graph"
+      :style="{
+        top: `-${openProject ? canvasMargin + contentMargin : canvasMargin}px`,
+        height: `calc(${canvasHeight}px)`,
+      }"
+    >
+      .
+    </div>
   </div>
 </template>
   
@@ -58,6 +60,9 @@ export default {
       contentMargin: 0,
       canvasMargin: CANVAS_OUT_MARGIN,
       currentNode: null,
+      fullGraphData: null,
+      allNodes: null,
+      allLinks: null,
     };
   },
   created() {
@@ -100,7 +105,8 @@ export default {
           powerPreference: "high-performance",
         },
       })(this.el);
-
+      this.allNodes = [...this.gData.nodes];
+      this.allLinks = [...this.gData.links];
       g.graphData(this.gData)
         .backgroundColor("rgba(0,0,0,0)")
         .linkColor(() => "rgb(0,0,0)")
@@ -120,6 +126,17 @@ export default {
         // on mousedrag to navigate
         .cooldownTicks(100)
         .onNodeHover((node) => {
+          // make current node renderOrder higher
+          if (node && node.type) {
+            node.__threeObj.children[0].renderOrder = 999;
+          } else {
+            // reset
+            let { nodes } = this.g.graphData();
+            nodes.forEach((n) => {
+              n.__threeObj.children[0].renderOrder = 1;
+            });
+          }
+
           return;
           if (node && node.type !== "project") {
             this.filterNodes(node);
@@ -156,39 +173,43 @@ export default {
 
       setTimeout(() => {
         process.nextTick(() => {
-          this.g.d3Force("link").distance((link) => 50);
-          this.g.cameraPosition({ x: 0, y: 0, z: 450 });
-          // go through all nodes
-          this.g.graphData().nodes.forEach((node) => {
-            if (node.type == "project") {
-              if (node.__threeObj) {
-                const img = document.createElement("img");
-                img.src = node.thumbnail;
-                // on load
-                if (img.complete) {
-                  // update to correct aspect ratio
-                  const aspect = img.width / img.height;
-                  node.__threeObj.children[0].scale.set(
-                    IMAGE_SCALE * aspect,
-                    IMAGE_SCALE
-                  );
-                } else {
-                  img.onload = () => {
-                    // update to correct aspect ratio
-                    const aspect = img.width / img.height;
-                    node.__threeObj.children[0].scale.set(
-                      IMAGE_SCALE * aspect,
-                      IMAGE_SCALE
-                    );
-                    //node.__threeObj.children[0].material.map.needsUpdate = true; // update texture
-                  };
-                }
-              }
-            }
-          });
+          this.setInitialView();
         });
       }, 10);
       window.addEventListener("resize", this.onWindowResize, false);
+    },
+
+    setInitialView() {
+      this.g.d3Force("link").distance((link) => 50);
+      this.g.cameraPosition({ x: 0, y: 0, z: far_distance }, 0, 1000);
+      // go through all nodes
+      this.g.graphData().nodes.forEach((node) => {
+        if (node.type == "project") {
+          if (node.__threeObj) {
+            const img = document.createElement("img");
+            img.src = node.thumbnail;
+            // on load
+            if (img.complete) {
+              // update to correct aspect ratio
+              const aspect = img.width / img.height;
+              node.__threeObj.children[0].scale.set(
+                IMAGE_SCALE * aspect,
+                IMAGE_SCALE
+              );
+            } else {
+              img.onload = () => {
+                // update to correct aspect ratio
+                const aspect = img.width / img.height;
+                node.__threeObj.children[0].scale.set(
+                  IMAGE_SCALE * aspect,
+                  IMAGE_SCALE
+                );
+                //node.__threeObj.children[0].material.map.needsUpdate = true; // update texture
+              };
+            }
+          }
+        }
+      });
     },
 
     tagNode(node, group) {
@@ -251,6 +272,11 @@ export default {
       }, 10);
     },
     filterNodes(node) {
+      console.log("node", node);
+      if (node.id == "X") {
+        this.showAllElements();
+        return;
+      }
       let { nodes, links } = this.g.graphData();
       links = links.filter((l) => l.source === node || l.target === node);
 
@@ -266,6 +292,17 @@ export default {
         nodes.splice(nodes.indexOf(n), 1);
       });
 
+      nodes.push({
+        id: "X",
+        type: "tag",
+        val: 2,
+        tag: "show_all",
+      });
+      links.push({
+        source: node.id,
+        target: "X",
+      });
+
       // console.log("links", links);
       // hide links that are not connected to the node
       links.forEach((l) => {
@@ -275,7 +312,7 @@ export default {
       });
 
       this.g.graphData({ nodes, links });
-      this.g.d3Force("link").distance((link) => 80);
+      this.g.d3Force("link").distance((link) => 50);
 
       // make camera fit to new nodes
       // next tick
@@ -408,22 +445,19 @@ export default {
       });
     },
     showAllElements() {
-      this.g.cameraPosition(
-        { x: 0, y: 0, z: distance },
-        { x: 0, y: 0, z: 0 }, // lookAt ({ x, y, z })
-        CAMERA_ANIMATION_DURATION // ms transition duration
-      );
       //setTimeout(() => {
       this.$emit("backToInitialView");
       //}, CAMERA_ANIMATION_DURATION);
       this.g.enablePointerInteraction(true);
-      let { nodes, links } = this.g.graphData();
-      nodes.forEach((n) => {
-        n.__threeObj.children[0].material.opacity = 1;
+      this.g.graphData({
+        nodes: [...this.allNodes],
+        links: [...this.allLinks],
       });
-      links.forEach((l) => {
-        l.__lineObj.material.opacity = lineOpacity;
-      });
+      setTimeout(() => {
+        process.nextTick(() => {
+          this.setInitialView();
+        });
+      }, 1);
     },
 
     setCurrentOpenNode() {
@@ -448,11 +482,14 @@ export default {
     // route change
     $route(to, from) {
       console.log("route change", to.name);
-      if (to.name == "works-work") {
-        this.setCurrentOpenNode();
-      }
       if (from.name == "works-work" && to.name == "works") {
         this.onCloseProject();
+      }
+    },
+    getCurrentProject(newVal, oldVal) {
+      console.log("getCurrentProject", this.getCurrentProject);
+      if (this.getCurrentProject) {
+        this.setCurrentOpenNode();
       }
     },
   },

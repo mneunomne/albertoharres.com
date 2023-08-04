@@ -24,6 +24,7 @@ export default {
     Project,
   },
   async asyncData({ params, payload }) {
+    console.log("asyncData", params, payload);
     if (payload) return { project: payload };
     else
       return {
@@ -34,10 +35,12 @@ export default {
     return {
       imageHeight: 0,
       imageWidth: 0,
+      project: null,
       showCurrentProject: false,
     };
   },
   mounted() {
+    console.log("mounted work", this.project);
     this.setCurrentProject(this.project);
     getImageSizeOnScreen(this.project.thumbnail).then((size) => {
       this.imageHeight = size.height;
