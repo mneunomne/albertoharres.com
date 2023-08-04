@@ -49,6 +49,7 @@ export default {
             nodes.push({
               id: tag,
               val: 1,
+              type: "tag",
             });
           } else {
             nodes[nodes.indexOf(found)].val += 1;

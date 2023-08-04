@@ -80,7 +80,7 @@ export default {
       this.g = g;
 
       process.nextTick(() => {
-        const linkForce = this.g.d3Force("link").distance((link) => 40);
+        this.g.d3Force("link").distance((link) => 40);
         this.g.cameraPosition({ x: 0, y: 0, z: 200 });
       });
     },

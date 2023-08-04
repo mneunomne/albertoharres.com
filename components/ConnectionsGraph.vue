@@ -156,7 +156,7 @@ export default {
 
       setTimeout(() => {
         process.nextTick(() => {
-          const linkForce = this.g.d3Force("link").distance((link) => 50);
+          this.g.d3Force("link").distance((link) => 50);
           this.g.cameraPosition({ x: 0, y: 0, z: 450 });
           // go through all nodes
           this.g.graphData().nodes.forEach((node) => {
@@ -250,7 +250,6 @@ export default {
         this.angle += Math.PI / 900;
       }, 10);
     },
-
     filterNodes(node) {
       let { nodes, links } = this.g.graphData();
       links = links.filter((l) => l.source === node || l.target === node);
@@ -263,19 +262,37 @@ export default {
       });
 
       hidden_nodes.forEach((n) => {
-        n.__threeObj.children[0].material.opacity = 0.1;
+        // n.__threeObj.children[0].material.opacity = 0.1;
+        nodes.splice(nodes.indexOf(n), 1);
       });
 
       // console.log("links", links);
       // hide links that are not connected to the node
       links.forEach((l) => {
         if (l.source.id !== node.id || l.target.id !== node.id) {
-          l.__lineObj.material.opacity = 0.1;
+          // l.__lineObj.material.opacity = 0.1;
         }
+      });
+
+      this.g.graphData({ nodes, links });
+      this.g.d3Force("link").distance((link) => 80);
+
+      // make camera fit to new nodes
+      // next tick
+      //
+      console.log("zoomToFit!");
+      process.nextTick(() => {
+        setTimeout(() => {
+          this.g.zoomToFit(1000, 200);
+        }, 10);
       });
     },
 
     focusOnNode(node) {
+      if (node.type == "tag") {
+        this.filterNodes(node);
+        return;
+      }
       if (node.type !== "project") {
         return;
       }
@@ -428,15 +445,6 @@ export default {
     },
   },
   watch: {
-    getCurrentProject: {
-      handler: function (val, oldVal) {
-        console.log("watch getCurrentProject", val, oldVal);
-        if (val == null) {
-          // this.showAllElements();
-        }
-      },
-      deep: true,
-    },
     // route change
     $route(to, from) {
       console.log("route change", to.name);
