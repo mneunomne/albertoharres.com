@@ -3,7 +3,7 @@
     <div
       class="header"
       :class="{ show }"
-      :style="{ width: `${width}px`, top: `calc(${contentMargin}px)`}"
+      :style="{ width: `${width}px`, top: `calc(50% - ${contentMargin}px - ${height / 2}px - 20px)`}"
     >
       <div class="close">
         <button @click="closeProject">X</button>
@@ -11,7 +11,7 @@
       <div class="title">
         <h1>{{ project.title_en }}</h1>
         </br>
-        <h2 v-if="project.description_en">
+        <h2 v-if="project.subtitle_en">
           {{ project.description_en }}
         </h2>
       </div>
