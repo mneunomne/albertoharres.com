@@ -125,47 +125,8 @@ export default {
         })
         // on mousedrag to navigate
         .cooldownTicks(100)
-        .onNodeHover((node) => {
-          // make current node renderOrder higher
-          if (node && node.type) {
-            let { nodes } = this.g.graphData();
-            nodes.forEach((n) => {
-              n.__threeObj.children[0].renderOrder =
-                node?.type == "project" ? 995 : 990;
-            });
-            node.__threeObj.children[0].renderOrder = 999;
-            if (node.type == "project") {
-              //this.el.style.cursor = "pointer";
-              this.$emit("hoverProject", {
-                imgUrl: node.thumbnail,
-              });
-            }
-          } else {
-            // reset
-            let { nodes } = this.g.graphData();
-            nodes.forEach((n) => {
-              n.__threeObj.children[0].renderOrder =
-                node?.type == "project" ? 995 : 990;
-            });
-          }
-
-          return;
-          if (node && node.type !== "project") {
-            this.filterNodes(node);
-          }
-          // reset
-          if (!node) {
-            let { nodes, links } = this.g.graphData();
-            nodes.forEach((n) => {
-              n.__threeObj.children[0].material.opacity = 1;
-            });
-            links.forEach((l) => {
-              l.__lineObj.material.opacity = lineOpacity;
-            });
-          }
-          this.el.style.cursor = node ? "pointer" : null;
-        })
-        .onNodeClick(this.focusOnNode)
+        .onNodeHover(this.onNodeHover)
+        .onNodeClick(this.onNodeClick)
         .nodeThreeObject((node) => {
           var group = new THREE.Group();
           if (node.type == "project") {
@@ -319,7 +280,7 @@ export default {
       });
     },
 
-    focusOnNode(node) {
+    onNodeClick(node) {
       if (node.type == "tag") {
         this.filterNodes(node);
         return;
@@ -373,6 +334,31 @@ export default {
           node.__threeObj.children[0].material.opacity = 0;
         }, 100);
       }, CAMERA_ANIMATION_DURATION + 500);
+    },
+
+    onNodeHover(node) {
+      // make current node renderOrder higher
+      if (node && node.type) {
+        let { nodes } = this.g.graphData();
+        nodes.forEach((n) => {
+          n.__threeObj.children[0].renderOrder =
+            node?.type == "project" ? 995 : 990;
+        });
+        node.__threeObj.children[0].renderOrder = 999;
+        if (node.type == "project") {
+          //this.el.style.cursor = "pointer";
+          this.$emit("hoverProject", {
+            imgUrl: node.thumbnail,
+          });
+        }
+      } else {
+        // reset
+        let { nodes } = this.g.graphData();
+        nodes.forEach((n) => {
+          n.__threeObj.children[0].renderOrder =
+            node?.type == "project" ? 995 : 990;
+        });
+      }
     },
 
     onCloseProject() {
