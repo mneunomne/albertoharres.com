@@ -1,34 +1,46 @@
 <template>
-  <!-- project -->
-  <div class="project-wrapper" :class="{ show }">
-    <div class="project-bg"></div>
+  <div>
     <div
-      class="project"
-      :style="{
-        width: `${width}px`,
-        height: `${height}px`,
-        top: `calc(50% - ${contentMargin}px)`,
-      }"
+      class="header"
+      :class="{ show }"
+      :style="{ width: `${width}px`, top: `calc(${contentMargin}px)`}"
     >
-      <div class="header">
-        <div class="close">
-          <button @click="closeProject">X</button>
-        </div>
-        <div class="title">
-          <h1>{{ project.title_en }}</h1>
-        </div>
+      <div class="close">
+        <button @click="closeProject">X</button>
+      </div>
+      <div class="title">
+        <h1>{{ project.title_en }}</h1>
+        </br>
+        <h2 v-if="project.description_en">
+          {{ project.description_en }}
+        </h2>
+      </div>
+      <!--
         <div class="tags">
           <ul>
             <li v-for="tag in project.tags" :key="tag">#{{ tag }}</li>
           </ul>
         </div>
-      </div>
-      <div class="content">
-        <div class="image" :style="{ height: `${height}px` }">
-          <img class="image-el" :src="project.thumbnail" alt="" />
+        -->
+    </div>
+    <!-- project -->
+    <div class="project-wrapper" :class="{ show }">
+      <div class="project-bg"></div>
+      <div
+        class="project"
+        :style="{
+          width: `${width}px`,
+          height: `${height}px`,
+          top: `calc(50% - ${contentMargin}px)`,
+        }"
+      >
+        <div class="content">
+          <div class="image" :style="{ height: `${height}px` }">
+            <img class="image-el" :src="project.thumbnail" alt="" />
+          </div>
+          <div class="description" v-html="renderContent"></div>
+          <div class="description" v-html="renderContent"></div>
         </div>
-        <div class="description" v-html="renderContent"></div>
-        <div class="description" v-html="renderContent"></div>
       </div>
     </div>
   </div>
@@ -106,7 +118,36 @@ export default {
   },
 };
 </script>
+
 <style lang="postcss" scoped>
+.header {
+  left: 50%;
+  transform: translate(-50%, -100%);
+  position: fixed;
+  width: 100%;
+  opacity: 0;
+  top: -1em;
+  z-index: 999;
+  .close {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    a {
+      text-decoration: none;
+      color: black;
+      font-size: 2em;
+      font-weight: bold;
+      font-size: 30px;
+    }
+  }
+  .title {
+  }
+  &.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
 .project {
   position: absolute;
   right: 50%;
@@ -114,25 +155,6 @@ export default {
   pointer-events: all;
   width: auto;
   font-family: sans-serif;
-  .header {
-    width: 100%;
-    opacity: 0;
-    position: absolute;
-    top: -1em;
-    transform: translateY(calc(-100%));
-    .close {
-      position: absolute;
-      top: 50%;
-      right: 0;
-      a {
-        text-decoration: none;
-        color: black;
-        font-size: 2em;
-        font-weight: bold;
-        font-size: 30px;
-      }
-    }
-  }
   .tags li {
     display: inline-block;
     margin-right: 5px;
