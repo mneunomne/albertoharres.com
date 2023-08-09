@@ -128,6 +128,11 @@ export default {
         .onNodeHover((node) => {
           // make current node renderOrder higher
           if (node && node.type) {
+            let { nodes } = this.g.graphData();
+            nodes.forEach((n) => {
+              n.__threeObj.children[0].renderOrder =
+                node?.type == "project" ? 995 : 990;
+            });
             node.__threeObj.children[0].renderOrder = 999;
             if (node.type == "project") {
               //this.el.style.cursor = "pointer";
@@ -139,7 +144,8 @@ export default {
             // reset
             let { nodes } = this.g.graphData();
             nodes.forEach((n) => {
-              n.__threeObj.children[0].renderOrder = 1;
+              n.__threeObj.children[0].renderOrder =
+                node?.type == "project" ? 995 : 990;
             });
           }
 
@@ -221,33 +227,16 @@ export default {
     tagNode(node, group) {
       const sprite = new SpriteText(node.id);
       sprite.fontFace = "Libre Bodoni Italic";
-      sprite.material.depthWrite = false; // make sprite background transparent
       //sprite.material.opacity = 1;
       sprite.backgroundColor = "white";
       sprite.padding = [0, 0];
       sprite.color = "black";
       sprite.textHeight = 1 * node.val;
       sprite.padding = 2;
-      // sprite.renderOrder = 999;
+      sprite.renderOrder = 990;
+      // sprite.material.depthWrite = true; // make sprite background transparent
       sprite.material.depthTest = false;
       sprite.position.set(0, 1.6, 0);
-      group.add(sprite);
-      return group;
-    },
-
-    addProjectName(node, group) {
-      const sprite = new SpriteText(node.id);
-      sprite.fontFace = "Libre Bodoni Italic";
-      // sprite.material.depthWrite = false; // make sprite background transparent
-      //sprite.material.opacity = 1;
-      sprite.backgroundColor = "white";
-      sprite.padding = [0, 0];
-      sprite.color = "black";
-      sprite.textHeight = 2;
-      sprite.padding = 2;
-      sprite.renderOrder = 999;
-      sprite.material.depthTest = false;
-      sprite.position.set(0, 20, 0);
       group.add(sprite);
       return group;
     },
@@ -259,10 +248,9 @@ export default {
       const sprite = new THREE.Sprite(material);
       sprite.scale.set(1, 1);
       sprite.position.set(0, 0, 0);
-      sprite.renderOrder = 999;
+      sprite.renderOrder = 995;
       sprite.material.depthTest = false;
       group.add(sprite);
-      // group = this.addProjectName(node, group);
       return group;
     },
 

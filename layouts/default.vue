@@ -42,6 +42,8 @@ export default {
       imageHeight: 0,
       showCurrentProject: false,
       imgUrl: "",
+      prevImgUrl: "",
+      showBg: false,
     };
   },
   computed: {
