@@ -83,8 +83,8 @@ export default {
     // AND add a watcher to watch for changes in currentProject
     // if router is on project page, hide graph
 
+    this.buildGraph();
     process.nextTick(() => {
-      this.buildGraph();
       if (this.$route.name == "works-work") {
         this.setCurrentOpenNode();
       }
@@ -117,12 +117,9 @@ export default {
         .width(window.innerWidth)
         .height(this.canvasHeight)
         .enableNodeDrag(false)
-        .cooldownTicks(1000)
-        .cooldownTime(5000)
-        .onEngineStop(() => {
-          console.log("onEngineStop!");
-          //this.engineStoped = true;
-        })
+        //.cooldownTicks(1000)
+        //.warmupTicks(100)
+        .cooldownTime(1000)
         // on mousedrag to navigate
         .cooldownTicks(100)
         .onNodeHover(this.onNodeHover)
@@ -139,6 +136,7 @@ export default {
       this.g = g;
       // on stop animation
       this.g.onEngineStop(() => {
+        console.log("onEngineStop");
         this.hidden = false;
         //cameraPosition([{x,y,z}], [lookAt], [ms])
         //this.g.cameraPosition({ x: 0, y: 0, z: 400 }, 0, 1000);
@@ -332,6 +330,7 @@ export default {
         this.transition = false;
         setTimeout(() => {
           node.__threeObj.children[0].material.opacity = 0;
+          this.g.pauseAnimation();
         }, 100);
       }, CAMERA_ANIMATION_DURATION + 500);
     },
@@ -362,8 +361,11 @@ export default {
     },
 
     onCloseProject() {
+      console.log("getCurrentProject", this.getCurrentProject);
       this.openProject = false;
       var node = this.currentNode;
+
+      this.g.resumeAnimation();
 
       // reset camera position
       var cameraPos = this.g.cameraPosition();
@@ -429,6 +431,7 @@ export default {
     },
 
     setCurrentOpenNode() {
+      console.log("setCurrentOpenNode", this.getCurrentProject);
       this.openProject = true;
       let { nodes, links } = this.g.graphData();
       nodes.forEach((n) => {

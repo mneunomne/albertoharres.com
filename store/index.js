@@ -55,7 +55,7 @@ export const actions = {
       const project = state.projects.find(project => project.slug === projectId)
       if (project) await commit(SET_CURRENT_PROJECT, project)
     }
-  */
+    */
     // ? When adding/changing NetlifyCMS collection types, make sure to:
     // ? 1. Add/rename exact slugs here
     // ? 2. Add/rename the MUTATION_TYPE names in `./mutations.type.js`

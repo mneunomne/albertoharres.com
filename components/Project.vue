@@ -241,6 +241,7 @@ export default {
 .title {
   margin: 0px;
   padding: 5px 7px 2px 7px;
+  max-width: 90%;
 }
 
 .subtitle {
@@ -248,5 +249,6 @@ export default {
   margin-top: 10px;
   font-weight: 400;
   padding: 3px 7px 5px 7px;
+  max-width: 90%;
 }
 </style>
