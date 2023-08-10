@@ -1,5 +1,3 @@
-import Vuex from 'vuex'
-
 import { SET_NEWS, SET_PROJECTS, SET_CURRENT_PROJECT } from './mutations.type'
 
 export const state = () => ({
@@ -41,7 +39,7 @@ export const actions = {
       return res
     })
   },
-  async nuxtServerInit({ commit, state }, { req }) {
+  async nuxtServerInit({ commit }) {
     // News collection type
     let newsFiles = await require.context('~/assets/content/news/', false, /\.json$/)
     await commit(SET_NEWS, actions.getPosts(newsFiles))
@@ -51,12 +49,13 @@ export const actions = {
     await commit(SET_PROJECTS, actions.getPosts(projectFiles))
 
     // Set current project if it exists with regex if project name is after /works/
+    /*
     const projectId = req.url.split('/').pop()
     if (projectId) {
       const project = state.projects.find(project => project.slug === projectId)
       if (project) await commit(SET_CURRENT_PROJECT, project)
     }
-
+  */
     // ? When adding/changing NetlifyCMS collection types, make sure to:
     // ? 1. Add/rename exact slugs here
     // ? 2. Add/rename the MUTATION_TYPE names in `./mutations.type.js`
