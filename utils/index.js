@@ -2,7 +2,7 @@ const COLOR_MODE_FALLBACK = 'dark'
 const CAMERA_FOV = 50
 const IMAGE_SCALE = 35
 const CANVAS_OUT_MARGIN = 200
-const CAMERA_DISTANCE = 100
+const CAMERA_DISTANCE = 90
 const CAMERA_ANIMATION_DURATION = 2000
 
 const convertSizeValues = (ratio) => {

@@ -95,7 +95,7 @@ export default {
   top: 0;
   width: 300px;
   height: 300px;
-  z-index: 999;
+  z-index: 2;
   font-family: "Libre Bodoni Italic";
 }
 </style>

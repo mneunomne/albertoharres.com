@@ -60,3 +60,23 @@ h2 {
   display: inline-block;
   filter: drop-shadow(0px 0px 6px rgba(0, 0, 0, 0.2));
 }
+
+.close button {
+  background: url(/img/close.svg);
+  border: none;
+  content: "";
+  color: transparent;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.close {
+  width: 20px;
+  height: 20px;
+  transition: all 0.2s ease-in-out;
+  transform: rotate(0deg);
+  &:hover {
+    cursor: pointer;
+    transform: rotate(90deg);
+  }
+}

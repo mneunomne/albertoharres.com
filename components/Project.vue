@@ -3,19 +3,19 @@
     <div
       class="header"
       :class="{ show }"
-      :style="{ width: `${width}px`, top: `calc(50% - ${contentMargin}px - ${height / 2}px - 20px)`}"
+      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)`}"
     >
       <div class="close">
         <button @click="closeProject">X</button>
       </div>
-      <div class="title">
-        <h1>{{ project.title_en }}</h1>
+      <div class="title-wrapper">
+        <h1 class="title">{{ project.title_en }}</h1>
         </br>
-        <h2 v-if="project.subtitle_en">
+        <h2 class="subtitle" v-if="project.subtitle_en">
           {{ project.description_en }}
         </h2>
       </div>
-      <!--
+        <!--
         <div class="tags">
           <ul>
             <li v-for="tag in project.tags" :key="tag">#{{ tag }}</li>
@@ -35,10 +35,12 @@
         }"
       >
         <div class="content">
+          <div class="side-content">
+            <div v-if="project.details_en" class="details" v-html="renderDetails"></div>
+          </div>
           <div class="image" :style="{ height: `${height}px` }">
             <img class="image-el" :src="project.thumbnail" alt="" />
           </div>
-          <div class="description" v-html="renderContent"></div>
           <div class="description" v-html="renderContent"></div>
         </div>
       </div>
@@ -50,6 +52,8 @@
 import marked from "marked";
 
 import { CANVAS_OUT_MARGIN, getContentMargin } from "/utils";
+
+const title_margin = 20;
 
 export default {
   name: "Project",
@@ -110,6 +114,12 @@ export default {
     renderContent() {
       return marked.parse(this.project.content_en);
     },
+    renderDetails() {
+      return marked.parse(this.project.details_en);
+    },
+    titleMargin() {
+      return this.height / 2 + this.contentMargin + 20;
+    },
   },
   watch: {
     show() {
@@ -140,8 +150,6 @@ export default {
       font-size: 30px;
     }
   }
-  .title {
-  }
   &.show {
     opacity: 1;
     pointer-events: all;
@@ -149,6 +157,7 @@ export default {
 }
 
 .project {
+  z-index: 3;
   position: absolute;
   right: 50%;
   transform: translate(50%, -50%);
@@ -188,6 +197,7 @@ export default {
   &.show {
     .description,
     .header,
+    .details,
     .image {
       opacity: 1;
       pointer-events: all;
@@ -207,7 +217,7 @@ export default {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 0;
+  z-index: 1;
   /*
   background: radial-gradient(
     circle,
@@ -216,5 +226,27 @@ export default {
   );*/
   backdrop-filter: blur(0px);
   background: rgba(255, 255, 255, 0.85);
+}
+
+.details {
+  opacity: 0;
+  transition: opacity 0.5s;
+  position: absolute;
+  left: calc(100% + 20px);
+  font-size: 13px;
+  font-family: "Source Sans 3";
+  width: 220px;
+}
+
+.title {
+  margin: 0px;
+  padding: 5px 7px 2px 7px;
+}
+
+.subtitle {
+  margin: 0px;
+  margin-top: 10px;
+  font-weight: 400;
+  padding: 3px 7px 5px 7px;
 }
 </style>
