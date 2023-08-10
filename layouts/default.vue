@@ -30,6 +30,8 @@
 import Header from "~/components/Header.vue";
 import ConnectionsGraph from "~/components/ConnectionsGraph.vue";
 
+import { mapGetters } from "vuex";
+
 export default {
   components: {
     Header,
@@ -47,12 +49,17 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      getCurrentProject: "getCurrentProject",
+      getProjects: "getProjects",
+    }),
     projects() {
       return this.$store.state.projects;
     },
     gData() {
       const data = this.projects;
       console.log("data", data);
+      console.log("getProjects", this.getProjects);
       const nodes = [];
       data.map((node) => {
         nodes.push({

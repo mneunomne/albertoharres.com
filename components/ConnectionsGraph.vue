@@ -18,6 +18,8 @@
 import * as THREE from "three";
 import SpriteText from "three-spritetext";
 
+import { mapGetters } from "vuex";
+
 import {
   CAMERA_FOV,
   IMAGE_SCALE,
@@ -27,8 +29,6 @@ import {
   getCanvasHeight,
   CAMERA_ANIMATION_DURATION,
 } from "~/utils";
-
-import { mapGetters } from "vuex";
 
 const fontSize = 6;
 const far_distance = 500;
