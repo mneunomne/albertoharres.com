@@ -68,15 +68,17 @@ h2 {
   color: transparent;
   background-repeat: no-repeat;
   background-size: contain;
+  white-space: pre;
+  cursor: pointer;
+  &:hover {
+    text-decoration: line-through;
+  }
 }
 
 .close {
+  display: flex;
   width: 20px;
   height: 20px;
   transition: all 0.2s ease-in-out;
-  transform: rotate(0deg);
-  &:hover {
-    cursor: pointer;
-    transform: rotate(90deg);
-  }
+  cursor: pointer;
 }

@@ -1,6 +1,13 @@
 <template>
   <div>
     <div
+      v-show="currentFilter !== null"
+      class="remove-filter close"
+      @click="showAllElements"
+    >
+      <button>{{ currentFilter }}</button>
+    </div>
+    <div
       :class="{ hidden, 'no-interaction': openProject }"
       class="connections-graph"
       :style="{
@@ -48,9 +55,14 @@ export default {
       el: null,
     },
   },
-  data() {
+  static() {
     return {
       g: null,
+      fullGraphData: null,
+    };
+  },
+  data() {
+    return {
       hidden: true,
       angle: 0,
       transition: false,
@@ -60,7 +72,7 @@ export default {
       contentMargin: 0,
       canvasMargin: CANVAS_OUT_MARGIN,
       currentNode: null,
-      fullGraphData: null,
+      currentFilter: null,
       allNodes: null,
       allLinks: null,
     };
@@ -225,11 +237,8 @@ export default {
       }, 10);
     },
     filterNodes(node) {
-      console.log("node", node);
-      if (node.id == "X") {
-        this.showAllElements();
-        return;
-      }
+      this.currentFilter = node.id;
+
       let { nodes, links } = this.g.graphData();
       links = links.filter((l) => l.source === node || l.target === node);
 
@@ -243,17 +252,6 @@ export default {
       hidden_nodes.forEach((n) => {
         // n.__threeObj.children[0].material.opacity = 0.1;
         nodes.splice(nodes.indexOf(n), 1);
-      });
-
-      nodes.push({
-        id: "X",
-        type: "tag",
-        val: 2,
-        tag: "show_all",
-      });
-      links.push({
-        source: node.id,
-        target: "X",
       });
 
       // console.log("links", links);
@@ -417,6 +415,7 @@ export default {
       });
     },
     showAllElements() {
+      this.currentFilter = null;
       this.$emit("backToInitialView");
       this.g.enablePointerInteraction(true);
       this.g.graphData({
@@ -486,5 +485,22 @@ export default {
 .hidden {
   opacity: 0;
   transform: scale(0.9);
+}
+
+.remove-filter {
+  z-index: 1;
+  position: absolute;
+  left: 50%;
+  top: 100px;
+  transform: translate(-50%, -50%);
+  pointer-events: all;
+}
+
+.remove-filter button {
+  padding-left: 28px;
+  font-family: "Libre Bodoni Italic";
+  font-size: 18px;
+  line-height: 20px;
+  color: black;
 }
 </style>

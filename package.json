@@ -22,7 +22,8 @@
     "nuxt": "^2.14.12",
     "three": "^0.152.2",
     "three-addons": "^1.2.0",
-    "three-spritetext": "^1.8.1"
+    "three-spritetext": "^1.8.1",
+    "vue-static": "^0.0.5"
   },
   "devDependencies": {
     "netlify-cli": "^2.69.10",

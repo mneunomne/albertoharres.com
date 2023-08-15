@@ -75,6 +75,15 @@ export default {
   },
   css: ['@/assets/css/main.pcss'],
   /*
+    ** vue plugins
+  */
+  plugins: [
+    {
+      src: '~/plugins/vue-static.js',
+      mode: 'client'
+    }
+  ],
+  /*
   ** Global CSS
   */
   /*
