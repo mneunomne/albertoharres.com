@@ -1,8 +1,5 @@
 import glob from 'glob'
 import path from 'path'
-import postcssImport from 'postcss-import'
-import postcssNesting from 'postcss-nesting'
-import postcssPresetEnv from 'postcss-preset-env'
 import * as SITE_INFO from './assets/content/site/info.json'
 
 const dynamicContentPath = 'assets/content' // ? No prepending/appending backslashes here
@@ -73,7 +70,7 @@ export default {
       }
     }
   },
-  css: ['@/assets/css/main.pcss'],
+  css: ['~assets/css/main.scss'],
   /*
     ** vue plugins
   */
@@ -86,18 +83,14 @@ export default {
   /*
   ** Global CSS
   */
-  /*
-   css: ['@/assets/css/main.css'],
   buildModules: ['@nuxtjs/style-resources'],
   styleResources: {
     scss: ['./assets/css/*.scss']
   },
-    ** Nuxt.js modules
-    */
-  modules: ['@nuxtjs/markdownit'],
-  markdownit: {
-    injected: true
-  },
+  /*
+   ** Nuxt.js modules
+   css: ['@/assets/css/main.css'],
+     */
   /*
    ** Build configuration
    */
@@ -107,18 +100,6 @@ export default {
       'three-spritetext'
     ],
     extractCSS: true,
-    postcss: {
-      plugins: {
-        'postcss-import': postcssImport,
-        'postcss-nesting': postcssNesting,
-        'postcss-preset-env': postcssPresetEnv({
-          stage: 1,
-          features: {
-            'nesting-rules': false
-          }
-        })
-      }
-    },
     /*
      ** You can extend webpack config here
      */

@@ -3,19 +3,19 @@
     <div
       class="header"
       :class="{ show }"
-      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)`}"
+      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }"
     >
       <div class="close">
         <button @click="closeProject">X</button>
       </div>
       <div class="title-wrapper">
         <h1 class="title">{{ project.title_en }}</h1>
-        </br>
+        <br />
         <h2 class="subtitle" v-if="project.subtitle_en">
           {{ project.description_en }}
         </h2>
       </div>
-        <!--
+      <!--
         <div class="tags">
           <ul>
             <li v-for="tag in project.tags" :key="tag">#{{ tag }}</li>
@@ -35,13 +35,18 @@
         }"
       >
         <div class="content">
-          <div class="side-content">
-            <div v-if="project.details_en" class="details" v-html="renderDetails"></div>
+          <div class="side-content" v-if="!tabletView">
+            <div
+              v-if="project.details_en"
+              class="details"
+              v-html="renderDetails"
+            ></div>
           </div>
           <div class="image" :style="{ height: `${height}px` }">
             <img class="image-el" :src="project.thumbnail" alt="" />
           </div>
           <div class="description" v-html="renderContent"></div>
+          <div class="details" v-html="renderDetails"></div>
         </div>
       </div>
     </div>
@@ -53,7 +58,11 @@ import marked from "marked";
 
 import { CANVAS_OUT_MARGIN, getContentMargin } from "/utils";
 
+import { mapGetters } from "vuex";
+
 const title_margin = 20;
+
+const MIN_CONTENT_WIDTH = 1200;
 
 export default {
   name: "Project",
@@ -82,6 +91,7 @@ export default {
       imageHeight: 0,
       contentMargin: CANVAS_OUT_MARGIN,
       showBg: false,
+      tabletView: false,
     };
   },
   methods: {
@@ -91,10 +101,16 @@ export default {
     },
   },
   mounted() {
+    if (!process.browser) {
+      return;
+    }
     this.contentMargin = getContentMargin(window);
+    this.tabletView = this.getIsMobile || window.innerWidth < MIN_CONTENT_WIDTH;
     // add resize listener
     window.addEventListener("resize", () => {
       this.contentMargin = getContentMargin(window);
+      this.tabletView =
+        this.getIsMobile || window.innerWidth < MIN_CONTENT_WIDTH;
     });
     console.log("mounted project", this.project);
     // get width of image from src
@@ -111,11 +127,14 @@ export default {
     });
   },
   computed: {
+    ...mapGetters({
+      getIsMobile: "getIsMobile",
+    }),
     renderContent() {
-      return marked.parse(this.project.content_en);
+      return marked.parse(this.project.content_en || "");
     },
     renderDetails() {
-      return marked.parse(this.project.details_en);
+      return marked.parse(this.project.details_en || "");
     },
     titleMargin() {
       return this.height / 2 + this.contentMargin + 20;
@@ -129,7 +148,7 @@ export default {
 };
 </script>
 
-<style lang="postcss" scoped>
+<style lang="scss">
 .header {
   left: 50%;
   transform: translate(-50%, -100%);
@@ -230,12 +249,19 @@ export default {
 
 .details {
   opacity: 0;
+  font-family: "Source Sans 3";
   transition: opacity 0.5s;
+  border-top: 1px black solid;
+  padding-top: 1em;
+}
+
+.side-content .details {
   position: absolute;
   left: calc(100% + 20px);
   font-size: 13px;
-  font-family: "Source Sans 3";
   width: 220px;
+  border-top: none;
+  padding-top: 0;
 }
 
 .title {
@@ -250,5 +276,10 @@ export default {
   font-weight: 400;
   padding: 3px 7px 5px 7px;
   max-width: 90%;
+}
+
+.project .content .description p img {
+  max-width: 100% !important;
+  width: 100% !important;
 }
 </style>

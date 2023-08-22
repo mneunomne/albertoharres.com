@@ -1,0 +1,9 @@
+/* @import './_mixins.scss'; */
+@import './_vars.scss';
+@import './_reset.scss';
+@import './_globals.scss';
+@import './_fonts.scss';
+
+.scene-container {
+  filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 0px 5px);
+}

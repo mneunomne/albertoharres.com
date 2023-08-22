@@ -1,4 +1,4 @@
-import { SET_NEWS, SET_PROJECTS, SET_CURRENT_PROJECT } from './mutations.type'
+import { SET_NEWS, SET_PROJECTS, SET_CURRENT_PROJECT, SET_IS_MOBILE } from './mutations.type'
 
 export const state = () => ({
   news: [],
@@ -15,6 +15,9 @@ export const mutations = {
   },
   [SET_CURRENT_PROJECT](state, project) {
     state.currentProject = project
+  },
+  [SET_IS_MOBILE](state, isMobile) {
+    state.isMobile = isMobile
   }
 }
 
@@ -24,6 +27,9 @@ export const getters = {
   },
   getProjects(state) {
     return state.projects
+  },
+  getIsMobile(state) {
+    return state.isMobile
   }
 }
 

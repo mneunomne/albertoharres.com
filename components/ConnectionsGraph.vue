@@ -32,6 +32,7 @@ import {
   IMAGE_SCALE,
   CANVAS_OUT_MARGIN,
   CAMERA_DISTANCE,
+  MOBILE_CAMERA_DISTANCE,
   getContentMargin,
   getCanvasHeight,
   CAMERA_ANIMATION_DURATION,
@@ -46,6 +47,7 @@ export default {
   computed: {
     ...mapGetters({
       getCurrentProject: "getCurrentProject",
+      getIsMobile: "getIsMobile",
     }),
   },
   props: {
@@ -289,7 +291,9 @@ export default {
 
       // this.el.style.cursor = node ? "pointer" : null;
 
-      var dist = CAMERA_DISTANCE;
+      console.log("this.getIsMobile", this.getIsMobile);
+
+      var dist = this.getIsMobile ? MOBILE_CAMERA_DISTANCE : CAMERA_DISTANCE;
 
       var cameraPos = this.g.cameraPosition();
 
@@ -463,7 +467,7 @@ export default {
 };
 </script>
   
-<style global lang="postcss">
+<style global lang="scss">
 .connections-graph {
   position: fixed;
   left: 0;

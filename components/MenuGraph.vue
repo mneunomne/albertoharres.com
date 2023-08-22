@@ -89,7 +89,7 @@ export default {
 </script>
 
 
-<style global lang="postcss">
+<style global lang="scss">
 .menu-graph {
   position: fixed;
   top: 0;

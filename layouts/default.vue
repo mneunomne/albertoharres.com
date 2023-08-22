@@ -29,8 +29,9 @@
 <script>
 import Header from "~/components/Header.vue";
 import ConnectionsGraph from "~/components/ConnectionsGraph.vue";
-
+import { isMobile } from "~/utils";
 import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
 
 export default {
   components: {
@@ -47,6 +48,22 @@ export default {
       prevImgUrl: "",
       showBg: false,
     };
+  },
+  mounted() {
+    if (!process.browser) {
+      return;
+    }
+    if (window.innerWidth < 768 || isMobile()) {
+      this.setIsMobile(true);
+    } else {
+      this.setIsMobile(false);
+    }
+    // is mobile
+    window.addEventListener("resize", () => {
+      console.log("resize", window.innerWidth);
+      let is_mobile = window.innerWidth < 768 || isMobile();
+      this.setIsMobile(is_mobile);
+    });
   },
   computed: {
     ...mapGetters({
@@ -91,6 +108,9 @@ export default {
     },
   },
   methods: {
+    ...mapMutations({
+      setIsMobile: "setIsMobile",
+    }),
     onClickProject(data) {
       const { id, transitionTime } = data;
       this.$router.push(`/works/${id}`);
@@ -134,7 +154,7 @@ export default {
 </script>
 
 
-<style lang="postcss" scoped>
+<style lang="scss" scoped>
 #background {
   display: none;
   position: fixed;
