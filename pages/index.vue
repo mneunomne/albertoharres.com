@@ -15,27 +15,6 @@ export default {
       ],
     };
   },
-  mounted() {
-    if (process.browser) {
-      console.log("mounted", window.innerWidth);
-    }
-    if (window.innerWidth < 768 || isMobile()) {
-      this.setIsMobile(true);
-    } else {
-      this.setIsMobile(false);
-    }
-    // is mobile
-    window.addEventListener("resize", () => {
-      console.log("resize", window.innerWidth);
-      let is_mobile = window.innerWidth < 768 || isMobile();
-      this.setIsMobile(is_mobile);
-    });
-  },
-  methods: {
-    ...mapMutations({
-      setIsMobile: "setIsMobile",
-    }),
-  },
 };
 </script>
 

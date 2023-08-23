@@ -1,9 +1,11 @@
-import { SET_NEWS, SET_PROJECTS, SET_CURRENT_PROJECT, SET_IS_MOBILE } from './mutations.type'
+import { SET_NEWS, SET_PROJECTS, SET_CURRENT_PROJECT, SET_IS_MOBILE, SET_IS_TABLET_VIEW } from './mutations.type'
 
 export const state = () => ({
   news: [],
   projects: [],
   currentProject: null,
+  isMobile: false,
+  isTabletView: false
 })
 
 export const mutations = {
@@ -18,6 +20,9 @@ export const mutations = {
   },
   [SET_IS_MOBILE](state, isMobile) {
     state.isMobile = isMobile
+  },
+  [SET_IS_TABLET_VIEW](state, isTabletView) {
+    state.isTabletView = isTabletView
   }
 }
 
@@ -30,6 +35,9 @@ export const getters = {
   },
   getIsMobile(state) {
     return state.isMobile
+  },
+  getIsTabletView(state) {
+    return state.isTabletView
   }
 }
 
@@ -37,6 +45,12 @@ export const getters = {
 export const actions = {
   setCurrentProject({ commit }, project) {
     commit('setCurrentProject', project)
+  },
+  setIsMobile({ commit }, isMobile) {
+    commit('setIsMobile', isMobile)
+  },
+  setIsTabletView({ commit }, isTabletView) {
+    commit('setIsTabletView', isTabletView)
   },
   getPosts(files) {
     return files.keys().map((key) => {

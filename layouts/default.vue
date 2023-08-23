@@ -31,7 +31,7 @@ import Header from "~/components/Header.vue";
 import ConnectionsGraph from "~/components/ConnectionsGraph.vue";
 import { isMobile } from "~/utils";
 import { mapGetters } from "vuex";
-import { mapMutations } from "vuex";
+import { mapActions } from "vuex";
 
 export default {
   components: {
@@ -53,17 +53,9 @@ export default {
     if (!process.browser) {
       return;
     }
-    if (window.innerWidth < 768 || isMobile()) {
-      this.setIsMobile(true);
-    } else {
-      this.setIsMobile(false);
-    }
-    // is mobile
-    window.addEventListener("resize", () => {
-      console.log("resize", window.innerWidth);
-      let is_mobile = window.innerWidth < 768 || isMobile();
-      this.setIsMobile(is_mobile);
-    });
+    // check is mobile
+    this.checkScreenSize();
+    window.addEventListener("resize", this.checkScreenSize);
   },
   computed: {
     ...mapGetters({
@@ -108,9 +100,14 @@ export default {
     },
   },
   methods: {
-    ...mapMutations({
+    ...mapActions({
       setIsMobile: "setIsMobile",
+      setIsTabletView: "setIsTabletView",
     }),
+    checkScreenSize() {
+      this.setIsMobile(window.innerWidth < 768);
+      this.setIsTabletView(window.innerWidth > 768 && window.innerWidth < 1200);
+    },
     onClickProject(data) {
       const { id, transitionTime } = data;
       this.$router.push(`/works/${id}`);

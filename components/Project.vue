@@ -2,7 +2,7 @@
   <div>
     <div
       class="header"
-      :class="{ show }"
+      :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
       :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }"
     >
       <div class="close">
@@ -28,6 +28,7 @@
       <div class="project-bg"></div>
       <div
         class="project"
+        :class="{ mobile: getIsMobile, tablet: getIsTabletView }"
         :style="{
           width: `${width}px`,
           height: `${height}px`,
@@ -35,7 +36,7 @@
         }"
       >
         <div class="content">
-          <div class="side-content" v-if="!tabletView">
+          <div class="side-content" v-if="!(getIsMobile || getIsTabletView)">
             <div
               v-if="project.details_en"
               class="details"
@@ -59,6 +60,7 @@ import marked from "marked";
 import { CANVAS_OUT_MARGIN, getContentMargin } from "/utils";
 
 import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 
 const title_margin = 20;
 
@@ -92,6 +94,7 @@ export default {
       contentMargin: CANVAS_OUT_MARGIN,
       showBg: false,
       tabletView: false,
+      mobileView: false,
     };
   },
   methods: {
@@ -105,12 +108,13 @@ export default {
       return;
     }
     this.contentMargin = getContentMargin(window);
-    this.tabletView = this.getIsMobile || window.innerWidth < MIN_CONTENT_WIDTH;
+    this.tabletView = this.getIsTabletView;
+    this.mobileView = this.getIsMobile;
+    console.log("this.mobileView", this.mobileView);
     // add resize listener
     window.addEventListener("resize", () => {
       this.contentMargin = getContentMargin(window);
-      this.tabletView =
-        this.getIsMobile || window.innerWidth < MIN_CONTENT_WIDTH;
+      // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
     });
     console.log("mounted project", this.project);
     // get width of image from src
@@ -129,6 +133,7 @@ export default {
   computed: {
     ...mapGetters({
       getIsMobile: "getIsMobile",
+      getIsTabletView: "getIsTabletView",
     }),
     renderContent() {
       return marked.parse(this.project.content_en || "");
@@ -157,6 +162,17 @@ export default {
   opacity: 0;
   top: -1em;
   z-index: 999;
+  &.mobile {
+    top: 12px !important;
+    width: auto !important;
+    transform: none;
+    left: 12px;
+    right: 12px;
+    .close {
+      top: 0;
+      transform: none;
+    }
+  }
   .close {
     position: absolute;
     top: 50%;
@@ -183,6 +199,22 @@ export default {
   pointer-events: all;
   width: auto;
   font-family: sans-serif;
+  &.mobile {
+    width: 100% !important;
+    height: auto !important;
+    right: auto;
+    transform: none;
+    top: 100px !important;
+    .image {
+      height: auto !important;
+    }
+    .description,
+    .details,
+    .image {
+      padding: 0px 12px;
+    }
+  }
+
   .tags li {
     display: inline-block;
     margin-right: 5px;
@@ -237,12 +269,6 @@ export default {
   width: 100vw;
   height: 100vh;
   z-index: 1;
-  /*
-  background: radial-gradient(
-    circle,
-    rgba(217, 217, 217, 0.5) 0%,
-    rgba(255, 255, 255, 0.5) 100%
-  );*/
   backdrop-filter: blur(0px);
   background: rgba(255, 255, 255, 0.85);
 }

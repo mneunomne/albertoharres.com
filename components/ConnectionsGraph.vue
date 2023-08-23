@@ -28,18 +28,17 @@ import SpriteText from "three-spritetext";
 import { mapGetters } from "vuex";
 
 import {
-  CAMERA_FOV,
   IMAGE_SCALE,
   CANVAS_OUT_MARGIN,
   CAMERA_DISTANCE,
-  MOBILE_CAMERA_DISTANCE,
   getContentMargin,
   getCanvasHeight,
   CAMERA_ANIMATION_DURATION,
+  getMobileCameraDistance,
+  CAMERA_DISTANCE_FAR,
 } from "~/utils";
 
 const fontSize = 6;
-const far_distance = 500;
 const lineOpacity = 0.1;
 
 export default {
@@ -87,15 +86,11 @@ export default {
     if (!process.browser) {
       return;
     }
-    console.log("CANVAS_OUT_MARGIN", CANVAS_OUT_MARGIN);
+
     // set values
     this.canvasMargin = CANVAS_OUT_MARGIN;
     this.contentMargin = getContentMargin(window);
     this.canvasHeight = getCanvasHeight(window);
-
-    // TODO, add states to store to indicate a project is open
-    // AND add a watcher to watch for changes in currentProject
-    // if router is on project page, hide graph
 
     this.buildGraph();
     process.nextTick(() => {
@@ -127,7 +122,7 @@ export default {
         .linkOpacity(lineOpacity)
         .showNavInfo(false)
         .numDimensions(3)
-        .cameraPosition({ x: 0, y: 0, z: far_distance })
+        .cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR })
         .width(window.innerWidth)
         .height(this.canvasHeight)
         .enableNodeDrag(false)
@@ -152,8 +147,12 @@ export default {
       this.g.onEngineStop(() => {
         console.log("onEngineStop");
         this.hidden = false;
-        //cameraPosition([{x,y,z}], [lookAt], [ms])
-        //this.g.cameraPosition({ x: 0, y: 0, z: 400 }, 0, 1000);
+        // enter transition
+        this.g.cameraPosition(
+          { x: 0, y: 0, z: CAMERA_DISTANCE_FAR + 10 },
+          0,
+          1000
+        );
       });
 
       setTimeout(() => {
@@ -166,8 +165,18 @@ export default {
 
     setInitialView() {
       this.g.d3Force("link").distance((link) => 50);
-      this.g.cameraPosition({ x: 0, y: 0, z: far_distance }, 0, 1000);
-      // go through all nodes
+      this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
+
+      const resizeImg = (img, node) => {
+        // On desktop, the height is constant, while on mobile, the width is constant
+        const aspect = img.width / img.height;
+        node.__threeObj.children[0].scale.set(
+          IMAGE_SCALE * (this.getIsMobile ? 1 : aspect),
+          IMAGE_SCALE / (this.getIsMobile ? aspect : 1)
+        );
+      };
+
+      // set image sizes...
       this.g.graphData().nodes.forEach((node) => {
         if (node.type == "project") {
           if (node.__threeObj) {
@@ -175,21 +184,10 @@ export default {
             img.src = node.thumbnail;
             // on load
             if (img.complete) {
-              // update to correct aspect ratio
-              const aspect = img.width / img.height;
-              node.__threeObj.children[0].scale.set(
-                IMAGE_SCALE * aspect,
-                IMAGE_SCALE
-              );
+              resizeImg(img, node);
             } else {
               img.onload = () => {
-                // update to correct aspect ratio
-                const aspect = img.width / img.height;
-                node.__threeObj.children[0].scale.set(
-                  IMAGE_SCALE * aspect,
-                  IMAGE_SCALE
-                );
-                //node.__threeObj.children[0].material.map.needsUpdate = true; // update texture
+                resizeImg(img, node);
               };
             }
           }
@@ -227,17 +225,6 @@ export default {
       return group;
     },
 
-    autoRotate() {
-      // camera orbit
-      this.angle = 0;
-      this.interval = setInterval(() => {
-        g.cameraPosition({
-          x: far_distance * Math.sin(this.angle),
-          z: far_distance * Math.cos(this.angle),
-        });
-        this.angle += Math.PI / 900;
-      }, 10);
-    },
     filterNodes(node) {
       this.currentFilter = node.id;
 
@@ -289,11 +276,10 @@ export default {
 
       this.currentNode = node;
 
-      // this.el.style.cursor = node ? "pointer" : null;
+      let objectWidth = node.__threeObj.children[0].scale.x;
+      let objectHeight = node.__threeObj.children[0].scale.y;
 
-      console.log("this.getIsMobile", this.getIsMobile);
-
-      var dist = this.getIsMobile ? MOBILE_CAMERA_DISTANCE : CAMERA_DISTANCE;
+      var dist = this.getIsMobile ? CAMERA_DISTANCE_FAR - 50 : CAMERA_DISTANCE;
 
       var cameraPos = this.g.cameraPosition();
 
@@ -379,7 +365,7 @@ export default {
         node.z - cameraPos.z
       );
 
-      var dist = far_distance;
+      var dist = CAMERA_DISTANCE_FAR;
 
       // Normalize the direction vector (to get a unit vector)
       direction.normalize();
@@ -418,6 +404,7 @@ export default {
         l.__lineObj.material.opacity = 0;
       });
     },
+
     showAllElements() {
       this.currentFilter = null;
       this.$emit("backToInitialView");
