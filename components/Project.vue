@@ -47,7 +47,11 @@
             <img class="image-el" :src="project.thumbnail" alt="" />
           </div>
           <div class="description" v-html="renderContent"></div>
-          <div class="details" v-html="renderDetails"></div>
+          <div
+            v-if="getIsMobile || getIsTabletView"
+            class="details"
+            v-html="renderDetails"
+          ></div>
         </div>
       </div>
     </div>
