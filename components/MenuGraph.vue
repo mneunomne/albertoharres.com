@@ -1,13 +1,14 @@
 <template>
   <div>
     <!--<h1>Menu Graph</h1>-->
-    <div class="menu-graph"></div>
+    <div class="menu-graph" :class="{ mobile: getIsMobile }"></div>
   </div>
 </template>
 
 <script>
 import * as THREE from "three";
 import SpriteText from "three-spritetext";
+import { mapGetters } from "vuex";
 
 export default {
   name: "MenuGraph",
@@ -30,6 +31,11 @@ export default {
       this.buildGraph();
     });
   },
+  computed: {
+    ...mapGetters({
+      getIsMobile: "getIsMobile",
+    }),
+  },
   methods: {
     buildGraph() {
       let ForceGraph3D;
@@ -50,8 +56,8 @@ export default {
         .backgroundColor("rgba(0,0,0,0)")
         .showNavInfo(false)
         .numDimensions(2)
-        .width(300)
-        .height(300)
+        .width(200)
+        .height(150)
         .onNodeClick((node) => {
           this.$router.push({ path: node.route });
         })
@@ -81,7 +87,7 @@ export default {
 
       process.nextTick(() => {
         this.g.d3Force("link").distance((link) => 40);
-        this.g.cameraPosition({ x: 0, y: 0, z: 200 });
+        this.g.cameraPosition({ x: 0, y: 0, z: 100 });
       });
     },
   },
@@ -97,5 +103,8 @@ export default {
   height: 300px;
   z-index: 2;
   font-family: "Libre Bodoni Italic";
+  &.mobile {
+    z-index: 1;
+  }
 }
 </style>

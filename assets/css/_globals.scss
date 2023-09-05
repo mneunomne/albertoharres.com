@@ -20,7 +20,7 @@ html {
 body {
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(circle, rgba(217,217,217,1) 0%, rgb(255 255 255) 100%);
+  background: radial-gradient(circle, rgba(217, 217, 217, 1) 0%, rgb(255 255 255) 100%);
   color: var(--text);
 }
 
@@ -70,6 +70,7 @@ h2 {
   background-size: contain;
   white-space: pre;
   cursor: pointer;
+
   &:hover {
     text-decoration: line-through;
   }
@@ -81,4 +82,9 @@ h2 {
   height: 20px;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
+}
+
+.embed-iframe {
+  width: 100%;
+  height: auto;
 }

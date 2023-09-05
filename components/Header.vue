@@ -6,6 +6,7 @@
 
 <script>
 import MenuGraph from "~/components/MenuGraph.vue";
+import { mapGetters } from "vuex";
 
 export default {
   name: "Header",
@@ -26,6 +27,7 @@ export default {
       route: "/",
     },
     pages_data: [
+      /*
       {
         name: "about",
         route: "/about",
@@ -38,9 +40,13 @@ export default {
         name: "backlog",
         route: "/backlog",
       },
+      */
     ],
   }),
   computed: {
+    ...mapGetters({
+      getIsMobile: "getIsMobile",
+    }),
     gData() {
       const nodes = this.pages_data
         .map((page) => {
