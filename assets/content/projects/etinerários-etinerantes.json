@@ -13,5 +13,6 @@
     "voices"
   ],
   "cover_img": "/img/museu-historico-nacional.jpg",
+  "disabled": true,
   "year": "2016"
 }
