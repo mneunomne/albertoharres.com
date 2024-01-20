@@ -52,9 +52,21 @@
             class="details"
             v-html="renderDetails"
           ></div>
+          <img
+            class="gallery_image"
+            v-for="(image, imageIndex) in imageGallery"
+            :key="imageIndex"
+            @click="curImageIndex = imageIndex"
+            :src="image"
+          />
         </div>
       </div>
     </div>
+    <v-gallery
+      :images="allImages"
+      :index="curImageIndex"
+      @close="curImageIndex = null"
+    ></v-gallery>
   </div>
 </template>
 
@@ -99,6 +111,8 @@ export default {
       showBg: false,
       tabletView: false,
       mobileView: false,
+      imageGallery: [],
+      curImageIndex: null,
     };
   },
   methods: {
@@ -121,6 +135,8 @@ export default {
       // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
     });
     console.log("mounted project", this.project);
+    this.imageGallery = this.project.gallery;
+    this.allImages = this.project.gallery.concat(this.project.thumbnail);
     // get width of image from src
     const img = new Image();
     img.src = this.project.thumbnail;
@@ -311,5 +327,12 @@ export default {
 .project .content .description p img {
   max-width: 100% !important;
   width: 100% !important;
+}
+
+.gallery_image {
+  max-width: 100%;
+  width: 100%;
+  margin-bottom: 1em;
+  cursor: pointer;
 }
 </style>

@@ -78,6 +78,10 @@ export default {
     {
       src: '~/plugins/vue-static.js',
       mode: 'client'
+    },
+    {
+      src: '~plugins/vue-gallery.client.js',
+      mode: 'client'
     }
   ],
   /*

@@ -204,9 +204,9 @@ export default {
       sprite.color = "black";
       sprite.textHeight = 1 * node.val;
       sprite.padding = 2;
-      sprite.renderOrder = 990;
-      // sprite.material.depthWrite = true; // make sprite background transparent
-      sprite.material.depthTest = false;
+      //sprite.renderOrder = 10;
+      //sprite.material.depthWrite = false;
+      //sprite.material.depthTest = false;
       sprite.position.set(0, 1.6, 0);
       group.add(sprite);
       return group;
@@ -219,8 +219,10 @@ export default {
       const sprite = new THREE.Sprite(material);
       sprite.scale.set(1, 1);
       sprite.position.set(0, 0, 0);
-      sprite.renderOrder = 995;
-      sprite.material.depthTest = false;
+      //sprite.renderOrder = -1;
+      sprite.renderOrder = 10;
+      //sprite.material.depthWrite = false;
+      //sprite.material.depthTest = false;
       group.add(sprite);
       return group;
     },
@@ -325,11 +327,13 @@ export default {
 
     onNodeHover(node) {
       // make current node renderOrder higher
+      /*
       if (node && node.type) {
         let { nodes } = this.g.graphData();
         nodes.forEach((n) => {
-          n.__threeObj.children[0].renderOrder =
-            node?.type == "project" ? 995 : 990;
+          if (n.type == "project") {
+            n.__threeObj.children[0].renderOrder = 10;
+          }
         });
         node.__threeObj.children[0].renderOrder = 999;
         if (node.type == "project") {
@@ -346,6 +350,7 @@ export default {
             node?.type == "project" ? 995 : 990;
         });
       }
+      */
     },
 
     onCloseProject() {
