@@ -119,12 +119,14 @@ export default {
     closeProject() {
       this.$emit("closeProject");
       this.$root.$emit("closeProject");
+      this.curImageIndex = null;
     },
   },
   mounted() {
     if (!process.browser) {
       return;
     }
+    this.curImageIndex = null;
     this.contentMargin = getContentMargin(window);
     this.tabletView = this.getIsTabletView;
     this.mobileView = this.getIsMobile;
@@ -252,7 +254,8 @@ export default {
       opacity: 0;
     }
     width: 100%;
-    .image {
+    .image,
+    .gallery_image {
       transition: opacity 0;
       opacity: 0;
       .image-el {
@@ -269,7 +272,8 @@ export default {
     .description,
     .header,
     .details,
-    .image {
+    .image,
+    .gallery_image {
       opacity: 1;
       pointer-events: all;
     }

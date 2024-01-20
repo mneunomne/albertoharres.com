@@ -50,7 +50,8 @@ h1 {
   filter: drop-shadow(0px 0px 6px rgba(0, 0, 0, 0.2));
 }
 
-h2 {
+h2,
+.details h3 {
   font-family: 'Libre Bodoni Italic';
   font-weight: 500;
   background: white;
@@ -85,6 +86,21 @@ h2 {
 }
 
 .embed-iframe {
+  --video--width: 1920;
+  --video--height: 1080;
+
+  position: relative;
+  padding-bottom: calc(var(--video--height) / var(--video--width) * 100%);
+  /* 41.66666667% */
+  overflow: hidden;
+  max-width: 100%;
+  background: black;
+}
+
+.embed-iframe iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
 }
