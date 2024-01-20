@@ -27,7 +27,6 @@ export default {
       route: "/",
     },
     pages_data: [
-      /*
       {
         name: "about",
         route: "/about",
@@ -40,7 +39,6 @@ export default {
         name: "backlog",
         route: "/backlog",
       },
-      */
     ],
   }),
   computed: {
