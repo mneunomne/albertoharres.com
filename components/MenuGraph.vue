@@ -1,7 +1,11 @@
 <template>
   <div>
     <!--<h1>Menu Graph</h1>-->
-    <div class="menu-graph" :class="{ mobile: getIsMobile }"></div>
+    <div
+      class="menu-graph"
+      :style="{ width: `${width}px`, height: `${height}px` }"
+      :class="{ mobile: getIsMobile, show }"
+    ></div>
   </div>
 </template>
 
@@ -21,6 +25,9 @@ export default {
   data() {
     return {
       g: null,
+      width: 250,
+      height: 250,
+      show: false,
     };
   },
   mounted() {
@@ -56,10 +63,13 @@ export default {
         .backgroundColor("rgba(0,0,0,0)")
         .showNavInfo(false)
         .numDimensions(2)
-        .width(200)
-        .height(150)
+        .width(this.width)
+        .height(this.height)
         .onNodeClick((node) => {
           this.$router.push({ path: node.route });
+        })
+        .nodeLabel((node) => {
+          return false;
         })
         .linkColor(() => "rgb(0,0,0)")
         .nodeThreeObject((node) => {
@@ -81,13 +91,16 @@ export default {
           return group;
         });
 
-      g.renderer().setPixelRatio(window.devicePixelRatio);
-
       this.g = g;
+      this.g.controls().noZoom = true;
+      this.g.controls().noPan = true;
+      this.g.controls().noRotate = true;
 
       process.nextTick(() => {
+        this.g.renderer().setPixelRatio(window.devicePixelRatio);
         this.g.d3Force("link").distance((link) => 40);
-        this.g.cameraPosition({ x: 0, y: 0, z: 100 });
+        this.g.cameraPosition({ x: 0, y: 0, z: 150 });
+        this.show = true;
       });
     },
   },
@@ -97,14 +110,22 @@ export default {
 
 <style global lang="scss">
 .menu-graph {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
   position: fixed;
   top: 0;
-  width: 300px;
-  height: 300px;
+  margin: 0px;
+  width: 250px;
+  height: 250px;
   z-index: 2;
   font-family: "Libre Bodoni Italic";
   &.mobile {
     z-index: 1;
+  }
+  &.show {
+    opacity: 1;
+    pointer-events: all;
   }
 }
 </style>

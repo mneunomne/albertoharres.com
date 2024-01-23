@@ -446,7 +446,11 @@ export default {
   watch: {
     // route change
     $route(to, from) {
-      if (from.name == "works-work" && to.name == "works") {
+      console.log("route change", to.name, from.name);
+      if (
+        from.name == "works-work" &&
+        (to.name == "works" || to.name == "index")
+      ) {
         this.onCloseProject();
       }
     },

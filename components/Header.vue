@@ -25,6 +25,8 @@ export default {
       id: "alberto-harres",
       name: "alberto harres",
       route: "/",
+      //fx: 10,
+      //fy: -10,
     },
     pages_data: [
       {
@@ -34,6 +36,8 @@ export default {
       {
         name: "works",
         route: "/works",
+        fy: 35,
+        fx: 20,
       },
       {
         name: "backlog",
@@ -49,10 +53,9 @@ export default {
       const nodes = this.pages_data
         .map((page) => {
           return {
+            ...page,
             id: page.name,
-            name: page.name,
             type: "page",
-            route: page.route,
           };
         })
         .concat([this.center_data]);

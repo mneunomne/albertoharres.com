@@ -112,6 +112,7 @@ export default {
       tabletView: false,
       mobileView: false,
       imageGallery: [],
+      allImages: [],
       curImageIndex: null,
     };
   },
@@ -138,7 +139,11 @@ export default {
     });
     console.log("mounted project", this.project);
     this.imageGallery = this.project.gallery;
-    this.allImages = this.project.gallery.concat(this.project.thumbnail);
+    if (this.imageGallery) {
+      this.allImages = this.project.gallery.concat(this.project.thumbnail);
+    } else {
+      this.imageGallery = [];
+    }
     // get width of image from src
     const img = new Image();
     img.src = this.project.thumbnail;
@@ -245,13 +250,13 @@ export default {
     font-family: "Libre Bodoni Italic";
     background: white;
     padding: 2px 5px;
-    filter: drop-shadow(0px 0px 6px rgba(0, 0, 0, 0.2));
   }
   .content {
     padding-bottom: 4em;
     .description {
       transition: opacity 0.5s;
       opacity: 0;
+      padding-bottom: 1em;
     }
     width: 100%;
     .image,
