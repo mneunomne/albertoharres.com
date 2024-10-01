@@ -31,7 +31,7 @@ export default {
     pages_data: [
       {
         name: "about",
-        route: "/about",
+        route: "/works/about",
       },
       {
         name: "works",
@@ -39,10 +39,12 @@ export default {
         fy: 35,
         fx: 20,
       },
+      /*
       {
         name: "backlog",
         route: "/backlog",
       },
+      */
     ],
   }),
   computed: {
