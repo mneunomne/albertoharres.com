@@ -27,6 +27,8 @@ import SpriteText from "three-spritetext";
 
 import { mapGetters } from "vuex";
 
+import _ from "lodash";
+
 import {
   IMAGE_SCALE,
   CANVAS_OUT_MARGIN,
@@ -76,6 +78,18 @@ export default {
       currentFilter: null,
       allNodes: null,
       allLinks: null,
+      // for mouse move
+      mouseX: 0, // Store the last mouse X position
+      mouseY: 0, // Store the last mouse Y position
+      inertiaX: 0, // Used for smooth movement
+      inertiaY: 0, // Used for smooth movement
+      animationFrameId: null, // Store the animation frame ID for canceling it
+      azimuthalAngle: 0, // Horizontal rotation angle
+      polarAngle: Math.PI / 2, // Vertical rotation angle (set to look at the center)
+      radius: CAMERA_DISTANCE_FAR, // Fixed distance from the center
+      dragTimeout: null,
+      lastCameraPosition: { x: 0, y: 0, z: 0 },
+      lastDirection: { x: 0, y: 0, z: 0 },
     };
   },
   created() {
@@ -143,6 +157,34 @@ export default {
           return group;
         });
       this.g = g;
+
+      this.lastCameraPosition = this.g.cameraPosition();
+
+      let controls = g.controls();
+      // orbit maxDistance
+      controls.maxDistance = 1000;
+      // min zoom
+      controls.minDistance = 100;
+
+      // Add event listeners to pause/resume animation on scene dragging
+      controls.addEventListener("start", () => {
+        this.stopAnimation(); // Stop the animation when dragging starts
+      });
+
+      controls.addEventListener("end", () => {
+        if (this.openProject) {
+          clearTimeout(this.dragTimeout);
+          return;
+        }
+        // update position values
+        if (this.dragTimeout) {
+          clearTimeout(this.dragTimeout);
+        }
+        this.dragTimeout = setTimeout(() => {
+          //this.startAnimation(); // Resume the animation when dragging ends
+        }, 2000);
+      });
+
       // on stop animation
       this.g.onEngineStop(() => {
         console.log("onEngineStop");
@@ -158,6 +200,10 @@ export default {
       setTimeout(() => {
         process.nextTick(() => {
           this.setInitialView();
+          window.addEventListener("mousemove", this.throttledMouseMove);
+          setTimeout(() => {
+            this.startAnimation();
+          }, 1100);
         });
       }, 10);
       window.addEventListener("resize", this.onWindowResize, false);
@@ -276,6 +322,9 @@ export default {
         return;
       }
 
+      // stop animation
+      this.stopAnimation();
+
       this.currentNode = node;
 
       let objectWidth = node.__threeObj.children[0].scale.x;
@@ -301,6 +350,10 @@ export default {
         node.y - this.direction.y * dist,
         node.z - this.direction.z * dist
       );
+
+      this.lastCameraPosition = this.g.cameraPosition();
+
+      this.lastDirection = { x: node.x, y: node.y, z: node.z };
 
       this.g.cameraPosition(
         newPosition, // new position
@@ -357,6 +410,10 @@ export default {
       console.log("getCurrentProject", this.getCurrentProject);
       this.openProject = false;
       var node = this.currentNode;
+
+      setTimeout(() => {
+        this.startAnimation();
+      }, 2000);
 
       this.g.resumeAnimation();
 
@@ -434,6 +491,71 @@ export default {
           this.currentNode = n;
         }
       });
+    },
+
+    // Throttle the mouse move event to trigger at most every 100ms
+    throttledMouseMove: _.throttle(function (event) {
+      // Calculate normalized mouse coordinates (-1 to 1)
+      this.mouseX = -(event.clientX / window.innerWidth) * 2 + 1;
+      this.mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    }, 10),
+
+    startAnimation() {
+      console.log("startAnimation");
+      const spherical = new THREE.Spherical();
+      spherical.setFromVector3(this.g.cameraPosition());
+      this.inertiaX = 0;
+      this.inertiaY = 0;
+
+      // Update the azimuthal and polar angles based on the current camera position
+      this.azimuthalAngle = spherical.theta; // Horizontal rotation angle (azimuthal)
+      this.polarAngle = spherical.phi; // Vertical rotation angle (polar)
+      const animate = () => {
+        if (this.openProject) return;
+        //console.log("animate");
+        // Damping factor for smoothness
+        const dampingFactor = 0.5;
+        this.inertiaX += (this.mouseX - this.inertiaX) * dampingFactor;
+        this.inertiaY += (this.mouseY - this.inertiaY) * dampingFactor;
+
+        // Adjust the azimuthal and polar angles based on inertia
+        const angleFactor = 0.00075; // Control sensitivity
+        this.azimuthalAngle += this.inertiaX * angleFactor;
+        this.polarAngle = THREE.MathUtils.clamp(
+          this.polarAngle + this.inertiaY * angleFactor,
+          0.1, // Prevent looking directly above/below
+          Math.PI - 0.1
+        );
+
+        // distance from lastCameraPosition to lastDirectoin
+        const dist = Math.sqrt(
+          Math.pow(this.lastDirection.x - this.lastCameraPosition.x, 2) +
+            Math.pow(this.lastDirection.y - this.lastCameraPosition.y, 2) +
+            Math.pow(this.lastDirection.z - this.lastCameraPosition.z, 2)
+        );
+
+        // Calculate the new camera position using spherical coordinates
+        const x =
+          dist * Math.sin(this.polarAngle) * Math.sin(this.azimuthalAngle);
+        const y = dist * Math.cos(this.polarAngle);
+        const z =
+          dist * Math.sin(this.polarAngle) * Math.cos(this.azimuthalAngle);
+
+        // Set the camera position while keeping it at the same radius (distance from the center)
+        this.g.cameraPosition({ x, y, z }, this.lastDirection); // Keep looking at the center
+
+        // Call the animate function on the next frame
+        this.animationFrameId = requestAnimationFrame(animate);
+      };
+
+      animate(); // Start the animation loop
+    },
+
+    // Call this method if you want to stop the animation (for cleanup, etc.)
+    stopAnimation() {
+      if (this.animationFrameId) {
+        cancelAnimationFrame(this.animationFrameId);
+      }
     },
 
     onWindowResize() {
