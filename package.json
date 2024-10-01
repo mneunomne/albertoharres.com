@@ -1,40 +1,40 @@
 {
-  "name": "albertoharres.com",
-  "version": "1.0.0",
-  "description": "albertoharres.com",
-  "author": "Alberto Harres",
-  "scripts": {
-    "dev": "nuxt",
-    "build": "nuxt build",
-    "start": "nuxt start",
-    "generate": "nuxt generate"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/knogobert/ntn-boilerplate#readme"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "@nuxtjs/markdownit": "^1.2.6",
-    "3d-force-graph": "^1.71.4",
-    "d3-force-limit": "^1.2.1",
-    "marked": "^5.1.0",
-    "marked-gfm-heading-id": "^3.0.6",
-    "nuxt": "^2.14.12",
-    "sass": "^1.66.1",
-    "sass-loader": "10",
-    "three": "^0.152.2",
-    "three-addons": "^1.2.0",
-    "three-spritetext": "^1.8.1",
-    "vue-gallery": "^2.0.5",
-    "vue-static": "^0.0.5"
-  },
-  "devDependencies": {
-    "@nuxtjs/style-resources": "^1.2.1",
-    "fibers": "^5.0.0",
-    "netlify-cli": "^2.69.10",
-    "nuxt-purgecss": "^1.0.0",
-    "path": "^0.12.7",
-    "webpack": "^4.46.0"
-  }
+	"name": "albertoharres.com",
+	"version": "1.0.0",
+	"description": "albertoharres.com",
+	"author": "Alberto Harres",
+	"scripts": {
+		"dev": "nuxt",
+		"build": "nuxt build",
+		"start": "nuxt start",
+		"generate": "nuxt generate"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/knogobert/ntn-boilerplate#readme"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"@nuxtjs/markdownit": "^1.2.6",
+		"3d-force-graph": "^1.71.4",
+		"d3-force-limit": "^1.2.1",
+		"marked": "^5.1.0",
+		"marked-gfm-heading-id": "^3.0.6",
+		"nuxt": "^2.14.12",
+		"sass": "^1.66.1",
+		"sass-loader": "10",
+		"three": "^0.169.0",
+		"three-addons": "^1.2.0",
+		"three-spritetext": "^1.8.1",
+		"vue-gallery": "^2.0.5",
+		"vue-static": "^0.0.5"
+	},
+	"devDependencies": {
+		"@nuxtjs/style-resources": "^1.2.1",
+		"fibers": "^5.0.0",
+		"netlify-cli": "^2.69.10",
+		"nuxt-purgecss": "^1.0.0",
+		"path": "^0.12.7",
+		"webpack": "^4.46.0"
+	}
 }

@@ -24,6 +24,12 @@
 // import d3ForceLimit from 'd3-force-limit'
 import * as THREE from "three";
 import SpriteText from "three-spritetext";
+// threejs depth of field
+
+// import { EffectComposer } from "three-addons";
+import { BokehPass } from "three/examples/jsm/postprocessing/BokehPass";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
 
 import { mapGetters } from "vuex";
 
@@ -102,11 +108,13 @@ export default {
   methods: {
     buildGraph() {
       let ForceGraph3D;
+
       if (window) {
         ForceGraph3D = require("3d-force-graph").default;
       } else {
         return;
       }
+
       this.el = document.querySelector(".connections-graph");
       const g = ForceGraph3D({
         rendererConfig: {
@@ -114,6 +122,33 @@ export default {
           powerPreference: "high-performance",
         },
       })(this.el);
+
+      let scene = g.scene();
+      let camera = g.camera();
+
+      // postprocessing
+      const renderPass = new RenderPass(scene, camera);
+      const bokehPass = new BokehPass(scene, camera, {
+        focus: 1.0,
+        aperture: 0.1,
+        maxblur: 0.001,
+      });
+
+      const outputPass = new OutputPass();
+
+      // add sphere to center of scene
+      var geometry = new THREE.SphereGeometry(10, 32, 32);
+      // color red
+      var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      var sphere = new THREE.Mesh(geometry, material);
+      scene.add(sphere);
+
+      let composer = g.postProcessingComposer();
+
+      composer.addPass(renderPass);
+      composer.addPass(bokehPass);
+      composer.addPass(outputPass);
+
       this.allNodes = [...this.gData.nodes];
       this.allLinks = [...this.gData.links];
       g.graphData(this.gData)
@@ -157,6 +192,7 @@ export default {
 
       setTimeout(() => {
         process.nextTick(() => {
+          console.log("camera.aspect", camera.aspect);
           this.setInitialView();
         });
       }, 10);
