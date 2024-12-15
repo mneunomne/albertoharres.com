@@ -25,7 +25,8 @@
     "sound",
     "processing",
     "arduino",
-    "elertronics"
+    "elertronics",
+    "materiality"
   ],
   "cover_img": "/img/arche-scriptures_big.gif",
   "disabled": false,
