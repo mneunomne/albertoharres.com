@@ -53,7 +53,7 @@ export const getImageSizeOnScreen = (img_src) => new Promise((res, rej) => {
 })
 
 
-export const getMobileCameraDistance = (imageObjectSize, _window)  => new Promise((res, rej) => {
+export const getMobileCameraDistance = (imageObjectSize, _window) => new Promise((res, rej) => {
   var canvasWidth = _window.innerWidth;
   var canvasHeight = getCanvasHeight(window);
   var vFOV = (CAMERA_FOV * Math.PI) / 180;

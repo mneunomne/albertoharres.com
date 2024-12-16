@@ -76,6 +76,7 @@ export default {
           val: 10,
           type: "project",
           thumbnail: node.thumbnail,
+          importance: node.importance,
         });
         node.tags.forEach((tag) => {
           let found = nodes.find((node) => node.id === tag);

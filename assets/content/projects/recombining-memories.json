@@ -1,9 +1,7 @@
 {
-  "description_pt": "",
   "content_pt": "",
   "title_pt": "",
   "thumbnail": "/img/img_7716_3000.jpg",
-  "description_en": "",
   "content_en": "First exhibition that I have participated on, a generative instalation made with Processing using the recollections of pictures and words from my travels in Russia in autumn 2015.\n\n![](/img/gif_00.gif)\n\n![](/img/gif_03.gif)\n\n![](/img/gif_13.gif)\n\n![](/img/img_7711_1000.jpg)",
   "title_en": "Recombining Memories",
   "tags": [
@@ -11,6 +9,6 @@
     "installation",
     "generative"
   ],
-  "cover_img": "/img/img_7716_3000.jpg",
-  "year": "2016"
+  "year": "2016",
+  "importance": 0.8
 }

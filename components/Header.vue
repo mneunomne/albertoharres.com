@@ -25,19 +25,27 @@ export default {
       id: "alberto-harres",
       name: "alberto harres",
       route: "/",
-      //fx: 10,
-      //fy: -10,
+      fx: 5 - Math.random() * 10,
+      fy: 5 - Math.random() * 10,
     },
     pages_data: [
       {
-        name: "about",
-        route: "/works/about",
+        name: "ig",
+        route: "https://www.instagram.com/mneu_nomne/",
+
       },
       {
-        name: "works",
-        route: "/works",
-        fy: 35,
-        fx: 20,
+        name: "m",
+        route: "https://mastodon.social/@mneunomne",
+      },
+      {
+        name: "git",
+        route: "https://github.com/mneunomne",
+
+      },
+      {
+        name: "cv",
+        route: "https://docs.google.com/spreadsheets/d/1UepqwFz3A6oJvinS_eg5EG3NHAwfTDn6WnMvGzc1DVI/edit?gid=0#gid=0",
       },
       /*
       {

@@ -66,7 +66,12 @@ export default {
         .width(this.width)
         .height(this.height)
         .onNodeClick((node) => {
-          this.$router.push({ path: node.route });
+          // if node.route is an external link, open in new tab
+          if (node.route.includes("http")) {
+            window.open(node.route, "_blank");
+            return;
+          }
+          //this.$router.push({ path: node.route });
         })
         .nodeLabel((node) => {
           return false;

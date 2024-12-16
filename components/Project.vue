@@ -12,7 +12,7 @@
         <h1 class="title">{{ project.title_en }}</h1>
         <br />
         <h2 class="subtitle" v-if="project.subtitle_en">
-          {{ project.description_en }}
+          {{ project.subtitle_en }}
         </h2>
       </div>
       <!--

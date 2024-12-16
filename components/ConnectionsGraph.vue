@@ -168,11 +168,12 @@ export default {
       this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
 
       const resizeImg = (img, node) => {
+        let importance = 1// node.importance; // need to check this later because of the camera distance calculation
         // On desktop, the height is constant, while on mobile, the width is constant
         const aspect = img.width / img.height;
         node.__threeObj.children[0].scale.set(
-          IMAGE_SCALE * (this.getIsMobile ? 1 : aspect),
-          IMAGE_SCALE / (this.getIsMobile ? aspect : 1)
+          importance * IMAGE_SCALE * (this.getIsMobile ? 1 : aspect),
+          importance * IMAGE_SCALE / (this.getIsMobile ? aspect : 1)
         );
       };
 
