@@ -6,6 +6,7 @@ export const CAMERA_DISTANCE = 95
 export const MOBILE_CAMERA_DISTANCE = 170
 export const CAMERA_ANIMATION_DURATION = 2000
 export const CAMERA_DISTANCE_FAR = 500
+export const CAMERA_DISTANCE_2D = 330
 
 export const convertSizeValues = (ratio) => {
   var canvasHeight = getCanvasHeight(window);
@@ -15,6 +16,21 @@ export const convertSizeValues = (ratio) => {
   var objectHeightOnScreen = (objectHeight / height) * canvasHeight; // visible height
   // return objectHeightOnScreen;
   var objectWidthOnScreen = objectHeightOnScreen * objectRatio;
+}
+
+export const getProjectedHeight = (window, cameraDistance, objectHeight) => {
+  var canvasHeight = getCanvasHeight(window);
+  var vFOV = (CAMERA_FOV * Math.PI) / 180;
+  var visibleHeight = 2 * Math.tan(vFOV / 2) * cameraDistance; // visible height
+  var objectHeightOnScreen = (objectHeight / visibleHeight) * canvasHeight;
+  return objectHeightOnScreen
+
+}
+
+export const getVisibleHeight = (window) => {
+  var vFOV = (CAMERA_FOV * Math.PI) / 180;
+  var visibleHeight = 2 * Math.tan(vFOV / 2) * CAMERA_DISTANCE_2D; // visible height
+  return visibleHeight
 }
 
 export const getImageHeightOnScreen = () => {

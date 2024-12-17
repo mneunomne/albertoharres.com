@@ -76,11 +76,6 @@ import marked from "marked";
 import { CANVAS_OUT_MARGIN, getContentMargin } from "/utils";
 
 import { mapGetters } from "vuex";
-import { mapState } from "vuex";
-
-const title_margin = 20;
-
-const MIN_CONTENT_WIDTH = 1200;
 
 export default {
   name: "Project",
@@ -131,13 +126,11 @@ export default {
     this.contentMargin = getContentMargin(window);
     this.tabletView = this.getIsTabletView;
     this.mobileView = this.getIsMobile;
-    console.log("this.mobileView", this.mobileView);
     // add resize listener
     window.addEventListener("resize", () => {
       this.contentMargin = getContentMargin(window);
       // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
     });
-    console.log("mounted project", this.project);
     this.imageGallery = this.project.gallery;
     if (this.imageGallery) {
       this.allImages = this.project.gallery.concat(this.project.thumbnail);
@@ -170,11 +163,6 @@ export default {
     },
     titleMargin() {
       return this.height / 2 + this.contentMargin + 20;
-    },
-  },
-  watch: {
-    show() {
-      console.log("show", this.show);
     },
   },
 };

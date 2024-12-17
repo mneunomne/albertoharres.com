@@ -65,7 +65,7 @@ export default {
           return {
             ...page,
             id: page.name,
-            type: "page",
+            type: "page"
           };
         })
         .concat([this.center_data]);
@@ -93,5 +93,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>
