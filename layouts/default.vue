@@ -36,7 +36,7 @@ export default {
       showBg: false,
     };
   },
-  mounted() {
+  created() {
     if (!process.browser) {
       return;
     }
@@ -55,8 +55,6 @@ export default {
     },
     gData() {
       const data = this.projects;
-      console.log("data", data);
-      console.log("getProjects", this.getProjects);
       const nodes = [];
       data.map((node) => {
         nodes.push({

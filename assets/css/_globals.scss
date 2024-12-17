@@ -20,7 +20,7 @@ html {
 body {
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(circle, rgba(217, 217, 217, 1) 0%, rgb(255 255 255) 100%);
+  background: radial-gradient(circle, rgb(235 235 235) 0%, rgb(255, 255, 255) 100%);
   color: var(--text);
 }
 
@@ -39,7 +39,7 @@ p {
 }
 
 h1 {
-  font-family: "Libre Bodoni";
+  font-family: "Libre Bodoni Italic";
   text-transform: uppercase;
   background: white;
   padding: 5px;
@@ -54,7 +54,7 @@ h3 {
   font-family: 'Libre Bodoni Italic';
   font-weight: 500;
   background: white;
-  font-size: 20px;
+  font-size: 16px;
   padding: 4px;
   margin-top: 11px;
   display: inline-block;

@@ -22,3 +22,17 @@
   font-family: 'Source Sans 3 Italic';
   font-style: italic;
 }
+
+@font-face {
+  font-family: 'DMMono-Italic';
+  src: url(~assets/fonts/DM_Mono/DMMono-Italic.ttf) format("truetype");
+  font-style: italic;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'DMMono-Regular';
+  src: url(~assets/fonts/DM_Mono/DMMono-Regular.ttf) format("truetype");
+  font-style: normal;
+  font-weight: 500;
+}

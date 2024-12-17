@@ -36,12 +36,16 @@
           </div>
           <div class="description" v-html="renderContent"></div>
           <div v-if="getIsMobile || getIsTabletView" class="details" v-html="renderDetails"></div>
-          <img class="gallery_image" v-for="(image, imageIndex) in imageGallery" :key="imageIndex"
-            @click="curImageIndex = imageIndex" :src="image" />
+          <div class="gallery-images">
+
+            <img class="gallery_image" v-for="(image, imageIndex) in imageGallery" :key="imageIndex"
+              @click="curImageIndex = imageIndex" :src="image" />
+          </div>
         </div>
       </div>
     </div>
     <v-gallery :images="allImages" :index="curImageIndex" @close="curImageIndex = null"></v-gallery>
+
   </div>
 </template>
 
@@ -221,6 +225,10 @@ export default {
       transition: opacity 0.5s;
       opacity: 0;
       padding-bottom: 1em;
+    }
+
+    .gallery-images {
+      padding: 0px 12px;
     }
 
     width: 100%;

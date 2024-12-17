@@ -40,7 +40,7 @@ import {
 
 const LINE_OPACITY = 0.1;
 
-const LINK_DISTANCE = 40;
+const LINK_DISTANCE = 20;
 
 // desktop values
 const GRID_MARGIN = 20
@@ -52,10 +52,10 @@ const BLANK_SPACE_RATIO = 0.70
 
 // mobile values
 const GRID_MARGIN_MOBILE = 5
-const TOP_MARGIN_MOBILE = 30
-const LEFT_MARGIN_MOBILE = 10
-const BOTTOM_MARGIN_MOBILE = 20
-const RIGHT_MARGIN_MOBILE = 10
+const TOP_MARGIN_MOBILE = 20
+const LEFT_MARGIN_MOBILE = 0
+const BOTTOM_MARGIN_MOBILE = 10
+const RIGHT_MARGIN_MOBILE = 0
 const BLANK_SPACE_RATIO_MOBILE = 0.35
 
 export default {
@@ -95,9 +95,6 @@ export default {
       allLinks: null,
       gridMode: false
     };
-  },
-  created() {
-    // check if starting route is project
   },
   mounted() {
     this.canvasMargin = 0;
@@ -185,11 +182,13 @@ export default {
       this.g.onEngineStop(() => {
         console.log("onEngineStop");
         // enter transition
-        this.g.cameraPosition(
-          { x: 0, y: 0, z: CAMERA_DISTANCE_FAR + 10 },
-          0,
-          1000
-        );
+        if (!this.getIsMobile) {
+          this.g.cameraPosition(
+            { x: 0, y: 0, z: CAMERA_DISTANCE_FAR + 10 },
+            0,
+            1000
+          );
+        }
       });
 
       setTimeout(() => {
@@ -217,7 +216,7 @@ export default {
         const w = importance * IMAGE_SCALE * (this.getIsMobile ? 1 : aspect);
         const h = importance * IMAGE_SCALE / (this.getIsMobile ? aspect : 1);
         node.__threeObj.children[0].scale.set(w, h);
-        let margin = 1
+        let margin = this.getIsMobile ? 0 : 1
         node.bbox = [
           [-w / 2 - margin, -h / 2 - margin],
           [w / 2 + margin, h / 2 + margin],
@@ -243,7 +242,14 @@ export default {
       });
       const allImagesLoaded = () => {
         console.log("allImagesLoaded")
+        setTimeout(() => {
+          if (this.getIsMobile) {
+            this.gridMode = true
+            this.enableGrid()
+          }
+        }, 10)
         this.hidden = false;
+
       };
     },
 
@@ -318,10 +324,20 @@ export default {
       }
 
       this.currentNode = node;
+      this.openProject = true;
+
+      this.$emit("clickProject", {
+        id: node.id,
+      });
+
+      if (this.gridMode) {
+        return;
+      }
 
       var dist = this.getIsMobile ? CAMERA_DISTANCE_FAR - 50 : CAMERA_DISTANCE;
 
       var cameraPos = this.g.cameraPosition();
+      this.g.enablePointerInteraction(false);
 
       // Calculate the direction vector from camera to new point
       this.direction = new THREE.Vector3(
@@ -347,12 +363,6 @@ export default {
       );
 
       this.transition = true;
-      this.g.enablePointerInteraction(false);
-      this.openProject = true;
-
-      this.$emit("clickProject", {
-        id: node.id,
-      });
 
       setTimeout(() => {
         this.transition = false;
@@ -473,9 +483,7 @@ export default {
       this.g.graphData({
         nodes: project_nodes,
         links: [],
-      }).cooldownTicks(Infinity)
-        .cooldownTime(Infinity)
-        .numDimensions(2)
+      }).numDimensions(2)
         .d3VelocityDecay(0.8)
         .d3AlphaMin(0.0)
         .d3AlphaDecay(0.1)
@@ -528,6 +536,7 @@ export default {
         /// remove plane
         this.g.scene().remove(plane)
       }
+
     },
 
     limitWindow(nodes) {
@@ -714,6 +723,8 @@ export default {
   bottom: 50px;
   transform: translate(-50%, -50%);
   pointer-events: all;
+  background: white;
+  padding: 2px 5px;
 }
 
 .view-mode .active {

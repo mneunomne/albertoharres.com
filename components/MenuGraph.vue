@@ -1,11 +1,7 @@
 <template>
   <div>
-    <!--<h1>Menu Graph</h1>-->
-    <div
-      class="menu-graph"
-      :style="{ width: `${width}px`, height: `${height}px` }"
-      :class="{ mobile: getIsMobile, show }"
-    ></div>
+    <div class="menu-graph" :style="{ width: `${width}px`, height: `${height}px` }"
+      :class="{ mobile: getIsMobile, show }"></div>
   </div>
 </template>
 
@@ -13,6 +9,9 @@
 import * as THREE from "three";
 import SpriteText from "three-spritetext";
 import { mapGetters } from "vuex";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 
 export default {
   name: "MenuGraph",
@@ -27,15 +26,25 @@ export default {
       g: null,
       width: 250,
       height: 250,
+      cameraDistance: 150,
       show: false,
+      composer: null, // For post-processing
     };
   },
   mounted() {
-    if (!process.browser) {
-      return;
+    if (!process.browser) return;
+
+    if (this.getIsMobile) {
+      this.width = 150;
+      this.height = 150;
+      this.cameraDistance = 120;
     }
+
     process.nextTick(() => {
       this.buildGraph();
+      setTimeout(() => {
+        this.canvasMask();
+      }, 1000);
     });
   },
   computed: {
@@ -52,6 +61,7 @@ export default {
         return;
       }
       const el = document.querySelector(".menu-graph");
+
       const g = ForceGraph3D({
         rendererConfig: {
           antialias: true,
@@ -66,31 +76,26 @@ export default {
         .width(this.width)
         .height(this.height)
         .onNodeClick((node) => {
-          // if node.route is an external link, open in new tab
           if (node.route.includes("http")) {
             window.open(node.route, "_blank");
             return;
           }
-          //this.$router.push({ path: node.route });
         })
         .nodeLabel((node) => {
           return false;
         })
         .linkColor(() => "rgb(0,0,0)")
         .nodeThreeObject((node) => {
-          var group = new THREE.Group();
+          const group = new THREE.Group();
           const sprite = new SpriteText(node.name);
           sprite.fontFace = "Libre Bodoni Italic";
-          // sprite.fontStyle = "italic";
           sprite.material.depthWrite = true; // make sprite background transparent
           sprite.material.opacity = 1;
           sprite.backgroundColor = "white";
           sprite.color = "black";
           sprite.textHeight = 10;
           sprite.padding = 2;
-
           sprite.renderOrder = 999;
-          //sprite.material.depthTest = false;
           sprite.position.set(0, 1.6, 0);
           group.add(sprite);
           return group;
@@ -103,18 +108,92 @@ export default {
 
       process.nextTick(() => {
         this.g.renderer().setPixelRatio(window.devicePixelRatio);
-        this.g.d3Force("link").distance((link) => 40);
-        this.g.cameraPosition({ x: 0, y: 0, z: 150 });
+        this.g.d3Force("link").distance(() => 40);
+        this.g.cameraPosition({ x: 0, y: 0, z: this.cameraDistance });
         this.show = true;
       });
+    },
+
+    canvasMask() {
+      // Access the Three.js components
+      const renderer = this.g.renderer();
+      const scene = this.g.scene();
+      const camera = this.g.camera();
+
+      // Set up post-processing
+      const composer = new EffectComposer(renderer);
+      const renderPass = new RenderPass(scene, camera);
+      composer.addPass(renderPass);
+
+      // Custom radial gradient shader
+      const radialGradientShader = {
+        uniforms: {
+          tDiffuse: { value: null },
+          resolution: { value: new THREE.Vector2(this.width, this.height) },
+          center: { value: new THREE.Vector2(0.5, 0.5) },
+          radius: { value: 0.6 }, // Radius of the gradient
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D tDiffuse;
+          uniform vec2 center;
+          uniform float radius;
+          varying vec2 vUv;
+
+          void main() {
+            vec4 texColor = texture2D(tDiffuse, vUv);
+            float dist = distance(vUv, center);
+            float mask = smoothstep(radius, radius - 0.3, dist);
+
+            // Apply mask to the alpha channel to fade to transparent
+            gl_FragColor = vec4(texColor.rgb, texColor.a * mask);
+          }
+        `,
+      };
+
+      const radialGradientPass = new ShaderPass(radialGradientShader);
+      composer.addPass(radialGradientPass);
+
+      // Save composer for the render loop
+      this.composer = composer;
+
+      // Replace the render loop
+      const animate = () => {
+        requestAnimationFrame(animate);
+        //this.g.tickFrame(); // Render graph animation
+        composer.render();
+      };
+      animate();
+    },
+  },
+  watch: {
+    getIsMobile(isMobile) {
+      if (this.g) {
+        if (isMobile) {
+          this.width = 150;
+          this.height = 150;
+          this.g.cameraPosition({ x: 0, y: 0, z: 120 });
+        } else {
+          this.width = 250;
+          this.height = 250;
+          this.g.cameraPosition({ x: 0, y: 0, z: 150 });
+        }
+        this.g.width(this.width).height(this.height);
+      }
     },
   },
 };
 </script>
 
-
 <style global lang="scss">
 .menu-graph {
+  mix-blend-mode: darken;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s;
@@ -124,10 +203,11 @@ export default {
   width: 250px;
   height: 250px;
   z-index: 2;
-  font-family: "Libre Bodoni Italic";
+
   &.mobile {
     z-index: 1;
   }
+
   &.show {
     opacity: 1;
     pointer-events: all;
