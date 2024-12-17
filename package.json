@@ -15,6 +15,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@nuxtjs/google-analytics": "^2.4.0",
     "@nuxtjs/i18n": "^7.1.1",
     "@nuxtjs/markdownit": "^1.2.6",
     "3d-force-graph": "^1.71.4",

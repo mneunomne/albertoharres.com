@@ -152,8 +152,8 @@ export default {
         .width(window.innerWidth)
         .height(this.canvasHeight)
         .enableNodeDrag(false)
-        .cooldownTime(Infinity)
-        .cooldownTicks(Infinity)
+        .cooldownTime(1000)
+        .cooldownTicks(100)
         .d3VelocityDecay(0.4)
         .d3AlphaMin(0.0)
         .d3AlphaDecay(0.0228)
@@ -508,27 +508,26 @@ export default {
     },
 
     disableGrid() {
-      this.g.numDimensions(3);
-      this.g.controls().enabled = true
-      // disable limit force
-      this.g.d3Force("limit", null)
-      // disable colide
-      this.g.d3Force("colide", null)
-      this.g.graphData(this.gData)
+      this.g
+        .graphData(this.gData)
+        .d3ReheatSimulation()
+        .d3VelocityDecay(0.4)
+        .d3AlphaMin(0.0)
+        .d3AlphaDecay(0.0228)
+        .cooldownTime(1000)
+        .cooldownTicks(100)
+        .d3Force("limit", null)
+        .d3Force("colide", null)
+        .numDimensions(3);
       // camera far
       this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
+      this.g.controls().enabled = true
       // camera rotation
-      console.log("camera", this.g.camera())
       var plane = this.g.scene().children.filter((child) => child.name == "limit-plane")[0]
       if (plane) {
         /// remove plane
         this.g.scene().remove(plane)
       }
-      // reheata
-      this.g.d3ReheatSimulation()
-        .d3VelocityDecay(0.4)
-        .d3AlphaMin(0.0)
-        .d3AlphaDecay(0.0228)
     },
 
     limitWindow(nodes) {

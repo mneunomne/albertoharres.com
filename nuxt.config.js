@@ -87,7 +87,7 @@ export default {
   /*
   ** Global CSS
   */
-  buildModules: ['@nuxtjs/style-resources'],
+  buildModules: ['@nuxtjs/style-resources', '@nuxtjs/google-analytics'],
   modules: [
     [
       '@nuxtjs/i18n',
@@ -114,6 +114,9 @@ export default {
       { code: 'pt', language: 'pt-BR' }
     ],
     defaultLocale: 'en',
+  },
+  googleAnalytics: {
+    id: 'G-JLSY3TWTM2'
   },
   styleResources: {
     scss: ['./assets/css/*.scss']

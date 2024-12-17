@@ -1,10 +1,7 @@
 <template>
   <div>
-    <div
-      class="header"
-      :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
-      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }"
-    >
+    <div class="header" :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
+      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }">
       <div class="close">
         <button @click="closeProject">X</button>
       </div>
@@ -15,58 +12,36 @@
           {{ project.subtitle_en }}
         </h2>
       </div>
-      <!--
-        <div class="tags">
-          <ul>
-            <li v-for="tag in project.tags" :key="tag">#{{ tag }}</li>
-          </ul>
-        </div>
-        -->
     </div>
     <!-- project -->
     <div class="project-wrapper" :class="{ show }">
       <div class="project-bg"></div>
-      <div
-        class="project"
-        :class="{ mobile: getIsMobile, tablet: getIsTabletView }"
-        :style="{
-          width: `${width}px`,
-          height: `${height}px`,
-          top: `calc(50% - ${contentMargin}px)`,
-        }"
-      >
+      <div class="project" :class="{ mobile: getIsMobile, tablet: getIsTabletView }" :style="{
+        width: `${width}px`,
+        height: `${height}px`,
+        top: `calc(50% - ${contentMargin}px)`,
+      }">
         <div class="content">
           <div class="side-content" v-if="!(getIsMobile || getIsTabletView)">
-            <div
-              v-if="project.details_en"
-              class="details"
-              v-html="renderDetails"
-            ></div>
+            <div v-if="project.details_en" class="details" v-html="renderDetails"></div>
+            <div class="tags">
+              <h3>Tags:</h3>
+              <ul>
+                <li v-for="tag in project.tags" :key="tag"><u>{{ tag }}</u></li>
+              </ul>
+            </div>
           </div>
           <div class="image" :style="{ height: `${height}px` }">
             <img class="image-el" :src="project.thumbnail" alt="" />
           </div>
           <div class="description" v-html="renderContent"></div>
-          <div
-            v-if="getIsMobile || getIsTabletView"
-            class="details"
-            v-html="renderDetails"
-          ></div>
-          <img
-            class="gallery_image"
-            v-for="(image, imageIndex) in imageGallery"
-            :key="imageIndex"
-            @click="curImageIndex = imageIndex"
-            :src="image"
-          />
+          <div v-if="getIsMobile || getIsTabletView" class="details" v-html="renderDetails"></div>
+          <img class="gallery_image" v-for="(image, imageIndex) in imageGallery" :key="imageIndex"
+            @click="curImageIndex = imageIndex" :src="image" />
         </div>
       </div>
     </div>
-    <v-gallery
-      :images="allImages"
-      :index="curImageIndex"
-      @close="curImageIndex = null"
-    ></v-gallery>
+    <v-gallery :images="allImages" :index="curImageIndex" @close="curImageIndex = null"></v-gallery>
   </div>
 </template>
 
@@ -159,6 +134,7 @@ export default {
       return marked.parse(this.project.content_en || "");
     },
     renderDetails() {
+      console.log("renderDetails", this.project.details_en);
       return marked.parse(this.project.details_en || "");
     },
     titleMargin() {
@@ -177,21 +153,25 @@ export default {
   opacity: 0;
   top: -1em;
   z-index: 999;
+
   &.mobile {
     top: 12px !important;
     width: auto !important;
     transform: none;
     left: 12px;
     right: 12px;
+
     .close {
       top: 0;
       transform: none;
     }
   }
+
   .close {
     position: absolute;
     top: 50%;
     right: 0;
+
     a {
       text-decoration: none;
       color: black;
@@ -200,6 +180,7 @@ export default {
       font-size: 30px;
     }
   }
+
   &.show {
     opacity: 1;
     pointer-events: all;
@@ -214,15 +195,18 @@ export default {
   pointer-events: all;
   width: auto;
   font-family: sans-serif;
+
   &.mobile {
     width: 100% !important;
     height: auto !important;
     right: auto;
     transform: none;
     top: 100px !important;
+
     .image {
       height: auto !important;
     }
+
     .description,
     .details,
     .image {
@@ -230,27 +214,22 @@ export default {
     }
   }
 
-  .tags li {
-    display: inline-block;
-    margin-right: 5px;
-    margin-top: 1em;
-    font-style: italic;
-    font-family: "Libre Bodoni Italic";
-    background: white;
-    padding: 2px 5px;
-  }
   .content {
     padding-bottom: 4em;
+
     .description {
       transition: opacity 0.5s;
       opacity: 0;
       padding-bottom: 1em;
     }
+
     width: 100%;
+
     .image,
     .gallery_image {
       transition: opacity 0;
       opacity: 0;
+
       .image-el {
         max-width: 100%;
         width: 100%;
@@ -261,8 +240,11 @@ export default {
 
 .project-wrapper {
   z-index: 9999;
+
   &.show {
+
     .description,
+    .side-content,
     .header,
     .details,
     .image,
@@ -270,6 +252,7 @@ export default {
       opacity: 1;
       pointer-events: all;
     }
+
     .project-bg {
       opacity: 1;
       backdrop-filter: blur(10px);
@@ -291,17 +274,20 @@ export default {
 }
 
 .details {
-  opacity: 0;
   font-family: "Source Sans 3";
   transition: opacity 0.5s;
   border-top: 1px black solid;
   padding-top: 1em;
 }
 
-.side-content .details {
+.side-content {
+  opacity: 0;
   position: absolute;
   left: calc(100% + 20px);
   font-size: 13px;
+}
+
+.side-content .details {
   width: 220px;
   border-top: none;
   padding-top: 0;
