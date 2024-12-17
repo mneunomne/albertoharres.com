@@ -462,8 +462,12 @@ export default {
       }
 
     },
-    organizeGraphInGrid() {
+    enableGrid() {
       let project_nodes = this.g.graphData().nodes.filter((n) => n.type == "project");
+
+      // disable controls
+
+      this.g.controls().enabled = false
 
       // remove all linaks
       this.g.graphData({
@@ -501,6 +505,30 @@ export default {
       // add id to plane
       // this.g.scene().add(plane);
       this.g.d3ReheatSimulation()
+    },
+
+    disableGrid() {
+      this.g.numDimensions(3);
+      this.g.controls().enabled = true
+      // disable limit force
+      this.g.d3Force("limit", null)
+      // disable colide
+      this.g.d3Force("colide", null)
+      this.g.graphData(this.gData)
+      // camera far
+      this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
+      // camera rotation
+      console.log("camera", this.g.camera())
+      var plane = this.g.scene().children.filter((child) => child.name == "limit-plane")[0]
+      if (plane) {
+        /// remove plane
+        this.g.scene().remove(plane)
+      }
+      // reheata
+      this.g.d3ReheatSimulation()
+        .d3VelocityDecay(0.4)
+        .d3AlphaMin(0.0)
+        .d3AlphaDecay(0.0228)
     },
 
     limitWindow(nodes) {
@@ -596,28 +624,9 @@ export default {
   watch: {
     gridMode(isGrid) {
       if (isGrid) {
-        this.organizeGraphInGrid()
+        this.enableGrid()
       } else {
-        this.g.numDimensions(3);
-        // disable limit force
-        this.g.d3Force("limit", null)
-        // disable colide
-        this.g.d3Force("colide", null)
-        this.g.graphData(this.gData)
-        // camera far
-        this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
-        // camera rotation
-        console.log("camera", this.g.camera())
-        var plane = this.g.scene().children.filter((child) => child.name == "limit-plane")[0]
-        if (plane) {
-          /// remove plane
-          this.g.scene().remove(plane)
-        }
-        // reheata
-        this.g.d3ReheatSimulation()
-          .d3VelocityDecay(0.4)
-          .d3AlphaMin(0.0)
-          .d3AlphaDecay(0.0228)
+        this.disableGrid()
       }
     },
     // route change
@@ -655,9 +664,14 @@ export default {
 <style global lang="scss">
 .project-title {
   font-family: "Libre Bodoni Italic";
-  font-size: 18px;
+  font-size: 14px;
   line-height: 20px;
   color: black;
+  display: inline-block;
+  background-color: white;
+  padding: 2px 5px;
+  margin-top: 10px;
+  margin-left: 20px;
 }
 
 .connections-graph {
