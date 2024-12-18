@@ -48,9 +48,7 @@ export default {
     }
 
     process.nextTick(() => {
-      setTimeout(() => {
-        this.buildGraph();
-      }, 1000);
+      this.buildGraph();
       setTimeout(() => {
         this.canvasMask();
       }, 1000);
