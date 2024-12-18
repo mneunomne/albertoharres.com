@@ -9,9 +9,10 @@
     "/img/screenshot-2024-01-20-at-20.37.38.png",
     "/img/screenshot-2024-01-20-at-20.37.44.png"
   ],
+  "importance": 0.8,
   "tags": [
     "web"
   ],
-  "year": "2021",
-  "importance": 0.8
+  "disabled": true,
+  "year": "2021"
 }
