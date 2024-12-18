@@ -3,10 +3,10 @@
     <div v-show="currentFilter !== null" class="remove-filter close" @click="showAllElements">
       <button>{{ currentFilter }}</button>
     </div>
-    <div class="view-mode">
+    <!--<div class="view-mode" :class="{ hidden }">
       <span @click="gridMode = true" class="grid-mode" :class="{ active: gridMode }">grid</span> /
       <span @click="gridMode = false" class="grid-mode" :class="{ active: !gridMode }">network</span>
-    </div>
+    </div>-->
     <div :class="{ hidden, 'no-interaction': openProject }" class="connections-graph" :style="{
       top: `-${openProject ? canvasMargin + contentMargin : canvasMargin}px`,
       height: `calc(${canvasHeight}px)`,
@@ -40,23 +40,29 @@ import {
 
 const LINE_OPACITY = 0.1;
 
-const LINK_DISTANCE = 20;
+const LINK_DISTANCE = 50;
 
 // desktop values
 const GRID_MARGIN = 20
-const TOP_MARGIN = 40
-const LEFT_MARGIN = 20
-const BOTTOM_MARGIN = 40
-const RIGHT_MARGIN = 20
+const TOP_MARGIN = 30
+const LEFT_MARGIN = 10
+const BOTTOM_MARGIN = 30
+const RIGHT_MARGIN = 10
 const BLANK_SPACE_RATIO = 0.70
+const FRONT_MARGIN = 20
+const BACK_MARGIN = 20
+const PROJECT_MARGIN = 2
 
 // mobile values
 const GRID_MARGIN_MOBILE = 5
 const TOP_MARGIN_MOBILE = 20
-const LEFT_MARGIN_MOBILE = 0
+const LEFT_MARGIN_MOBILE = -10
 const BOTTOM_MARGIN_MOBILE = 10
-const RIGHT_MARGIN_MOBILE = 0
+const RIGHT_MARGIN_MOBILE = -10
 const BLANK_SPACE_RATIO_MOBILE = 0.35
+const FRONT_MARGIN_MOBILE = 2
+const BACK_MARGIN_MOBILE = 2
+const PROJECT_MARGIN_MOBILE = 1
 
 export default {
   name: "ConnectionsGraph",
@@ -149,11 +155,12 @@ export default {
         .width(window.innerWidth)
         .height(this.canvasHeight)
         .enableNodeDrag(false)
-        .cooldownTime(1000)
-        .cooldownTicks(100)
-        .d3VelocityDecay(0.4)
+        .cooldownTime(2000)
+        .cooldownTicks(Infinity)
+        .d3VelocityDecay(0.8)
         .d3AlphaMin(0.0)
-        .d3AlphaDecay(0.0228)
+        .d3AlphaDecay(0.02)
+
         .onNodeClick(this.onNodeClick)
         .onNodeHover((node) => {
           if (!node) {
@@ -203,10 +210,10 @@ export default {
       this.g.d3Force("link").distance((link) => LINK_DISTANCE);
       this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
       let project_nodes = this.g.graphData().nodes.filter((n) => n.type == "project");
+      let nodes = this.g.graphData().nodes;
 
       const resizeImg = (img, node) => {
         this.imageLoaded++;
-        console.log("imageLoaded", this.imageLoaded)
         if (this.imageLoaded == project_nodes.length) {
           allImagesLoaded();
         }
@@ -216,7 +223,7 @@ export default {
         const w = importance * IMAGE_SCALE * (this.getIsMobile ? 1 : aspect);
         const h = importance * IMAGE_SCALE / (this.getIsMobile ? aspect : 1);
         node.__threeObj.children[0].scale.set(w, h);
-        let margin = this.getIsMobile ? 0 : 1
+        let margin = this.getIsMobile ? PROJECT_MARGIN_MOBILE : PROJECT_MARGIN
         node.bbox = [
           [-w / 2 - margin, -h / 2 - margin],
           [w / 2 + margin, h / 2 + margin],
@@ -242,10 +249,33 @@ export default {
       });
       const allImagesLoaded = () => {
         console.log("allImagesLoaded")
+        var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN
+        var w = h * window.innerWidth / window.innerHeight - LEFT_MARGIN - RIGHT_MARGIN
+        var geometry = new THREE.PlaneGeometry(w, h, 32);
+        var material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
+        // transparent material
+        material.transparent = true;
+        material.opacity = 0;
+
+        var plane = new THREE.Mesh(geometry, material);
+        plane.position.z = -BACK_MARGIN - 1;
+        plane.name = "limit-plane"
+        // add id to plane
+        //this.g.scene().add(plane);
         setTimeout(() => {
           if (this.getIsMobile) {
             this.gridMode = true
             this.enableGrid()
+          } else {
+            this.g.d3Force(
+              'limit', this.limitWindow(project_nodes)
+            ).d3Force("colide", bboxCollide((node) => {
+              if (node.bbox) {
+                return node.bbox
+              } else {
+                return [[-1, -1], [1, 1]]
+              }
+            }))
           }
         }, 10)
         this.hidden = false;
@@ -259,7 +289,7 @@ export default {
       sprite.backgroundColor = "white";
       sprite.padding = [0, 0];
       sprite.color = "black";
-      sprite.textHeight = 1 * node.val;
+      sprite.textHeight = 1 * (node.val / 2);
       sprite.padding = 2;
       sprite.position.set(0, 1.6, 0);
       group.add(sprite);
@@ -374,9 +404,9 @@ export default {
     },
 
     onCloseProject() {
-      console.log("getCurrentProject", this.getCurrentProject, node);
       this.openProject = false;
       var node = this.currentNode;
+      console.log("getCurrentProject", this.getCurrentProject, node);
 
       this.g.resumeAnimation();
 
@@ -463,9 +493,14 @@ export default {
       this.g.width(window.innerWidth);
       this.g.height(this.canvasHeight);
 
+      let marginRight = this.getIsMobile ? RIGHT_MARGIN_MOBILE : RIGHT_MARGIN
+      let marginLeft = this.getIsMobile ? LEFT_MARGIN_MOBILE : LEFT_MARGIN
+      let marginTop = this.getIsMobile ? TOP_MARGIN_MOBILE : TOP_MARGIN
+      let marginBottom = this.getIsMobile ? BOTTOM_MARGIN_MOBILE : BOTTOM_MARGIN
+
       // update debug background plane size 
-      var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN
-      var w = h * window.innerWidth / window.innerHeight - LEFT_MARGIN - RIGHT_MARGIN
+      var h = getVisibleHeight(window) - marginTop - marginBottom
+      var w = h * window.innerWidth / window.innerHeight - marginLeft - marginRight
       var plane = this.g.scene().children.filter((child) => child.name == "limit-plane")[0]
       if (plane) {
         plane.geometry = new THREE.PlaneGeometry(w, h, 32);
@@ -491,27 +526,19 @@ export default {
       this.g.d3Force(
         'limit', this.limitWindow(project_nodes)
       ).d3Force("colide", bboxCollide((node) => {
-        return node.bbox
+        if (node.bbox) {
+          return node.bbox
+        } else {
+          return [[-1, -1], [1, 1]]
+        }
+
       }))
 
       // add a plane to the backgroud to debug the limit area
-      var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN
-      var w = h * window.innerWidth / window.innerHeight - LEFT_MARGIN - RIGHT_MARGIN
-      var geometry = new THREE.PlaneGeometry(w, h, 32);
 
       // fit =camera distance to plane
       this.g.cameraPosition({ x: 0, y: 0, z: 330 }, 0, 1000);
 
-      var material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
-      // transparent material
-      material.transparent = true;
-      material.opacity = 0.0;
-
-      var plane = new THREE.Mesh(geometry, material);
-      plane.position.z = -10;
-      plane.name = "limit-plane"
-      // add id to plane
-      // this.g.scene().add(plane);
       this.g.d3ReheatSimulation()
     },
 
@@ -540,90 +567,96 @@ export default {
     },
 
     limitWindow(nodes) {
-      let isMobile = this.getIsMobile
-      var marginTop = isMobile ? TOP_MARGIN_MOBILE : TOP_MARGIN
-      var marginLeft = isMobile ? LEFT_MARGIN_MOBILE : LEFT_MARGIN
-      var marginBottom = isMobile ? BOTTOM_MARGIN_MOBILE : BOTTOM_MARGIN
-      var marginRight = isMobile ? RIGHT_MARGIN_MOBILE : RIGHT_MARGIN
-      // project correct window size based on camera distance and window.size
-
       return () => {
+        let isMobile = this.getIsMobile
+        var marginTop = isMobile ? TOP_MARGIN_MOBILE : TOP_MARGIN
+        var marginLeft = isMobile ? LEFT_MARGIN_MOBILE : LEFT_MARGIN
+        var marginBottom = isMobile ? BOTTOM_MARGIN_MOBILE : BOTTOM_MARGIN
+        var marginRight = isMobile ? RIGHT_MARGIN_MOBILE : RIGHT_MARGIN
+        var marginBack = isMobile ? BACK_MARGIN_MOBILE : BACK_MARGIN
+        var marginFront = isMobile ? FRONT_MARGIN_MOBILE : FRONT_MARGIN
+        // project correct window size based on camera distance and window.size
+
         var window_height = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN
         var window_width = window_height * window.innerWidth / window.innerHeight - LEFT_MARGIN - RIGHT_MARGIN
 
         nodes.forEach((node) => {
           // node.vx = 10
           // node.x =  (window.innerWidth / 4)
-          const prevPos = { x: node.x, y: node.y };
-          // const nextPos = {x: node.x + node.vx, y: node.y + node.vy};
-          let topRight = [prevPos.x + node.bbox[1][0], prevPos.y + node.bbox[0][1]];
-          let topLeft = [prevPos.x + node.bbox[0][0], prevPos.y + node.bbox[0][1]];
-          let bottomRight = [prevPos.x + node.bbox[1][0], prevPos.y + node.bbox[1][1]];
-          let bottomLeft = [prevPos.x + node.bbox[0][0], prevPos.y + node.bbox[1][1]];
+          const prevPos = { x: node.x, y: node.y, z: node.z };
+          const nextPos = { x: node.x + node.vx, y: node.y + node.vy, z: node.z + node.vz };
 
-          const prevCorners = [topRight, topLeft, bottomRight, bottomLeft].map((corner) => {
-            corner[0] += window_width / 2;
-            corner[1] += window_height / 2;
-            return corner;
-          })
-
-          const nextCorner = prevCorners.map((corner) => {
-            return [corner[0] + node.vx, corner[1] + node.vy]
-          })
-
-          const checkCorners = ((corners) => {
+          const checkPosition = ((nodePos) => {
             var is_inside = true
             var diff_x = 0
             var diff_y = 0
+            var diff_z = 0
             // top right
-            if (corners[0][0] > window_width - marginRight) {
-              // node.vx *= -1
+
+            if (nodePos.x > window_width / 2 - marginRight) {
               is_inside = false
-              diff_x = corners[0][0] - (window_width - marginRight)
+              diff_x = node.x - (window_width / 2 - marginRight)
             }
 
-            // top left
-            if (corners[1][0] < marginLeft) {
+            if (nodePos.x < -window_width / 2 + marginLeft) {
               is_inside = false
-              diff_x = corners[1][0] - marginLeft
+              diff_x = node.x + (window_width / 2 - marginLeft)
             }
 
-            // bottom right
-            if (corners[2][1] > window_height - marginBottom) {
+            if (nodePos.y > window_height / 2 - marginTop) {
               is_inside = false
-              diff_y = corners[2][1] - (window_height - marginBottom)
+              diff_y = node.y - (window_height / 2 - marginTop)
             }
 
-            // top left
-            if (corners[1][1] < marginTop) {
+            if (nodePos.y < -window_height / 2 + marginBottom) {
               is_inside = false
-              diff_y = corners[1][1] - marginTop
+              diff_y = node.y + (window_height / 2 - marginBottom)
             }
+
+            if (nodePos.z > marginFront) {
+              is_inside = false
+              diff_z = node.z - marginFront
+            }
+
+            if (nodePos.z < -marginBack) {
+              is_inside = false
+              diff_z = node.z + marginBack
+              if (node.type == "pag") {
+                diff_z = diff_z + 0.1
+              }
+            }
+
             return {
               is_inside,
               diff_x,
               diff_y,
+              diff_z
             }
           })
 
-          var checkPrev = checkCorners(prevCorners)
+          var checkPrev = checkPosition(prevPos)
 
           //console.log("checkPrev", checkPrev)
 
           // only check next corners if prev are inside
           if (checkPrev.is_inside) {
-            this.checkNext = checkCorners(nextCorner)
+            this.checkNext = checkPosition(nextPos)
             // prev inside
             if (!this.checkNext.is_inside) {
               // but next outside
-              node.vx *= -1
-              node.vy *= -1
+              if (this.checkNext.diff_x > 0) {
+                node.vx = -this.checkNext.diff_x
+              }
+              if (this.checkNext.diff_y > 0) {
+                node.vy = -this.checkNext.diff_y
+              }
               //console.log("next outside!", node, node.vx, node.vy)
             }
           } else {
             // console.log("prev outside!", checkPrev)
             node.vx = -checkPrev.diff_x
             node.vy = -checkPrev.diff_y
+            node.vz = -checkPrev.diff_z
           }
         });
       }
@@ -703,9 +736,14 @@ export default {
 }
 
 .hidden {
-  opacity: 0;
+  opacity: 0 !important;
+}
+
+.connections-graph .hidden {
   transform: scale(0.9);
 }
+
+
 
 .remove-filter {
   z-index: 1;
@@ -725,6 +763,8 @@ export default {
   pointer-events: all;
   background: white;
   padding: 2px 5px;
+  transition: opacity 0.25s ease-in-out;
+  opacity: 1;
 }
 
 .view-mode .active {

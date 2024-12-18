@@ -40,6 +40,7 @@ export default {
     if (!process.browser) {
       return;
     }
+    this.$ga.page('/')
     // check is mobile
     this.checkScreenSize();
     window.addEventListener("resize", this.checkScreenSize);

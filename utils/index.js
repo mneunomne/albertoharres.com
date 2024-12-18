@@ -5,7 +5,7 @@ export const CANVAS_OUT_MARGIN = 200
 export const CAMERA_DISTANCE = 95
 export const MOBILE_CAMERA_DISTANCE = 170
 export const CAMERA_ANIMATION_DURATION = 2000
-export const CAMERA_DISTANCE_FAR = 500
+export const CAMERA_DISTANCE_FAR = 400
 export const CAMERA_DISTANCE_2D = 330
 
 export const convertSizeValues = (ratio) => {
