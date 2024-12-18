@@ -182,9 +182,10 @@ export default {
           }
         })
         .nodeLabel((node) => {
-          console.log("node", node)
-          let title = node[`title_${this.$i18n.locale}`];
-          return `<div class="project-title">${title}</div>`;
+          if (!this.getIsMobile) {
+            let title = node[`title_${this.$i18n.locale}`];
+            return `<div class="project-title">${title}</div>`;
+          }
         })
         .nodeThreeObject((node) => {
           var group = new THREE.Group();
@@ -345,9 +346,8 @@ export default {
     },
 
     onNodeClick(node) {
-      console.log("onNodeClick", node);
       if (node.type == "tag") {
-        this.filterNodes(node);
+        if (!this.getIsMobile) this.filterNodes(node);
         return;
       }
       if (node.type !== "project") {
