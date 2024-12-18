@@ -226,8 +226,8 @@ export default {
           [-w / 2 - margin, -h / 2 - margin],
           [w / 2 + margin, h / 2 + margin],
         ];
-
-        node.__threeObj.children[1].scale.set(w + 1, h + 1);
+        // border
+        node.__threeObj.children[1].scale.set(w, h);
       };
       this.imageLoaded = 0;
       // set image sizes...
@@ -307,6 +307,7 @@ export default {
       border.scale.set(1, 1);
       border.position.set(0, 0, 0);
       border.renderOrder = 9;
+      //make transparent
       // opacity 0
       border.material.opacity = 0;
 
@@ -359,7 +360,9 @@ export default {
         return;
       }
 
+
       this.resetNodesStyle();
+      node.__threeObj.children[0].renderOrder = 99
 
       this.currentNode = node;
       this.openProject = true;
@@ -412,11 +415,11 @@ export default {
     },
     resetNodesStyle() {
       this.allNodes.forEach((_node) => {
-        if (_node.type == "tag") {
+        if (_node.type == "tag" && _node.__threeObj) {
           _node.__threeObj.children[0].backgroundColor = "white";
         }
-        if (_node.type == "project") {
-          _node.__threeObj.children[1].material.opacity = 0;
+        if (_node.type == "project" && _node.__threeObj) {
+          _node.__threeObj.children[0].renderOrder = 10
         }
       });
     },
@@ -432,7 +435,8 @@ export default {
       this.resetNodesStyle();
       if (node) {
         if (node.type == "project") {
-          node.__threeObj.children[1].material.opacity = 1;
+          //node.__threeObj.children[1].material.opacity = 1;
+          node.__threeObj.children[0].renderOrder = 99
         }
         if (node.type == "tag") {
           node.__threeObj.children[0].backgroundColor = "rgba(255, 255, 255, 0)";
@@ -830,6 +834,7 @@ export default {
   top: 100px;
   transform: translate(-50%, -50%);
   pointer-events: all;
+  color: black !important;
 }
 
 .view-mode {

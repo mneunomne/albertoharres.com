@@ -301,6 +301,13 @@ export default {
   padding-top: 0;
 }
 
+/* llower than 1300 */
+@media (max-width: 1300px) {
+  .side-content .details {
+    width: 170px;
+  }
+}
+
 .title {
   margin: 0px;
   padding: 5px 7px 2px 7px;

@@ -31,8 +31,16 @@ export default {
       composer: null, // For post-processing
     };
   },
+
+  created() {
+    if (!process.browser) return
+    window.addEventListener("resize", () => {
+      this.computeWindowSize();
+    });
+  },
   mounted() {
     if (!process.browser) return;
+    this.computeWindowSize();
 
     const fontFile = new FontFace(
       "Libre Bodoni Italic",
@@ -52,6 +60,7 @@ export default {
       this.height = 150;
       this.cameraDistance = 100;
     }
+
   },
   computed: {
     ...mapGetters({
@@ -59,6 +68,25 @@ export default {
     }),
   },
   methods: {
+    computeWindowSize() {
+      console.log("window.innerWidth", window.innerWidth);
+
+      this.width = 250;
+      this.height = 250;
+      this.cameraDistance = 130;
+
+      if (window.innerWidth < 1200) {
+        this.width = 180;
+        this.height = 180;
+        this.cameraDistance = 120;
+      }
+      if (window.innerWidth < 900) {
+        this.width = 150;
+        this.height = 150;
+        this.cameraDistance = 100;
+      }
+      if (this.g) this.g.width(this.width).height(this.height);
+    },
     buildGraph() {
       let ForceGraph3D;
       if (window) {
@@ -231,6 +259,12 @@ export default {
   &.show {
     opacity: 1;
     pointer-events: all;
+  }
+}
+
+@media (max-width: 1200px) {
+  .menu-graph {
+    z-index: 1;
   }
 }
 </style>
