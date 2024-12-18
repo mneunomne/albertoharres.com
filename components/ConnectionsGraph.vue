@@ -113,18 +113,19 @@ export default {
     this.contentMargin = getContentMargin(window);
     this.canvasHeight = getCanvasHeight(window);
 
-    this.buildGraph();
-
     process.nextTick(() => {
-      if (this.$route.name == "works-work") {
-        // get current project
-        let { nodes } = this.g.graphData();
-        nodes.forEach((n) => {
-          if (n.id == this.$route.params.work) {
-            this.onNodeClick(n);
-          }
-        });
-      }
+      this.buildGraph();
+      setTimeout(() => {
+        if (this.$route.name == "works-work") {
+          // get current project
+          let { nodes } = this.g.graphData();
+          nodes.forEach((n) => {
+            if (n.id == this.$route.params.work) {
+              this.onNodeClick(n);
+            }
+          });
+        }
+      }, 10);
     });
   },
   methods: {
