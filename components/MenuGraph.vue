@@ -26,7 +26,7 @@ export default {
       g: null,
       width: 250,
       height: 250,
-      cameraDistance: 150,
+      cameraDistance: 130,
       show: false,
       composer: null, // For post-processing
     };
@@ -41,20 +41,17 @@ export default {
     fontFile.load().then((font) => {
       document.fonts.add(font);
       this.buildGraph();
+      setTimeout(() => {
+        this.canvasMask();
+      }, 1000);
     });
     //document.fonts.add(fontFile);
 
     if (this.getIsMobile) {
       this.width = 150;
       this.height = 150;
-      this.cameraDistance = 120;
+      this.cameraDistance = 100;
     }
-
-    process.nextTick(() => {
-      setTimeout(() => {
-        this.canvasMask();
-      }, 1000);
-    });
   },
   computed: {
     ...mapGetters({
@@ -78,6 +75,7 @@ export default {
         },
       })(el);
 
+      var nodes = this.gData.nodes;
       g.graphData(this.gData)
         .backgroundColor("rgba(0,0,0,0)")
         .showNavInfo(false)
@@ -88,6 +86,19 @@ export default {
           if (node.route.includes("http")) {
             window.open(node.route, "_blank");
             return;
+          }
+          if (node) {
+            // change
+            node.__threeObj.children[0].backgroundColor = "red";
+          }
+        })
+        .onNodeHover((node) => {
+          nodes.forEach((node) => {
+            node.__threeObj.children[0].backgroundColor = "white";
+          });
+          if (node) {
+            console.log("hover", node);
+            node.__threeObj.children[0].backgroundColor = "rgba(255,255,255,0)";
           }
         })
         .nodeLabel((node) => {

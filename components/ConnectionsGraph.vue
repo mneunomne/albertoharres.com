@@ -172,17 +172,10 @@ export default {
         .d3VelocityDecay(0.8)
         .d3AlphaMin(0.0)
         .d3AlphaDecay(0.02)
-
         .onNodeClick(this.onNodeClick)
-        .onNodeHover((node) => {
-          if (!node) {
-            this.el.style.cursor = null;
-          } else {
-            this.el.style.cursor = "pointer";
-          }
-        })
+        .onNodeHover(this.onNodeHover)
         .nodeLabel((node) => {
-          if (!this.getIsMobile) {
+          if (!this.getIsMobile && node.type == "project") {
             let title = node[`title_${this.$i18n.locale}`];
             return `<div class="project-title">${title}</div>`;
           }
@@ -233,6 +226,8 @@ export default {
           [-w / 2 - margin, -h / 2 - margin],
           [w / 2 + margin, h / 2 + margin],
         ];
+
+        node.__threeObj.children[1].scale.set(w + 1, h + 1);
       };
       this.imageLoaded = 0;
       // set image sizes...
@@ -306,7 +301,17 @@ export default {
       sprite.scale.set(1, 1);
       sprite.position.set(0, 0, 0);
       sprite.renderOrder = 10;
+
+      // add border
+      const border = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0xffffff }));
+      border.scale.set(1, 1);
+      border.position.set(0, 0, 0);
+      border.renderOrder = 9;
+      // opacity 0
+      border.material.opacity = 0;
+
       group.add(sprite);
+      group.add(border);
       return group;
     },
 
@@ -353,6 +358,8 @@ export default {
       if (node.type !== "project") {
         return;
       }
+
+      this.resetNodesStyle();
 
       this.currentNode = node;
       this.openProject = true;
@@ -403,11 +410,39 @@ export default {
         }, 100);
       }, CAMERA_ANIMATION_DURATION + 500);
     },
+    resetNodesStyle() {
+      this.allNodes.forEach((_node) => {
+        if (_node.type == "tag") {
+          _node.__threeObj.children[0].backgroundColor = "white";
+        }
+        if (_node.type == "project") {
+          _node.__threeObj.children[1].material.opacity = 0;
+        }
+      });
+    },
+
+    onNodeHover(node) {
+      // stop animation
+      this.g.pauseAnimation();
+      if (!node) {
+        this.el.style.cursor = null;
+      } else {
+        this.el.style.cursor = "pointer";
+      }
+      this.resetNodesStyle();
+      if (node) {
+        if (node.type == "project") {
+          node.__threeObj.children[1].material.opacity = 1;
+        }
+        if (node.type == "tag") {
+          node.__threeObj.children[0].backgroundColor = "rgba(255, 255, 255, 0)";
+        }
+      }
+    },
 
     onCloseProject() {
       this.openProject = false;
       var node = this.currentNode;
-      console.log("getCurrentProject", this.getCurrentProject, node);
 
       this.g.resumeAnimation();
 
@@ -478,14 +513,7 @@ export default {
     },
 
     setCurrentOpenNode() {
-      console.log("setCurrentOpenNode", this.getCurrentProject);
       this.openProject = true;
-      let { nodes, links } = this.g.graphData();
-      nodes.forEach((n) => {
-        if (n.id == this.getCurrentProject.slug) {
-          this.currentNode = n;
-        }
-      });
     },
 
     onWindowResize() {

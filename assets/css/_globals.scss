@@ -21,7 +21,9 @@ iframe {
   border: none;
 }
 
-canvas {
+canvas,
+body,
+iframe {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;

@@ -35,12 +35,11 @@
             <img class="image-el" :src="project.thumbnail" alt="" />
           </div>
           <div class="description" v-html="renderContent"></div>
-          <div v-if="getIsMobile || getIsTabletView" class="details" v-html="renderDetails"></div>
           <div class="gallery-images">
-
             <img class="gallery_image" v-for="(image, imageIndex) in imageGallery" :key="imageIndex"
               @click="curImageIndex = imageIndex" :src="image" />
           </div>
+          <div v-if="getIsMobile || getIsTabletView" class="details" v-html="renderDetails"></div>
         </div>
       </div>
     </div>
@@ -286,6 +285,7 @@ export default {
   transition: opacity 0.5s;
   border-top: 1px black solid;
   padding-top: 1em;
+  opacity: 0;
 }
 
 .side-content {
