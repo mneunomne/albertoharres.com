@@ -38,7 +38,6 @@ export default {
       "Libre Bodoni Italic",
       "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)",
     );
-    console.log("fontFile", fontFile)
     fontFile.load().then((font) => {
       document.fonts.add(font);
       this.buildGraph();

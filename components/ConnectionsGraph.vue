@@ -118,7 +118,14 @@ export default {
     this.canvasHeight = getCanvasHeight(window);
 
     process.nextTick(() => {
-      this.buildGraph();
+      const fontFile = new FontFace(
+        "Libre Bodoni Italic",
+        "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)",
+      );
+      fontFile.load().then((font) => {
+        document.fonts.add(font);
+        this.buildGraph();
+      });
       setTimeout(() => {
         if (this.$route.name == "works-work") {
           // get current project
