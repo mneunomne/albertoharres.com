@@ -39,7 +39,11 @@ export default {
       "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)",
     );
     console.log("fontFile", fontFile)
-    document.fonts.add(fontFile);
+    fontFile.load().then((font) => {
+      document.fonts.add(font);
+      this.buildGraph();
+    });
+    //document.fonts.add(fontFile);
 
     if (this.getIsMobile) {
       this.width = 150;
@@ -48,7 +52,6 @@ export default {
     }
 
     process.nextTick(() => {
-      this.buildGraph();
       setTimeout(() => {
         this.canvasMask();
       }, 1000);
