@@ -52,6 +52,15 @@ export default {
         href: 'favicon.ico',
         type: 'image/x-icon'
       }
+    ],
+    script: [
+      {
+        src: "https://www.googletagmanager.com/gtag/js?id=G-JLSY3TWTM2",
+        async: true,
+      },
+      {
+        src: "js/ga.js",
+      }
     ]
   },
   generate: {
@@ -110,9 +119,6 @@ export default {
       { code: 'pt', language: 'pt-BR' }
     ],
     defaultLocale: 'en',
-  },
-  googleAnalytics: {
-    id: 'G-29WN51PKH5'
   },
   styleResources: {
     scss: ['./assets/css/*.scss']

@@ -100,7 +100,7 @@ export default {
     if (!process.browser) {
       return;
     }
-    this.$ga.page(`/works/${this.project.slug}`);
+    //this.$ga.page(`/works/${this.project.slug}`);
     this.curImageIndex = null;
     this.contentMargin = getContentMargin(window);
     this.tabletView = this.getIsTabletView;

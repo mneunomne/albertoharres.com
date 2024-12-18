@@ -112,6 +112,12 @@ export default {
       return;
     }
 
+    gtag('event', 'moin', {
+      event_category: 'your_event_category',
+      event_label: 'your_event_label',
+      value: 123, // Optional numeric value
+    });
+
     // set values
     this.canvasMargin = CANVAS_OUT_MARGIN;
     this.contentMargin = getContentMargin(window);
