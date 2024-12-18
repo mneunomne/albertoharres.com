@@ -263,7 +263,6 @@ export default {
 
     .project-bg {
       opacity: 1;
-      backdrop-filter: blur(10px);
     }
   }
 }
@@ -277,7 +276,7 @@ export default {
   width: 100vw;
   height: 100vh;
   z-index: 1;
-  backdrop-filter: blur(0px);
+  backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.85);
 }
 

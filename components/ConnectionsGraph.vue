@@ -56,9 +56,9 @@ const PROJECT_MARGIN = 2
 // mobile values
 const GRID_MARGIN_MOBILE = 5
 const TOP_MARGIN_MOBILE = 20
-const LEFT_MARGIN_MOBILE = -10
+const LEFT_MARGIN_MOBILE = 10
 const BOTTOM_MARGIN_MOBILE = 10
-const RIGHT_MARGIN_MOBILE = -10
+const RIGHT_MARGIN_MOBILE = 10
 const BLANK_SPACE_RATIO_MOBILE = 0.35
 const FRONT_MARGIN_MOBILE = 2
 const BACK_MARGIN_MOBILE = 2
@@ -188,14 +188,6 @@ export default {
       // on stop animation
       this.g.onEngineStop(() => {
         console.log("onEngineStop");
-        // enter transition
-        if (!this.getIsMobile) {
-          this.g.cameraPosition(
-            { x: 0, y: 0, z: CAMERA_DISTANCE_FAR + 10 },
-            0,
-            1000
-          );
-        }
       });
 
       setTimeout(() => {
@@ -255,7 +247,7 @@ export default {
         var material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
         // transparent material
         material.transparent = true;
-        material.opacity = 0;
+        material.opacity = 1;
 
         var plane = new THREE.Mesh(geometry, material);
         plane.position.z = -BACK_MARGIN - 1;
@@ -263,20 +255,17 @@ export default {
         // add id to plane
         //this.g.scene().add(plane);
         setTimeout(() => {
-          if (this.getIsMobile) {
-            this.gridMode = true
-            this.enableGrid()
-          } else {
-            this.g.d3Force(
-              'limit', this.limitWindow(project_nodes)
-            ).d3Force("colide", bboxCollide((node) => {
-              if (node.bbox) {
-                return node.bbox
-              } else {
-                return [[-1, -1], [1, 1]]
-              }
-            }))
-          }
+
+          this.g.d3Force(
+            'limit', this.limitWindow(project_nodes)
+          ).d3Force("colide", bboxCollide((node) => {
+            if (node.bbox) {
+              return node.bbox
+            } else {
+              return [[-1, -1], [1, 1]]
+            }
+          }))
+
         }, 10)
         this.hidden = false;
 
@@ -505,7 +494,8 @@ export default {
       if (plane) {
         plane.geometry = new THREE.PlaneGeometry(w, h, 32);
       }
-
+      // reheat
+      this.g.d3ReheatSimulation()
     },
     enableGrid() {
       let project_nodes = this.g.graphData().nodes.filter((n) => n.type == "project");
