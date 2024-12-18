@@ -7,6 +7,10 @@
       <span @click="gridMode = true" class="grid-mode" :class="{ active: gridMode }">grid</span> /
       <span @click="gridMode = false" class="grid-mode" :class="{ active: !gridMode }">network</span>
     </div>-->
+    <div class="loading" v-if="hidden">
+      <span>loading</span><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+    </div>
+
     <div :class="{ hidden, 'no-interaction': openProject }" class="connections-graph" :style="{
       top: `-${openProject ? canvasMargin + contentMargin : canvasMargin}px`,
       height: `calc(${canvasHeight}px)`,
@@ -732,6 +736,54 @@ export default {
 
 .connections-graph .hidden {
   transform: scale(0.9);
+}
+
+
+.loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+  font-family: "Libre Bodoni Italic";
+  font-size: 14px;
+  line-height: 20px;
+  color: black;
+  display: flex;
+  align-items: center;
+}
+
+.dot {
+  opacity: 0;
+  animation: dot-flash 1.5s infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.dot:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+@keyframes dot-flash {
+
+  0%,
+  20% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
 
