@@ -112,7 +112,7 @@ export default {
     defaultLocale: 'en',
   },
   googleAnalytics: {
-    id: 'G-JLSY3TWTM2'
+    id: 'G-29WN51PKH5'
   },
   styleResources: {
     scss: ['./assets/css/*.scss']
