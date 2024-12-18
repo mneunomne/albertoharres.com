@@ -34,6 +34,13 @@ export default {
   mounted() {
     if (!process.browser) return;
 
+    const fontFile = new FontFace(
+      "Libre Bodoni Italic",
+      "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)",
+    );
+    console.log("fontFile", fontFile)
+    document.fonts.add(fontFile);
+
     if (this.getIsMobile) {
       this.width = 150;
       this.height = 150;
@@ -41,7 +48,9 @@ export default {
     }
 
     process.nextTick(() => {
-      this.buildGraph();
+      setTimeout(() => {
+        this.buildGraph();
+      }, 1000);
       setTimeout(() => {
         this.canvasMask();
       }, 1000);
