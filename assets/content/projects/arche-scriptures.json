@@ -17,6 +17,7 @@
     "/img/p1022195.jpeg",
     "/img/platten_gestaltung.png"
   ],
+  "importance": 1.1,
   "tags": [
     "archiving",
     "ceramics",
@@ -25,9 +26,9 @@
     "processing",
     "arduino",
     "elertronics",
-    "materiality"
+    "materiality",
+    "clay"
   ],
   "disabled": false,
-  "year": "2022",
-  "importance": 1.1
+  "year": "2022"
 }
