@@ -32,7 +32,11 @@ export default {
         hid: 'description',
         name: 'description',
         content: SITE_INFO.sitedescription || process.env.npm_package_description || ''
-      }
+      },
+      { property: 'og:title', content: 'Alberto Harres | Portifolio' },
+      { property: 'og:url', content: 'https://albertoharres.com' },
+      { property: 'og:image', content: 'https://albertoharres.com/img/preview.jpg' },
+      { property: 'keywords', content: 'Alberto Harres, Artist, Technologist, Archives, Art and Technology, Digital Media, Visual Arts, Art Exhibitions' },
     ],
     link: [
       {
