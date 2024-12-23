@@ -285,6 +285,10 @@ export default {
   opacity: 0;
 }
 
+.details h3 {
+  background-color: transparent;
+}
+
 .side-content {
   opacity: 0;
   position: absolute;
