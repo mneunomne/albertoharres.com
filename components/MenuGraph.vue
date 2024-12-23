@@ -71,9 +71,9 @@ export default {
     computeWindowSize() {
       console.log("window.innerWidth", window.innerWidth);
 
-      this.width = 250;
-      this.height = 250;
-      this.cameraDistance = 130;
+      this.width = 300;
+      this.height = 300;
+      this.cameraDistance = 170;
 
       if (window.innerWidth < 1200) {
         this.width = 180;
@@ -114,20 +114,23 @@ export default {
           if (node.route.includes("http")) {
             window.open(node.route, "_blank");
             return;
-          }
-          if (node) {
-            // change
-            node.__threeObj.children[0].backgroundColor = "red";
+          } else {
+            // gp home
+            this.$router.push("/");
           }
         })
         .onNodeHover((node) => {
           nodes.forEach((node) => {
             node.__threeObj.children[0].backgroundColor = "white";
           });
-          if (node) {
-            console.log("hover", node);
-            node.__threeObj.children[0].backgroundColor = "rgba(255,255,255,0)";
-          }
+        })
+        .onNodeDrag((node, translate) => {
+          node.fx = node.x;
+          node.fy = node.y;
+        })
+        .onNodeDragEnd((node) => {
+          node.fx = null;
+          node.fy = null;
         })
         .nodeLabel((node) => {
           return false;

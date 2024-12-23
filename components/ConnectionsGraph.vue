@@ -112,7 +112,7 @@ export default {
       return;
     }
 
-    gtag('event', 'moin', {
+    if (gtag) gtag('event', 'moin', {
       event_category: 'your_event_category',
       event_label: 'your_event_label',
       value: 123, // Optional numeric value

@@ -213,7 +213,8 @@ export default {
 
     .description,
     .details,
-    .image {
+    .image,
+    .gallery-images {
       padding: 0px 12px;
     }
   }
@@ -225,10 +226,6 @@ export default {
       transition: opacity 0.5s;
       opacity: 0;
       padding-bottom: 1em;
-    }
-
-    .gallery-images {
-      padding: 0px 12px;
     }
 
     width: 100%;
