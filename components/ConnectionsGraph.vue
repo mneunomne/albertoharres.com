@@ -789,7 +789,7 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 99999;
+  z-index: 3;
   font-family: "Libre Bodoni Italic";
   font-size: 14px;
   line-height: 20px;
