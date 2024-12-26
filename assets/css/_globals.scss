@@ -35,6 +35,41 @@ iframe {
   /* mobile webkit */
 }
 
+
+/* allow select */
+p,
+a,
+h1,
+h2,
+h3,
+li,
+ul,
+ol,
+b,
+i,
+strong,
+em {
+  -webkit-touch-callout: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  /* select color */
+}
+
+::-moz-selection {
+  /* Code for Firefox */
+  color: rgb(0, 0, 0);
+  background: rgb(225, 225, 225);
+}
+
+::selection {
+  color: rgb(0, 0, 0);
+  background: rgb(225, 225, 225);
+}
+
+
 body {
   width: 100vw;
   height: 100vh;
