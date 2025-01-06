@@ -33,24 +33,12 @@ export default {
         name: 'description',
         content: SITE_INFO.sitedescription || process.env.npm_package_description || ''
       },
-      { property: 'og:title', content: 'Alberto Harres | Portifolio' },
+      { property: 'og:title', content: 'Alberto Harres | Artist, Media-Designer' },
       { property: 'og:url', content: 'https://albertoharres.com' },
       { property: 'og:image', content: 'https://albertoharres.com/img/preview.jpg' },
-      { property: 'keywords', content: 'Alberto Harres, Artist, Technologist, Archives, Art and Technology, Digital Media, Visual Arts, Art Exhibitions' },
+      { property: 'keywords', content: 'Alberto Harres, Artist, Technologist, Archives, Art and Technology, Digital Media, Visual Arts, Art Exhibitions, New Materialism, Archive' },
     ],
     link: [
-      {
-        rel: 'preconnect',
-        href: 'https://fonts.gstatic.com'
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap'
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap'
-      },
       {
         ref: 'icon',
         href: 'favicon.ico',
