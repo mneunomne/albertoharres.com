@@ -1,6 +1,7 @@
 <template>
   <div>
     <MenuGraph :gData="gData" />
+    <a v-show="false" rel="me" href="https://mastodon.social/@mneunomne">Mastodon</a>
   </div>
 </template>
 

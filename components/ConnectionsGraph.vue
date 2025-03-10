@@ -112,12 +112,6 @@ export default {
       return;
     }
 
-    if (gtag) gtag('event', 'moin', {
-      event_category: 'your_event_category',
-      event_label: 'your_event_label',
-      value: 123, // Optional numeric value
-    });
-
     // set values
     this.canvasMargin = CANVAS_OUT_MARGIN;
     this.contentMargin = getContentMargin(window);
@@ -358,6 +352,11 @@ export default {
     },
 
     onNodeClick(node) {
+      if (gtag) gtag('event', 'click', {
+        event_category: 'node_click',
+        event_label: 'Node Click',
+        value: node.id
+      });
       if (node.type == "tag") {
         if (!this.getIsMobile) this.filterNodes(node);
         return;
@@ -429,15 +428,16 @@ export default {
         }
       });
     },
-
     onNodeHover(node) {
       // stop animation
-      this.g.pauseAnimation();
-      if (!node) {
-        this.el.style.cursor = null;
-      } else {
-        this.el.style.cursor = "pointer";
+      if (node) {
+        if (gtag) gtag('event', 'hover', {
+          event_category: 'node_hover',
+          event_label: 'Node Hover',
+          value: node.id
+        });
       }
+      this.g.pauseAnimation();
       this.resetNodesStyle();
       if (node) {
         if (node.type == "project") {
@@ -858,7 +858,7 @@ export default {
 
 .view-mode .active {
   text-decoration: underline;
-  cursor: default;
+
 }
 
 .view-mode :not(.active) {

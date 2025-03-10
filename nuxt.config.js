@@ -37,6 +37,7 @@ export default {
       { property: 'og:url', content: 'https://albertoharres.com' },
       { property: 'og:image', content: 'https://albertoharres.com/img/preview.jpg' },
       { property: 'keywords', content: 'Alberto Harres, Artist, Technologist, Archives, Art and Technology, Digital Media, Visual Arts, Art Exhibitions, New Materialism, Archive' },
+      { property: 'fediverse:creator', content: '@mneunomne@mastodon.social' },
     ],
     link: [
       {
@@ -92,15 +93,7 @@ export default {
         locales: ['en', 'pt'],
         defaultLocale: 'en',
         vueI18n: {
-          fallbackLocale: 'en',
-          messages: {
-            en: {
-              greeting: 'Hello world!'
-            },
-            es: {
-              greeting: '¡Hola mundo!'
-            }
-          }
+          fallbackLocale: 'en'
         }
       }
     ]

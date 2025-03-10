@@ -37,7 +37,7 @@
           <div class="description" v-html="renderContent"></div>
           <div class="gallery-images">
             <img class="gallery_image" v-for="(image, imageIndex) in imageGallery" :key="imageIndex"
-              @click="curImageIndex = imageIndex" :src="image" />
+              @click="onClickImage(imageIndex, image)" :src="image" />
           </div>
           <div v-if="getIsMobile || getIsTabletView" class="details" v-html="renderDetails"></div>
         </div>
@@ -87,6 +87,7 @@ export default {
       imageGallery: [],
       allImages: [],
       curImageIndex: null,
+      reachedBottom: false
     };
   },
   methods: {
@@ -94,12 +95,31 @@ export default {
       this.$emit("closeProject");
       this.$root.$emit("closeProject");
       this.curImageIndex = null;
+      if (gtag) gtag('event', 'click', {
+        event_category: 'project_close',
+        event_label: 'Close Project',
+        value: this.project.id
+      });
+    },
+    onClickImage(index, src) {
+      this.curImageIndex = index;
+      if (gtag) gtag('event', 'click', {
+        event_category: 'image_click',
+        event_label: 'click image',
+        value: src
+      });
     },
   },
   mounted() {
     if (!process.browser) {
       return;
     }
+    if (gtag) gtag('event', 'loaded', {
+      event_category: 'project_loaded',
+      event_label: 'loaded project',
+      value: this.project.id
+    });
+    this.reachedBottom = false;
     //this.$ga.page(`/works/${this.project.slug}`);
     this.curImageIndex = null;
     this.contentMargin = getContentMargin(window);
@@ -108,8 +128,30 @@ export default {
     // add resize listener
     window.addEventListener("resize", () => {
       this.contentMargin = getContentMargin(window);
+      if (gtag) gtag('event', 'resize', {
+        event_category: 'window_resize',
+        event_label: 'window resize',
+        value: window.innerWidth
+      });
       // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
     });
+    // detect when scroll reached bottom
+
+    window.addEventListener("scroll", () => {
+      if (document.querySelector(".content")) {
+        let height = document.querySelector(".content").offsetHeight;
+        if (window.scrollY + window.innerHeight >= height && !this.reachedBottom) {
+          this.reachedBottom = true;
+          if (gtag) gtag('scroll', 'loaded', {
+            event_category: 'scrolled_bottom',
+            event_label: 'scrolled bottom',
+            value: this.project.id
+          });
+          console.log('reached bottom');
+        }
+      }
+    });
+
     this.imageGallery = this.project.gallery;
     if (this.imageGallery) {
       this.allImages = this.project.gallery.concat(this.project.thumbnail);
@@ -127,6 +169,18 @@ export default {
   beforeDestroy() {
     window.removeEventListener("resize", () => {
       this.canvasMargin = getContentMargin(window);
+    });
+    window.removeEventListener("scroll", () => {
+      let height = document.querySelector(".content").offsetHeight;
+      if (window.scrollY + window.innerHeight >= height && !this.reachedBottom) {
+        this.reachedBottom = true;
+      }
+      if (gtag) gtag('scroll', 'loaded', {
+        event_category: 'scrolled_bottom',
+        event_label: 'scrolled bottom',
+        value: this.project.id
+      });
+      // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
     });
   },
   computed: {

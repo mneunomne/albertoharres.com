@@ -111,6 +111,12 @@ export default {
         .width(this.width)
         .height(this.height)
         .onNodeClick((node) => {
+          if (gtag) gtag('event', 'click', {
+            event_category: 'menu_graph_click',
+            event_label: 'Menu graph click',
+            value: node.route
+          });
+
           if (node.route.includes("http")) {
             window.open(node.route, "_blank");
             return;
