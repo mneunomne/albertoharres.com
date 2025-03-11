@@ -97,7 +97,7 @@ export default {
       this.curImageIndex = null;
       if (gtag) gtag('event', 'click', {
         event_category: 'project_close',
-        event_label: this.project.id
+        event_label: this.project.title_en
       });
     },
     onClickImage(index, src) {
@@ -114,7 +114,7 @@ export default {
     }
     if (gtag) gtag('event', 'loaded', {
       event_category: 'project_loaded',
-      event_label: this.project.id
+      event_label: this.project.title_en
     });
     this.reachedBottom = false;
     //this.$ga.page(`/works/${this.project.slug}`);
@@ -136,7 +136,7 @@ export default {
           this.reachedBottom = true;
           if (gtag) gtag('event', 'scroll', {
             event_category: 'scrolled_bottom',
-            event_label: this.project.id
+            event_label: this.project.title_en
           });
           console.log('reached bottom');
         }
@@ -168,7 +168,7 @@ export default {
       }
       if (gtag) gtag('event', 'scroll', {
         event_category: 'scrolled_bottom',
-        event_label: this.project.id
+        event_label: this.project.title_en
       });
       // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
     });
