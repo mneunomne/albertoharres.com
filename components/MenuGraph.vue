@@ -113,8 +113,7 @@ export default {
         .onNodeClick((node) => {
           if (gtag) gtag('event', 'click', {
             event_category: 'menu_graph_click',
-            event_label: 'Menu graph click',
-            value: node.route
+            event_label: node.route
           });
 
           if (node.route.includes("http")) {

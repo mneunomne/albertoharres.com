@@ -97,16 +97,14 @@ export default {
       this.curImageIndex = null;
       if (gtag) gtag('event', 'click', {
         event_category: 'project_close',
-        event_label: 'Close Project',
-        value: this.project.id
+        event_label: this.project.id
       });
     },
     onClickImage(index, src) {
       this.curImageIndex = index;
       if (gtag) gtag('event', 'click', {
         event_category: 'image_click',
-        event_label: 'click image',
-        value: src
+        event_label: src
       });
     },
   },
@@ -116,8 +114,7 @@ export default {
     }
     if (gtag) gtag('event', 'loaded', {
       event_category: 'project_loaded',
-      event_label: 'loaded project',
-      value: this.project.id
+      event_label: this.project.id
     });
     this.reachedBottom = false;
     //this.$ga.page(`/works/${this.project.slug}`);
@@ -128,11 +125,6 @@ export default {
     // add resize listener
     window.addEventListener("resize", () => {
       this.contentMargin = getContentMargin(window);
-      if (gtag) gtag('event', 'resize', {
-        event_category: 'window_resize',
-        event_label: 'window resize',
-        value: window.innerWidth
-      });
       // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
     });
     // detect when scroll reached bottom
@@ -142,10 +134,9 @@ export default {
         let height = document.querySelector(".content").offsetHeight;
         if (window.scrollY + window.innerHeight >= height && !this.reachedBottom) {
           this.reachedBottom = true;
-          if (gtag) gtag('scroll', 'loaded', {
+          if (gtag) gtag('event', 'scroll', {
             event_category: 'scrolled_bottom',
-            event_label: 'scrolled bottom',
-            value: this.project.id
+            event_label: this.project.id
           });
           console.log('reached bottom');
         }
@@ -175,10 +166,9 @@ export default {
       if (window.scrollY + window.innerHeight >= height && !this.reachedBottom) {
         this.reachedBottom = true;
       }
-      if (gtag) gtag('scroll', 'loaded', {
+      if (gtag) gtag('event', 'scroll', {
         event_category: 'scrolled_bottom',
-        event_label: 'scrolled bottom',
-        value: this.project.id
+        event_label: this.project.id
       });
       // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
     });

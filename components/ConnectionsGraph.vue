@@ -354,8 +354,7 @@ export default {
     onNodeClick(node) {
       if (gtag) gtag('event', 'click', {
         event_category: 'node_click',
-        event_label: 'Node Click',
-        value: node.id
+        event_label: node.id,
       });
       if (node.type == "tag") {
         if (!this.getIsMobile) this.filterNodes(node);
@@ -433,8 +432,7 @@ export default {
       if (node) {
         if (gtag) gtag('event', 'hover', {
           event_category: 'node_hover',
-          event_label: 'Node Hover',
-          value: node.id
+          event_label: node.id
         });
       }
       this.g.pauseAnimation();
@@ -449,7 +447,6 @@ export default {
         }
       }
     },
-
     onCloseProject() {
       this.openProject = false;
       var node = this.currentNode;
