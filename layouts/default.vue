@@ -100,7 +100,8 @@ export default {
     },
     onClickProject(data) {
       const { id, transitionTime } = data;
-      this.$router.push(`/works/${id}`);
+      // add 'from graph' param
+      this.$router.push(`/works/${id}?graph=true`);
     },
     onHoverProject(data) {
       const { imgUrl } = data;

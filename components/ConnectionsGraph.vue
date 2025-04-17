@@ -364,7 +364,6 @@ export default {
         return;
       }
 
-
       this.resetNodesStyle();
       node.__threeObj.children[0].renderOrder = 99
 
@@ -711,7 +710,6 @@ export default {
     $route(to, from) {
       let to_name = to.name.split("__")[0];
       let from_name = from.name.split("__")[0];
-      console.log("route change", to_name, from_name);
       if (
         from_name == "works-work" &&
         (to_name == "works" || to_name == "index")
@@ -721,7 +719,6 @@ export default {
       if (to.name == "works-work") {
         // this.setCurrentOpenNode();
         // find node from gData
-        console.log("to.params.slug", to.params.work);
         let { nodes } = this.g.graphData();
         nodes.forEach((n) => {
           if (n.id == to.params.work) {

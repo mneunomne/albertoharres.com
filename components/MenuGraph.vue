@@ -69,8 +69,6 @@ export default {
   },
   methods: {
     computeWindowSize() {
-      console.log("window.innerWidth", window.innerWidth);
-
       this.width = 300;
       this.height = 300;
       this.cameraDistance = 170;
@@ -119,6 +117,10 @@ export default {
           if (node.route.includes("http")) {
             window.open(node.route, "_blank");
             return;
+          } else if (node.route.includes("mailto")) {
+            var mail = document.createElement("a");
+            mail.href = node.route;
+            mail.click();
           } else {
             // gp home
             this.$router.push("/");

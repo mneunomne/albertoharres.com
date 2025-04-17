@@ -61,6 +61,15 @@ export default {
     fallback: true,
     subFolders: false
   },
+  router: {
+    extendRoutes(routes, resolve) {
+      // Add a catch-all route that redirects to home
+      routes.push({
+        path: '*',
+        redirect: '/'
+      })
+    }
+  },
   render: {
     bundleRenderer: {
       shouldPreload: (file, type) => {
