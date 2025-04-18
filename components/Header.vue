@@ -48,11 +48,11 @@ export default {
         name: "cv",
         route: "https://docs.google.com/spreadsheets/d/1UepqwFz3A6oJvinS_eg5EG3NHAwfTDn6WnMvGzc1DVI/edit?gid=0#gid=0",
       },
+      /*
       {
         name: "mail",
         route: "mailto:alberto.harres@gmail.com",
       },
-      /*
       {
         name: "backlog",
         route: "/backlog",

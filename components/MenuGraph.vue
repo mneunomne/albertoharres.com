@@ -117,7 +117,7 @@ export default {
           if (node.route.includes("http")) {
             window.open(node.route, "_blank");
             return;
-          } else if (node.route.includes("mailto")) {
+          } else if (node.name == "mail") {
             var mail = document.createElement("a");
             mail.href = node.route;
             mail.click();
