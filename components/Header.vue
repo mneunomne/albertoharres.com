@@ -50,7 +50,7 @@ export default {
       },
       {
         name: "mail",
-        route: "mailto:mail@albertoharres.com",
+        route: "mailto:alberto.harres@gmail.com",
       },
       /*
       {
