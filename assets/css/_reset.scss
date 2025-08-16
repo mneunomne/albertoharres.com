@@ -86,7 +86,7 @@ video {
 	/* font-family: inherit; */
 	vertical-align: baseline;
 	word-wrap: break-word;
-	line-height: 1.2em;
+	line-height: 1.5em;
 	letter-spacing: 0.60px;
 
 }
@@ -127,15 +127,6 @@ h3 {
 	margin-top: 0.8em;
 }
 
-ul {
-	list-style: none;
-}
-
-ul li:before {
-	content: "-";
-	position: absolute;
-	margin-left: -1em;
-}
 
 h2,
 h3 {

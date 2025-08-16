@@ -1,6 +1,10 @@
 <template>
   <div>
-    <div v-show="currentFilter !== null" class="remove-filter close" @click="showAllElements">
+    <div
+      v-show="currentFilter !== null"
+      class="remove-filter close"
+      @click="showAllElements"
+    >
       <button>{{ currentFilter }}</button>
     </div>
     <!--<div class="view-mode" :class="{ hidden }">
@@ -8,13 +12,22 @@
       <span @click="gridMode = false" class="grid-mode" :class="{ active: !gridMode }">network</span>
     </div>-->
     <div class="loading" v-if="hidden">
-      <span>loading</span><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+      <span>loading</span><span class="dot">.</span><span class="dot">.</span
+      ><span class="dot">.</span>
     </div>
 
-    <div :class="{ hidden, 'no-interaction': openProject }" class="connections-graph" :style="{
-      top: `-${openProject ? canvasMargin + contentMargin : canvasMargin}px`,
-      height: `calc(${canvasHeight}px)`,
-    }">
+    <div
+      :class="{
+        hidden,
+        'no-interaction': openProject,
+        'hide-tooltip': openProject || transition,
+      }"
+      class="connections-graph"
+      :style="{
+        top: `-${openProject ? canvasMargin + contentMargin : canvasMargin}px`,
+        height: `calc(${canvasHeight}px)`,
+      }"
+    >
       .
     </div>
   </div>
@@ -39,7 +52,7 @@ import {
   CAMERA_ANIMATION_DURATION,
   getMobileCameraDistance,
   CAMERA_DISTANCE_FAR,
-  getVisibleHeight
+  getVisibleHeight,
 } from "~/utils";
 
 const LINE_OPACITY = 0.1;
@@ -47,26 +60,26 @@ const LINE_OPACITY = 0.1;
 const LINK_DISTANCE = 50;
 
 // desktop values
-const GRID_MARGIN = 20
-const TOP_MARGIN = 30
-const LEFT_MARGIN = 10
-const BOTTOM_MARGIN = 30
-const RIGHT_MARGIN = 10
-const BLANK_SPACE_RATIO = 0.70
-const FRONT_MARGIN = 20
-const BACK_MARGIN = 20
-const PROJECT_MARGIN = 2
+const GRID_MARGIN = 20;
+const TOP_MARGIN = 30;
+const LEFT_MARGIN = 10;
+const BOTTOM_MARGIN = 30;
+const RIGHT_MARGIN = 10;
+const BLANK_SPACE_RATIO = 0.7;
+const FRONT_MARGIN = 20;
+const BACK_MARGIN = 20;
+const PROJECT_MARGIN = 2;
 
 // mobile values
-const GRID_MARGIN_MOBILE = 5
-const TOP_MARGIN_MOBILE = 20
-const LEFT_MARGIN_MOBILE = 10
-const BOTTOM_MARGIN_MOBILE = 10
-const RIGHT_MARGIN_MOBILE = 10
-const BLANK_SPACE_RATIO_MOBILE = 0.35
-const FRONT_MARGIN_MOBILE = 2
-const BACK_MARGIN_MOBILE = 2
-const PROJECT_MARGIN_MOBILE = 1
+const GRID_MARGIN_MOBILE = 5;
+const TOP_MARGIN_MOBILE = 20;
+const LEFT_MARGIN_MOBILE = 10;
+const BOTTOM_MARGIN_MOBILE = 10;
+const RIGHT_MARGIN_MOBILE = 10;
+const BLANK_SPACE_RATIO_MOBILE = 0.35;
+const FRONT_MARGIN_MOBILE = 2;
+const BACK_MARGIN_MOBILE = 2;
+const PROJECT_MARGIN_MOBILE = 1;
 
 export default {
   name: "ConnectionsGraph",
@@ -103,7 +116,7 @@ export default {
       currentFilter: null,
       allNodes: null,
       allLinks: null,
-      gridMode: false
+      gridMode: false,
     };
   },
   mounted() {
@@ -120,7 +133,7 @@ export default {
     process.nextTick(() => {
       const fontFile = new FontFace(
         "Libre Bodoni Italic",
-        "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)",
+        "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)"
       );
       fontFile.load().then((font) => {
         document.fonts.add(font);
@@ -153,7 +166,7 @@ export default {
           antialias: true,
           powerPreference: "high-performance",
         },
-        controlType: 'orbit',
+        controlType: "orbit",
       })(this.el);
       this.allNodes = [...this.gData.nodes];
       this.allLinks = [...this.gData.links];
@@ -207,7 +220,9 @@ export default {
     setInitialView() {
       this.g.d3Force("link").distance((link) => LINK_DISTANCE);
       this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
-      let project_nodes = this.g.graphData().nodes.filter((n) => n.type == "project");
+      let project_nodes = this.g
+        .graphData()
+        .nodes.filter((n) => n.type == "project");
       let nodes = this.g.graphData().nodes;
 
       const resizeImg = (img, node) => {
@@ -215,13 +230,13 @@ export default {
         if (this.imageLoaded == project_nodes.length) {
           allImagesLoaded();
         }
-        let importance = 1// node.importance; // need to check this later because of the camera distance calculation
+        let importance = 1; // node.importance; // need to check this later because of the camera distance calculation
         // On desktop, the height is constant, while on mobile, the width is constant
         const aspect = img.width / img.height;
         const w = importance * IMAGE_SCALE * (this.getIsMobile ? 1 : aspect);
-        const h = importance * IMAGE_SCALE / (this.getIsMobile ? aspect : 1);
+        const h = (importance * IMAGE_SCALE) / (this.getIsMobile ? aspect : 1);
         node.__threeObj.children[0].scale.set(w, h);
-        let margin = this.getIsMobile ? PROJECT_MARGIN_MOBILE : PROJECT_MARGIN
+        let margin = this.getIsMobile ? PROJECT_MARGIN_MOBILE : PROJECT_MARGIN;
         node.bbox = [
           [-w / 2 - margin, -h / 2 - margin],
           [w / 2 + margin, h / 2 + margin],
@@ -248,35 +263,42 @@ export default {
         }
       });
       const allImagesLoaded = () => {
-        console.log("allImagesLoaded")
-        var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN
-        var w = h * window.innerWidth / window.innerHeight - LEFT_MARGIN - RIGHT_MARGIN
+        console.log("allImagesLoaded");
+        var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
+        var w =
+          (h * window.innerWidth) / window.innerHeight -
+          LEFT_MARGIN -
+          RIGHT_MARGIN;
         var geometry = new THREE.PlaneGeometry(w, h, 32);
-        var material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
+        var material = new THREE.MeshBasicMaterial({
+          color: 0xffff00,
+          side: THREE.DoubleSide,
+        });
         // transparent material
         material.transparent = true;
         material.opacity = 1;
 
         var plane = new THREE.Mesh(geometry, material);
         plane.position.z = -BACK_MARGIN - 1;
-        plane.name = "limit-plane"
+        plane.name = "limit-plane";
         // add id to plane
         //this.g.scene().add(plane);
         setTimeout(() => {
-
-          this.g.d3Force(
-            'limit', this.limitWindow(project_nodes)
-          ).d3Force("colide", bboxCollide((node) => {
-            if (node.bbox) {
-              return node.bbox
-            } else {
-              return [[-1, -1], [1, 1]]
-            }
-          }))
-
-        }, 10)
+          this.g.d3Force("limit", this.limitWindow(project_nodes)).d3Force(
+            "colide",
+            bboxCollide((node) => {
+              if (node.bbox) {
+                return node.bbox;
+              } else {
+                return [
+                  [-1, -1],
+                  [1, 1],
+                ];
+              }
+            })
+          );
+        }, 10);
         this.hidden = false;
-
       };
     },
 
@@ -303,7 +325,9 @@ export default {
       sprite.renderOrder = 10;
 
       // add border
-      const border = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0xffffff }));
+      const border = new THREE.Sprite(
+        new THREE.SpriteMaterial({ color: 0xffffff })
+      );
       border.scale.set(1, 1);
       border.position.set(0, 0, 0);
       border.renderOrder = 9;
@@ -348,14 +372,14 @@ export default {
       // make camera fit to new nodes
       // next tick
       //
-
     },
 
     onNodeClick(node) {
-      if (gtag) gtag('event', 'click', {
-        event_category: 'node_click',
-        event_label: node.id,
-      });
+      if (gtag)
+        gtag("event", "click", {
+          event_category: "node_click",
+          event_label: node.id,
+        });
       if (node.type == "tag") {
         if (!this.getIsMobile) this.filterNodes(node);
         return;
@@ -365,7 +389,7 @@ export default {
       }
 
       this.resetNodesStyle();
-      node.__threeObj.children[0].renderOrder = 99
+      node.__threeObj.children[0].renderOrder = 99;
 
       this.currentNode = node;
       this.openProject = true;
@@ -422,27 +446,29 @@ export default {
           _node.__threeObj.children[0].backgroundColor = "white";
         }
         if (_node.type == "project" && _node.__threeObj) {
-          _node.__threeObj.children[0].renderOrder = 10
+          _node.__threeObj.children[0].renderOrder = 10;
         }
       });
     },
     onNodeHover(node) {
       // stop animation
       if (node) {
-        if (gtag) gtag('event', 'hover', {
-          event_category: 'node_hover',
-          event_label: node.id
-        });
+        if (gtag)
+          gtag("event", "hover", {
+            event_category: "node_hover",
+            event_label: node.id,
+          });
       }
       this.g.pauseAnimation();
       this.resetNodesStyle();
       if (node) {
         if (node.type == "project") {
           //node.__threeObj.children[1].material.opacity = 1;
-          node.__threeObj.children[0].renderOrder = 99
+          node.__threeObj.children[0].renderOrder = 99;
         }
         if (node.type == "tag") {
-          node.__threeObj.children[0].backgroundColor = "rgba(255, 255, 255, 0)";
+          node.__threeObj.children[0].backgroundColor =
+            "rgba(255, 255, 255, 0)";
         }
       }
     },
@@ -476,7 +502,7 @@ export default {
 
         this.g.cameraPosition(
           newPosition,
-          { x: node.x, y: node.y, z: node.z }, // lookAt ({ x, y, z })
+          { x: 0, y: 0, z: 0 }, // lookAt ({ x, y, z })
           CAMERA_ANIMATION_DURATION // ms transition duration
         );
       }
@@ -528,54 +554,66 @@ export default {
       this.g.width(window.innerWidth);
       this.g.height(this.canvasHeight);
 
-      let marginRight = this.getIsMobile ? RIGHT_MARGIN_MOBILE : RIGHT_MARGIN
-      let marginLeft = this.getIsMobile ? LEFT_MARGIN_MOBILE : LEFT_MARGIN
-      let marginTop = this.getIsMobile ? TOP_MARGIN_MOBILE : TOP_MARGIN
-      let marginBottom = this.getIsMobile ? BOTTOM_MARGIN_MOBILE : BOTTOM_MARGIN
+      let marginRight = this.getIsMobile ? RIGHT_MARGIN_MOBILE : RIGHT_MARGIN;
+      let marginLeft = this.getIsMobile ? LEFT_MARGIN_MOBILE : LEFT_MARGIN;
+      let marginTop = this.getIsMobile ? TOP_MARGIN_MOBILE : TOP_MARGIN;
+      let marginBottom = this.getIsMobile
+        ? BOTTOM_MARGIN_MOBILE
+        : BOTTOM_MARGIN;
 
-      // update debug background plane size 
-      var h = getVisibleHeight(window) - marginTop - marginBottom
-      var w = h * window.innerWidth / window.innerHeight - marginLeft - marginRight
-      var plane = this.g.scene().children.filter((child) => child.name == "limit-plane")[0]
+      // update debug background plane size
+      var h = getVisibleHeight(window) - marginTop - marginBottom;
+      var w =
+        (h * window.innerWidth) / window.innerHeight - marginLeft - marginRight;
+      var plane = this.g
+        .scene()
+        .children.filter((child) => child.name == "limit-plane")[0];
       if (plane) {
         plane.geometry = new THREE.PlaneGeometry(w, h, 32);
       }
       // reheat
-      this.g.d3ReheatSimulation()
+      this.g.d3ReheatSimulation();
     },
     enableGrid() {
-      let project_nodes = this.g.graphData().nodes.filter((n) => n.type == "project");
+      let project_nodes = this.g
+        .graphData()
+        .nodes.filter((n) => n.type == "project");
 
       // disable controls
 
-      this.g.controls().enabled = false
+      this.g.controls().enabled = false;
 
       // remove all linaks
-      this.g.graphData({
-        nodes: project_nodes,
-        links: [],
-      }).numDimensions(2)
+      this.g
+        .graphData({
+          nodes: project_nodes,
+          links: [],
+        })
+        .numDimensions(2)
         .d3VelocityDecay(0.8)
         .d3AlphaMin(0.0)
-        .d3AlphaDecay(0.1)
+        .d3AlphaDecay(0.1);
 
-      this.g.d3Force(
-        'limit', this.limitWindow(project_nodes)
-      ).d3Force("colide", bboxCollide((node) => {
-        if (node.bbox) {
-          return node.bbox
-        } else {
-          return [[-1, -1], [1, 1]]
-        }
-
-      }))
+      this.g.d3Force("limit", this.limitWindow(project_nodes)).d3Force(
+        "colide",
+        bboxCollide((node) => {
+          if (node.bbox) {
+            return node.bbox;
+          } else {
+            return [
+              [-1, -1],
+              [1, 1],
+            ];
+          }
+        })
+      );
 
       // add a plane to the backgroud to debug the limit area
 
       // fit =camera distance to plane
       this.g.cameraPosition({ x: 0, y: 0, z: 330 }, 0, 1000);
 
-      this.g.d3ReheatSimulation()
+      this.g.d3ReheatSimulation();
     },
 
     disableGrid() {
@@ -592,73 +630,82 @@ export default {
         .numDimensions(3);
       // camera far
       this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
-      this.g.controls().enabled = true
+      this.g.controls().enabled = true;
       // camera rotation
-      var plane = this.g.scene().children.filter((child) => child.name == "limit-plane")[0]
+      var plane = this.g
+        .scene()
+        .children.filter((child) => child.name == "limit-plane")[0];
       if (plane) {
         /// remove plane
-        this.g.scene().remove(plane)
+        this.g.scene().remove(plane);
       }
-
     },
 
     limitWindow(nodes) {
       return () => {
-        let isMobile = this.getIsMobile
-        var marginTop = isMobile ? TOP_MARGIN_MOBILE : TOP_MARGIN
-        var marginLeft = isMobile ? LEFT_MARGIN_MOBILE : LEFT_MARGIN
-        var marginBottom = isMobile ? BOTTOM_MARGIN_MOBILE : BOTTOM_MARGIN
-        var marginRight = isMobile ? RIGHT_MARGIN_MOBILE : RIGHT_MARGIN
-        var marginBack = isMobile ? BACK_MARGIN_MOBILE : BACK_MARGIN
-        var marginFront = isMobile ? FRONT_MARGIN_MOBILE : FRONT_MARGIN
+        let isMobile = this.getIsMobile;
+        var marginTop = isMobile ? TOP_MARGIN_MOBILE : TOP_MARGIN;
+        var marginLeft = isMobile ? LEFT_MARGIN_MOBILE : LEFT_MARGIN;
+        var marginBottom = isMobile ? BOTTOM_MARGIN_MOBILE : BOTTOM_MARGIN;
+        var marginRight = isMobile ? RIGHT_MARGIN_MOBILE : RIGHT_MARGIN;
+        var marginBack = isMobile ? BACK_MARGIN_MOBILE : BACK_MARGIN;
+        var marginFront = isMobile ? FRONT_MARGIN_MOBILE : FRONT_MARGIN;
         // project correct window size based on camera distance and window.size
 
-        var window_height = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN
-        var window_width = window_height * window.innerWidth / window.innerHeight - LEFT_MARGIN - RIGHT_MARGIN
+        var window_height =
+          getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
+        var window_width =
+          (window_height * window.innerWidth) / window.innerHeight -
+          LEFT_MARGIN -
+          RIGHT_MARGIN;
 
         nodes.forEach((node) => {
           // node.vx = 10
           // node.x =  (window.innerWidth / 4)
           const prevPos = { x: node.x, y: node.y, z: node.z };
-          const nextPos = { x: node.x + node.vx, y: node.y + node.vy, z: node.z + node.vz };
+          const nextPos = {
+            x: node.x + node.vx,
+            y: node.y + node.vy,
+            z: node.z + node.vz,
+          };
 
-          const checkPosition = ((nodePos) => {
-            var is_inside = true
-            var diff_x = 0
-            var diff_y = 0
-            var diff_z = 0
+          const checkPosition = (nodePos) => {
+            var is_inside = true;
+            var diff_x = 0;
+            var diff_y = 0;
+            var diff_z = 0;
             // top right
 
             if (nodePos.x > window_width / 2 - marginRight) {
-              is_inside = false
-              diff_x = node.x - (window_width / 2 - marginRight)
+              is_inside = false;
+              diff_x = node.x - (window_width / 2 - marginRight);
             }
 
             if (nodePos.x < -window_width / 2 + marginLeft) {
-              is_inside = false
-              diff_x = node.x + (window_width / 2 - marginLeft)
+              is_inside = false;
+              diff_x = node.x + (window_width / 2 - marginLeft);
             }
 
             if (nodePos.y > window_height / 2 - marginTop) {
-              is_inside = false
-              diff_y = node.y - (window_height / 2 - marginTop)
+              is_inside = false;
+              diff_y = node.y - (window_height / 2 - marginTop);
             }
 
             if (nodePos.y < -window_height / 2 + marginBottom) {
-              is_inside = false
-              diff_y = node.y + (window_height / 2 - marginBottom)
+              is_inside = false;
+              diff_y = node.y + (window_height / 2 - marginBottom);
             }
 
             if (nodePos.z > marginFront) {
-              is_inside = false
-              diff_z = node.z - marginFront
+              is_inside = false;
+              diff_z = node.z - marginFront;
             }
 
             if (nodePos.z < -marginBack) {
-              is_inside = false
-              diff_z = node.z + marginBack
+              is_inside = false;
+              diff_z = node.z + marginBack;
               if (node.type == "pag") {
-                diff_z = diff_z + 0.1
+                diff_z = diff_z + 0.1;
               }
             }
 
@@ -666,44 +713,44 @@ export default {
               is_inside,
               diff_x,
               diff_y,
-              diff_z
-            }
-          })
+              diff_z,
+            };
+          };
 
-          var checkPrev = checkPosition(prevPos)
+          var checkPrev = checkPosition(prevPos);
 
           //console.log("checkPrev", checkPrev)
 
           // only check next corners if prev are inside
           if (checkPrev.is_inside) {
-            this.checkNext = checkPosition(nextPos)
+            this.checkNext = checkPosition(nextPos);
             // prev inside
             if (!this.checkNext.is_inside) {
               // but next outside
               if (this.checkNext.diff_x > 0) {
-                node.vx = -this.checkNext.diff_x
+                node.vx = -this.checkNext.diff_x;
               }
               if (this.checkNext.diff_y > 0) {
-                node.vy = -this.checkNext.diff_y
+                node.vy = -this.checkNext.diff_y;
               }
               //console.log("next outside!", node, node.vx, node.vy)
             }
           } else {
             // console.log("prev outside!", checkPrev)
-            node.vx = -checkPrev.diff_x
-            node.vy = -checkPrev.diff_y
-            node.vz = -checkPrev.diff_z
+            node.vx = -checkPrev.diff_x;
+            node.vy = -checkPrev.diff_y;
+            node.vz = -checkPrev.diff_z;
           }
         });
-      }
+      };
     },
   },
   watch: {
     gridMode(isGrid) {
       if (isGrid) {
-        this.enableGrid()
+        this.enableGrid();
       } else {
-        this.disableGrid()
+        this.disableGrid();
       }
     },
     // route change
@@ -749,6 +796,12 @@ export default {
   margin-left: 20px;
 }
 
+.connections-graph.hide-tooltip {
+  .project-title {
+    display: none;
+  }
+}
+
 .connections-graph {
   font-family: "Libre Bodoni Italic";
   position: fixed;
@@ -776,7 +829,6 @@ export default {
 .connections-graph .hidden {
   transform: scale(0.9);
 }
-
 
 .loading {
   position: fixed;
@@ -810,7 +862,6 @@ export default {
 }
 
 @keyframes dot-flash {
-
   0%,
   20% {
     opacity: 0;
@@ -824,8 +875,6 @@ export default {
     opacity: 0;
   }
 }
-
-
 
 .remove-filter {
   z-index: 1;
@@ -852,12 +901,10 @@ export default {
 
 .view-mode .active {
   text-decoration: underline;
-
 }
 
 .view-mode :not(.active) {
   cursor: pointer;
-  ;
 }
 
 .remove-filter button {
