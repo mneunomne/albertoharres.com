@@ -1,23 +1,19 @@
 {
-  "details_pt": "### Coletivo Biônicos:\n\n\\- Caio Chacal\n\n\\- André Anastácio\n\n\\- Igor Abreu\n\n\\- Itajaci Guarani Kaiowá \n\n\\- Alberto Harres\n\n\\- Jabal Murbach",
-  "details_en": "### Artwork collectively developed by: \n\n\\- Caio Chacal\n\n\\- André Anastácio\n\n\\- Igor Abreu\n\n\\- Itajaci Guarani Kaiowá \n\n\\- Alberto Harres\n\n\\- Jabal Murbach",
-  "description_pt": "",
-  "content_pt": "Desenvolvido pelo coletivo de Arte&Tecnologia “Biônicos”, Simbinoise consiste de uma instalação interativa que transforma uma barraca de fruta de feira, em uma experiência interativa simbiótica. A partir de circuitos eletrônicos rudimentares conectados ås frutas, o public podia interagir com elas e produzir sons inesperados pelo processo de circuit-bending. A instalação foi exibida em diferentes espaços e contextos da cidade do Rio de Janeiro: no evento Norte Comum no Morro da Formiga, no festival Circo Digital no Circo voador, e na Feira da Glória.",
-  "title_pt": "",
-  "thumbnail": "/img/mesa.jpg",
-  "content_en": "Developed by the Art&Technology collective Biônicos, Simbinoise was an interactive installation that transformed a regular street fair fruit stand, into a symbiotic interactive experience. Through rudimentary electronic circuits connected to the fruits in the stands, the public was able to interact with the living organism and produce unexpected sounds by the process circuit-bending. The installation was displayed in different places and contexts in the city of Rio, in Morro da Formiga, Festival Circo Digital and Feira da Glória.",
-  "title_en": "Simbinoise",
-  "gallery": [
-    "/img/contato.jpg",
-    "/img/melao-falante.jpg",
-    "/img/contato2.jpg"
-  ],
-  "tags": [
-    "street",
-    "eletronics",
-    "sound",
-    "glitch"
-  ],
-  "year": "2014",
-  "importance": 1.0
+	"details": "### Artwork collectively developed by: \n\n\\- Caio Chacal\n\n\\- André Anastácio\n\n\\- Igor Abreu\n\n\\- Itajaci Guarani Kaiowá \n\n\\- Alberto Harres\n\n\\- Jabal Murbach",
+	"thumbnail": "/img/mesa.jpg",
+	"content": "Developed by the Art&Technology collective Biônicos, Simbinoise was an interactive installation that transformed a regular street fair fruit stand, into a symbiotic interactive experience. Through rudimentary electronic circuits connected to the fruits in the stands, the public was able to interact with the living organism and produce unexpected sounds by the process circuit-bending. The installation was displayed in different places and contexts in the city of Rio, in Morro da Formiga, Festival Circo Digital and Feira da Glória.",
+	"title": "Simbinoise",
+	"gallery": [
+		"/img/contato.jpg",
+		"/img/melao-falante.jpg",
+		"/img/contato2.jpg"
+	],
+	"tags": [
+		"street",
+		"eletronics",
+		"sound",
+		"glitch"
+	],
+	"year": "2014",
+	"importance": 1.0
 }

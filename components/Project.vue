@@ -1,33 +1,46 @@
 <template>
   <div>
-    <div class="header" :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
-      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }">
+    <div
+      class="header"
+      :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
+      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }"
+    >
       <div class="close">
         <button @click="closeProject">X</button>
       </div>
       <div class="title-wrapper">
-        <h1 class="title">{{ project.title_en }}</h1>
+        <h1 class="title">{{ project.title }}</h1>
         <br />
-        <h2 class="subtitle" v-if="project.subtitle_en">
-          {{ project.subtitle_en }}
+        <h2 class="subtitle" v-if="project.subtitle">
+          {{ project.subtitle }}
         </h2>
       </div>
     </div>
     <!-- project -->
     <div class="project-wrapper" :class="{ show }">
       <div class="project-bg"></div>
-      <div class="project" :class="{ mobile: getIsMobile, tablet: getIsTabletView }" :style="{
-        width: `${width}px`,
-        height: `${height}px`,
-        top: `calc(50% - ${contentMargin}px)`,
-      }">
+      <div
+        class="project"
+        :class="{ mobile: getIsMobile, tablet: getIsTabletView }"
+        :style="{
+          width: `${width}px`,
+          height: `${height}px`,
+          top: `calc(50% - ${contentMargin}px)`,
+        }"
+      >
         <div class="content">
           <div class="side-content" v-if="!(getIsMobile || getIsTabletView)">
-            <div v-if="project.details_en" class="details" v-html="renderDetails"></div>
+            <div
+              v-if="project.details"
+              class="details"
+              v-html="renderDetails"
+            ></div>
             <div class="tags">
               <h3>Tags:</h3>
               <ul>
-                <li v-for="tag in project.tags" :key="tag"><u>{{ tag }}</u></li>
+                <li v-for="tag in project.tags" :key="tag">
+                  <u>{{ tag }}</u>
+                </li>
               </ul>
             </div>
           </div>
@@ -36,15 +49,27 @@
           </div>
           <div class="description" v-html="renderContent"></div>
           <div class="gallery-images">
-            <img class="gallery_image" v-for="(image, imageIndex) in imageGallery" :key="imageIndex"
-              @click="onClickImage(imageIndex, image)" :src="image" />
+            <img
+              class="gallery_image"
+              v-for="(image, imageIndex) in imageGallery"
+              :key="imageIndex"
+              @click="onClickImage(imageIndex, image)"
+              :src="image"
+            />
           </div>
-          <div v-if="getIsMobile || getIsTabletView" class="details" v-html="renderDetails"></div>
+          <div
+            v-if="getIsMobile || getIsTabletView"
+            class="details"
+            v-html="renderDetails"
+          ></div>
         </div>
       </div>
     </div>
-    <v-gallery :images="allImages" :index="curImageIndex" @close="curImageIndex = null"></v-gallery>
-
+    <v-gallery
+      :images="allImages"
+      :index="curImageIndex"
+      @close="curImageIndex = null"
+    ></v-gallery>
   </div>
 </template>
 
@@ -87,7 +112,7 @@ export default {
       imageGallery: [],
       allImages: [],
       curImageIndex: null,
-      reachedBottom: false
+      reachedBottom: false,
     };
   },
   methods: {
@@ -95,28 +120,31 @@ export default {
       this.$emit("closeProject");
       this.$root.$emit("closeProject");
       this.curImageIndex = null;
-      if (gtag) gtag('event', 'click', {
-        event_category: 'project_close',
-        event_label: this.project.title_en
-      });
+      if (gtag)
+        gtag("event", "click", {
+          event_category: "project_close",
+          event_label: this.project.title,
+        });
     },
     onClickImage(index, src) {
       this.curImageIndex = index;
-      if (gtag) gtag('event', 'click', {
-        event_category: 'image_click',
-        event_label: src
-      });
+      if (gtag)
+        gtag("event", "click", {
+          event_category: "image_click",
+          event_label: src,
+        });
     },
   },
   mounted() {
-    console.log("MOUNTED!")
+    console.log("MOUNTED!");
     if (!process.browser) {
       return;
     }
-    if (gtag) gtag('event', 'loaded', {
-      event_category: 'project_loaded',
-      event_label: this.project.title_en
-    });
+    if (gtag)
+      gtag("event", "loaded", {
+        event_category: "project_loaded",
+        event_label: this.project.title,
+      });
     this.reachedBottom = false;
     //this.$ga.page(`/works/${this.project.slug}`);
     this.curImageIndex = null;
@@ -133,13 +161,17 @@ export default {
     window.addEventListener("scroll", () => {
       if (document.querySelector(".content")) {
         let height = document.querySelector(".content").offsetHeight;
-        if (window.scrollY + window.innerHeight >= height && !this.reachedBottom) {
+        if (
+          window.scrollY + window.innerHeight >= height &&
+          !this.reachedBottom
+        ) {
           this.reachedBottom = true;
-          if (gtag) gtag('event', 'scroll', {
-            event_category: 'scrolled_bottom',
-            event_label: this.project.title_en
-          });
-          console.log('reached bottom');
+          if (gtag)
+            gtag("event", "scroll", {
+              event_category: "scrolled_bottom",
+              event_label: this.project.title,
+            });
+          console.log("reached bottom");
         }
       }
     });
@@ -164,13 +196,17 @@ export default {
     });
     window.removeEventListener("scroll", () => {
       let height = document.querySelector(".content").offsetHeight;
-      if (window.scrollY + window.innerHeight >= height && !this.reachedBottom) {
+      if (
+        window.scrollY + window.innerHeight >= height &&
+        !this.reachedBottom
+      ) {
         this.reachedBottom = true;
       }
-      if (gtag) gtag('event', 'scroll', {
-        event_category: 'scrolled_bottom',
-        event_label: this.project.title_en
-      });
+      if (gtag)
+        gtag("event", "scroll", {
+          event_category: "scrolled_bottom",
+          event_label: this.project.title,
+        });
       // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
     });
   },
@@ -180,11 +216,11 @@ export default {
       getIsTabletView: "getIsTabletView",
     }),
     renderContent() {
-      return marked.parse(this.project.content_en || "");
+      return marked.parse(this.project.content || "");
     },
     renderDetails() {
-      console.log("renderDetails", this.project.details_en);
-      return marked.parse(this.project.details_en || "");
+      console.log("renderDetails", this.project.details);
+      return marked.parse(this.project.details || "");
     },
     titleMargin() {
       return this.height / 2 + this.contentMargin + 20;
@@ -292,7 +328,6 @@ export default {
   z-index: 9999;
 
   &.show {
-
     .description,
     .side-content,
     .header,

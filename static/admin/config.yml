@@ -37,24 +37,20 @@ collections:
           # - { label: Site Email, name: siteemail, widget: string, required: false }
   - name: 'projects'
     label: 'Projects'
-    identifier_field: title_en
+    identifier_field: title
     folder: 'assets/content/projects'
     create: true
     format: 'json'
     slug: '{{slug}}'
     fields:
-      - { name: 'title_en', label: 'Title en', widget: 'string' , required: true , default: ''} 
-      - { name: 'title_pt', label: 'Title pt', widget: 'string' , required: false , default: ''}
-      - { name: 'subtitle_en', label: 'Subtitle en', widget: 'string' , required: false , default: ''} 
-      - { name: 'subtitle_pt', label: 'Subtitle pt', widget: 'string' , required: false , default: ''}
+      - { name: 'title', label: 'Title en', widget: 'string' , required: true , default: ''} 
+      - { name: 'subtitle', label: 'Subtitle en', widget: 'string' , required: false , default: ''} 
       - { name: 'year' , label: 'Year', widget: 'string' , required: false }
       - { name: 'tags', label: 'Tags', widget: 'list', default: [], required: false } 
       - { name: 'importance' , label: 'Importance', widget: 'number' , required: false, default: 1.0 }
       - { name: 'thumbnail', required: false, label: 'Thumbnail Image', widget: 'image' }
-      - { name: 'content_en', label: 'content_en', widget: 'markdown' , required: false, default: ''}
-      - { name: 'content_pt', label: 'content_pt', widget: 'markdown' , required: false, default: ''}
-      - { name: 'details_en', label: 'details_en', widget: 'markdown' , required: false, default: ''}
-      - { name: 'details_pt', label: 'details_pt', widget: 'markdown' , required: false, default: ''}
+      - { name: 'content', label: 'content', widget: 'markdown' , required: false, default: ''}
+      - { name: 'details', label: 'details', widget: 'markdown' , required: false, default: ''}
       - {
           label: 'Gallery',
           name: 'gallery',

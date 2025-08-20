@@ -9,10 +9,10 @@
         <button @click="closeProject">X</button>
       </div>
       <div class="title-wrapper">
-        <h1 class="title">{{ page.title_en }}</h1>
+        <h1 class="title">{{ page.title }}</h1>
         <br />
-        <h2 class="subtitle" v-if="project.subtitle_en">
-          {{ page.subtitle_en }}
+        <h2 class="subtitle" v-if="project.subtitle">
+          {{ page.subtitle }}
         </h2>
       </div>
     </div>
@@ -31,7 +31,7 @@
         <div class="content">
           <div class="side-content" v-if="!(getIsMobile || getIsTabletView)">
             <div
-              v-if="project.details_en"
+              v-if="project.details"
               class="details"
               v-html="renderDetails"
             ></div>

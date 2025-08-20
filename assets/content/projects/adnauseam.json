@@ -1,22 +1,22 @@
 {
-  "details_pt": "",
-  "details_en": "### Links:\n\n* [adnauseam.io](https://adnauseam.io/)\n* [ZKM Exhibition – *Choose Your Filter!*](https://zkm.de/en/2025/02/choose-your-filter)\n\n### Credits:\n\n*   (Lead Developer and Co-Initiator)\n* Helen Nissenbaum (Co-Initator)\n* Mushon Zer-Aviv (Lead Designer)\n*﻿ Alberto Harres (Software Developer 2020-2025)",
-  "content_pt": "",
-  "title_pt": "",
-  "subtitle_pt": "",
-  "thumbnail": "/img/screenshot-2025-08-05-at-13.26.06.png",
-  "content_en": "[AdNauseam](https://adnauseam.io/) is a free, open-source browser extension designed to obfuscate browsing data and protect users from tracking by advertising networks. It also acts as a form of protest against surveillance capitalism, amplifying user discontent with ad networks that violate privacy and promote mass surveillance.\n\nOriginally authored by [Daniel C. Howe](https://rednoise.org/daniel), [Helen Nissenbaum](https://www.nyu.edu/projects/nissenbaum/), and [Mushon Zer-Aviv](http://mushon.com/), the project has over 100,000 users across platforms.\n\nI worked on AdNauseam as a software developer from 2020 to 2025. My contributions included implementing key features, maintaining and documenting the codebase, and developing the exhibition version of the project for *[Choose Your Filter!](https://zkm.de/en/2025/02/choose-your-filter)* at ZKM.",
-  "subtitle_en": "",
-  "title_en": "AdNauseam",
-  "gallery": [
-    "/img/karlsruhe-zkm-adnauseam-819x1024.png",
-    "https://addons-media.operacdn.com/media/CACHE/images/extensions/86/225886/3.25.4-rev1/images/040168d3ce6cb78edf0a24a7de96ab6b/d60f2037156f71b358a67b6dbcfc7a1a.jpg"
-  ],
-  "importance": 1,
-  "tags": [
-    "web",
-    "javascript",
-    "obfuscation"
-  ],
-  "disabled": false
+	"details_pt": "",
+	"details": "### Links:\n\n* [adnauseam.io](https://adnauseam.io/)\n* [ZKM Exhibition – *Choose Your Filter!*](https://zkm.de/en/2025/02/choose-your-filter)\n\n### Credits:\n\n*   (Lead Developer and Co-Initiator)\n* Helen Nissenbaum (Co-Initator)\n* Mushon Zer-Aviv (Lead Designer)\n*﻿ Alberto Harres (Software Developer 2020-2025)",
+	"content_pt": "",
+	"title_pt": "",
+	"subtitle_pt": "",
+	"thumbnail": "/img/screenshot-2025-08-05-at-13.26.06.png",
+	"content": "[AdNauseam](https://adnauseam.io/) is a free, open-source browser extension designed to obfuscate browsing data and protect users from tracking by advertising networks. It also acts as a form of protest against surveillance capitalism, amplifying user discontent with ad networks that violate privacy and promote mass surveillance.\n\nOriginally authored by [Daniel C. Howe](https://rednoise.org/daniel), [Helen Nissenbaum](https://www.nyu.edu/projects/nissenbaum/), and [Mushon Zer-Aviv](http://mushon.com/), the project has over 100,000 users across platforms.\n\nI worked on AdNauseam as a software developer from 2020 to 2025. My contributions included implementing key features, maintaining and documenting the codebase, and developing the exhibition version of the project for *[Choose Your Filter!](https://zkm.de/en/2025/02/choose-your-filter)* at ZKM.",
+	"subtitle": "",
+	"title": "AdNauseam",
+	"gallery": [
+		"/img/karlsruhe-zkm-adnauseam-819x1024.png",
+		"https://addons-media.operacdn.com/media/CACHE/images/extensions/86/225886/3.25.4-rev1/images/040168d3ce6cb78edf0a24a7de96ab6b/d60f2037156f71b358a67b6dbcfc7a1a.jpg"
+	],
+	"importance": 1,
+	"tags": [
+		"web",
+		"javascript",
+		"obfuscation"
+	],
+	"disabled": false
 }

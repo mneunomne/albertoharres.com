@@ -189,7 +189,7 @@ export default {
         .onNodeHover(this.onNodeHover)
         .nodeLabel((node) => {
           if (!this.getIsMobile && node.type == "project") {
-            let title = node[`title_${this.$i18n.locale}`];
+            let title = node.title;
             return `<div class="project-title">${title}</div>`;
           }
         })

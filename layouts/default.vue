@@ -1,14 +1,27 @@
 <template>
   <div class="main">
     <div id="background">
-      <img :src="prevImgUrl" :style="{ opacity: imgUrl ? 1 : 0 }" class="background-image prev"
-        :class="{ show: showBg }" />
+      <img
+        :src="prevImgUrl"
+        :style="{ opacity: imgUrl ? 1 : 0 }"
+        class="background-image prev"
+        :class="{ show: showBg }"
+      />
       <!-- current image -->
-      <img :src="imgUrl" :style="{ opacity: imgUrl ? 1 : 0 }" class="background-image prev" />
+      <img
+        :src="imgUrl"
+        :style="{ opacity: imgUrl ? 1 : 0 }"
+        class="background-image prev"
+      />
     </div>
     <Header />
-    <ConnectionsGraph :gData="gData" @clickProject="onClickProject" @backToInitialView="onBackToInitialView"
-      :currentProject="currentProject" @hoverProject="onHoverProject" />
+    <ConnectionsGraph
+      :gData="gData"
+      @clickProject="onClickProject"
+      @backToInitialView="onBackToInitialView"
+      :currentProject="currentProject"
+      @hoverProject="onHoverProject"
+    />
     <nuxt />
   </div>
 </template>
@@ -64,8 +77,7 @@ export default {
           type: "project",
           thumbnail: node.thumbnail,
           importance: node.importance,
-          title_en: node.title_en,
-          title_pt: node.title_pt,
+          title: node.title,
         });
         node.tags.forEach((tag) => {
           let found = nodes.find((node) => node.id === tag);
