@@ -1,7 +1,10 @@
 <template>
   <div>
-    <div class="menu-graph" :style="{ width: `${width}px`, height: `${height}px` }"
-      :class="{ mobile: getIsMobile, show }"></div>
+    <div
+      class="menu-graph"
+      :style="{ width: `${width}px`, height: `${height}px` }"
+      :class="{ mobile: getIsMobile, show }"
+    ></div>
   </div>
 </template>
 
@@ -33,7 +36,7 @@ export default {
   },
 
   created() {
-    if (!process.browser) return
+    if (!process.browser) return;
     window.addEventListener("resize", () => {
       this.computeWindowSize();
     });
@@ -44,7 +47,7 @@ export default {
 
     const fontFile = new FontFace(
       "Libre Bodoni Italic",
-      "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)",
+      "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)"
     );
     fontFile.load().then((font) => {
       document.fonts.add(font);
@@ -60,7 +63,6 @@ export default {
       this.height = 150;
       this.cameraDistance = 100;
     }
-
   },
   computed: {
     ...mapGetters({
@@ -109,18 +111,14 @@ export default {
         .width(this.width)
         .height(this.height)
         .onNodeClick((node) => {
-          if (gtag) gtag('event', 'click', {
-            event_category: 'menu_graph_click',
-            event_label: node.route
-          });
-
-          if (node.route.includes("http")) {
-            window.open(node.route, "_blank");
+          if (gtag)
+            gtag("event", "click", {
+              event_category: "menu_graph_click",
+              event_label: node.route,
+            });
+          if (node.route.includes("/")) {
+            this.$router.push({ path: node.route });
             return;
-          } else if (node.name == "mail") {
-            var mail = document.createElement("a");
-            mail.href = node.route;
-            mail.click();
           } else {
             // gp home
             this.$router.push("/");

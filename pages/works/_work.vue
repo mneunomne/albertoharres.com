@@ -1,7 +1,13 @@
 <template>
   <div>
-    <Project v-if="project" :height="imageHeight" :width="imageWidth" :project="project" @closeProject="onCloseProject"
-      :show="showCurrentProject" />
+    <Project
+      v-if="project"
+      :height="imageHeight"
+      :width="imageWidth"
+      :project="project"
+      @closeProject="onCloseProject"
+      :show="showCurrentProject"
+    />
   </div>
 </template>
 
@@ -16,17 +22,18 @@ export default {
     Project,
   },
   async asyncData({ params, payload, route }) {
-    console.log("asyncData", params, payload);
-    const isDirectAccess = process.client && !document.referrer.includes(window.location.host);
+    const isDirectAccess =
+      process.client && !document.referrer.includes(window.location.host);
 
-    if (payload) return {
-      project: payload,
-      isDirectAccess
-    };
+    if (payload)
+      return {
+        project: payload,
+        isDirectAccess,
+      };
     else
       return {
         project: await require(`~/assets/content/projects/${params.work}.json`),
-        isDirectAccess
+        isDirectAccess,
       };
   },
   data() {
@@ -35,7 +42,7 @@ export default {
       imageWidth: 0,
       project: null,
       showCurrentProject: false,
-      isDirectAccess: false
+      isDirectAccess: false,
     };
   },
   mounted() {
@@ -44,7 +51,7 @@ export default {
     // Check if there is "graph=true" parameter in the URL
     const urlParams = new URLSearchParams(window.location.search);
     const graphParam = urlParams.get("graph");
-    const isDirectNavigation = !graphParam
+    const isDirectNavigation = !graphParam;
 
     getImageSizeOnScreen(this.project.thumbnail).then((size) => {
       this.imageHeight = size.height;
