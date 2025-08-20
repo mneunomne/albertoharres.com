@@ -5,8 +5,6 @@
 </template>
 
 <script>
-import Project from "~/components/Project.vue";
-import { mapActions } from "vuex";
 import TextPage from "~/components/TextPage.vue";
 
 export default {
@@ -31,9 +29,6 @@ export default {
     };
   },
   methods: {
-    ...mapActions({
-      setCurrentProject: "setCurrentProject",
-    }),
     onCloseProject() {
       console.log("onCloseProject");
       this.$router.push({ path: "/works" });

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="header" :class="{ show: true, mobile: getIsMobile }">
+    <div class="header show" :class="{ mobile: getIsMobile }">
       <div class="close">
         <button @click="closeProject">X</button>
       </div>
@@ -16,6 +16,9 @@
     <div class="project-wrapper show">
       <div class="project-bg"></div>
       <div class="project">
+        <div class="close">
+          <button @click="closeProject">X</button>
+        </div>
         <div class="content">
           <div class="side-content" v-if="!getIsMobile">
             <div
@@ -129,6 +132,22 @@ export default {
     .description,
     .details {
       padding: 0px 12px;
+    }
+  }
+
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+
+    button {
+      background: none;
+      border: none;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 5px;
     }
   }
 
