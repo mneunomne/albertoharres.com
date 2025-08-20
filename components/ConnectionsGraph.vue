@@ -7,10 +7,6 @@
     >
       <button>{{ currentFilter }}</button>
     </div>
-    <!--<div class="view-mode" :class="{ hidden }">
-      <span @click="gridMode = true" class="grid-mode" :class="{ active: gridMode }">grid</span> /
-      <span @click="gridMode = false" class="grid-mode" :class="{ active: !gridMode }">network</span>
-    </div>-->
     <div class="loading" v-if="hidden">
       <span>loading</span><span class="dot">.</span><span class="dot">.</span
       ><span class="dot">.</span>
@@ -100,6 +96,7 @@ export default {
     return {
       g: null,
       fullGraphData: null,
+      graphData: null,
     };
   },
   data() {
@@ -170,7 +167,13 @@ export default {
       })(this.el);
       this.allNodes = [...this.gData.nodes];
       this.allLinks = [...this.gData.links];
-      g.graphData(this.gData)
+
+      this.graphData = {
+        nodes: [...this.gData.nodes],
+        links: [...this.gData.links],
+      };
+
+      g.graphData(this.graphData)
         .backgroundColor("rgba(0,0,0,0)")
         .linkColor(() => "rgb(0,0,0)")
         .linkOpacity(LINE_OPACITY)
@@ -187,12 +190,6 @@ export default {
         .d3AlphaDecay(0.02)
         .onNodeClick(this.onNodeClick)
         .onNodeHover(this.onNodeHover)
-        .nodeLabel((node) => {
-          if (!this.getIsMobile && node.type == "project") {
-            let title = node.title;
-            return `<div class="project-title">${title}</div>`;
-          }
-        })
         .nodeThreeObject((node) => {
           var group = new THREE.Group();
           if (node.type == "project") {
@@ -235,14 +232,14 @@ export default {
         const aspect = img.width / img.height;
         const w = importance * IMAGE_SCALE * (this.getIsMobile ? 1 : aspect);
         const h = (importance * IMAGE_SCALE) / (this.getIsMobile ? aspect : 1);
-        node.__threeObj.children[0].scale.set(w, h);
+        node.__threeObj.children[1].scale.set(w, h);
         let margin = this.getIsMobile ? PROJECT_MARGIN_MOBILE : PROJECT_MARGIN;
         node.bbox = [
           [-w / 2 - margin, -h / 2 - margin],
           [w / 2 + margin, h / 2 + margin],
         ];
         // border
-        node.__threeObj.children[1].scale.set(w, h);
+        node.__threeObj.children[2].scale.set(w, h);
       };
       this.imageLoaded = 0;
       // set image sizes...
@@ -323,7 +320,6 @@ export default {
       sprite.scale.set(1, 1);
       sprite.position.set(0, 0, 0);
       sprite.renderOrder = 10;
-
       // add border
       const border = new THREE.Sprite(
         new THREE.SpriteMaterial({ color: 0xffffff })
@@ -335,6 +331,20 @@ export default {
       // opacity 0
       border.material.opacity = 0;
 
+      // add text with the project title
+      const title = new SpriteText(node.title);
+      title.fontFace = "Libre Bodoni Italic";
+      title.backgroundColor = "white";
+      title.padding = [0, 0];
+      title.color = "black";
+      title.textHeight = 1;
+      title.padding = 2;
+      title.renderOrder = 100;
+      title.visible = false;
+      //title.position.set(0, 0, 0);
+      //title.scale.set(1, 1, 1);
+
+      group.add(title);
       group.add(sprite);
       group.add(border);
       return group;
@@ -446,7 +456,8 @@ export default {
           _node.__threeObj.children[0].backgroundColor = "white";
         }
         if (_node.type == "project" && _node.__threeObj) {
-          _node.__threeObj.children[0].renderOrder = 10;
+          _node.__threeObj.children[1].renderOrder = 10;
+          _node.__threeObj.children[0].visible = false; // title
         }
       });
     },
@@ -458,13 +469,12 @@ export default {
             event_category: "node_hover",
             event_label: node.id,
           });
-      }
-      this.g.pauseAnimation();
-      this.resetNodesStyle();
-      if (node) {
+        this.g.pauseAnimation();
+        this.resetNodesStyle();
         if (node.type == "project") {
           //node.__threeObj.children[1].material.opacity = 1;
-          node.__threeObj.children[0].renderOrder = 99;
+          node.__threeObj.children[1].renderOrder = 99;
+          node.__threeObj.children[0].visible = true; // title
         }
         if (node.type == "tag") {
           node.__threeObj.children[0].backgroundColor =
