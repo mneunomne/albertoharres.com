@@ -3,7 +3,7 @@
     <div
       class="header"
       :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
-      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }"
+      :style="{ width: `${width}px`, 	top: `calc(50% - ${titleMargin}px)` }"
     >
       <div class="close">
         <button @click="closeProject">X</button>
@@ -256,14 +256,6 @@ export default {
     position: absolute;
     top: 50%;
     right: 0;
-
-    a {
-      text-decoration: none;
-      color: black;
-      font-size: 2em;
-      font-weight: bold;
-      font-size: 30px;
-    }
   }
 
   &.show {
@@ -363,17 +355,6 @@ export default {
   border-top: 1px black solid;
   padding-top: 1em;
   opacity: 0;
-}
-
-.details h3 {
-  background-color: transparent;
-}
-
-.side-content {
-  opacity: 0;
-  position: absolute;
-  left: calc(100% + 20px);
-  font-size: 13px;
 }
 
 .side-content .details {

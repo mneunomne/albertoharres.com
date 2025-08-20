@@ -1,38 +1,38 @@
 html {
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  padding: env(safe-area-inset);
-  font-family: "Libre Bodoni Italic";
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+	-ms-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing: antialiased;
+	padding: env(safe-area-inset);
+	font-family: "Libre Bodoni Italic";
+	-webkit-font-smoothing: antialiased;
+	overflow-x: hidden;
 }
 
 ::-webkit-scrollbar {
-  width: -0px;
+	width: -0px;
 }
 
 * {
-  scrollbar-gutter: stable;
+	scrollbar-gutter: stable;
 }
 
 iframe {
-  border: none;
+	border: none;
 }
 
 canvas,
 body,
 iframe {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  outline: none;
-  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-  /* mobile webkit */
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	outline: none;
+	-webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+	/* mobile webkit */
 }
 
 
@@ -49,110 +49,113 @@ b,
 i,
 strong,
 em {
-  -webkit-touch-callout: text;
-  -webkit-user-select: text;
-  -khtml-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
-  /* select color */
+	-webkit-touch-callout: text;
+	-webkit-user-select: text;
+	-khtml-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+	/* select color */
 }
 
 ::-moz-selection {
-  /* Code for Firefox */
-  color: rgb(0, 0, 0);
-  background: rgb(225, 225, 225);
+	/* Code for Firefox */
+	color: rgb(0, 0, 0);
+	background: rgb(225, 225, 225);
 }
 
 ::selection {
-  color: rgb(0, 0, 0);
-  background: rgb(225, 225, 225);
+	color: rgb(0, 0, 0);
+	background: rgb(225, 225, 225);
 }
 
 
 body {
-  width: 100vw;
-  height: 100vh;
-  background: radial-gradient(circle, rgb(235 235 235) 0%, rgb(255, 255, 255) 100%);
-  color: var(--text);
+	width: 100vw;
+	height: 100vh;
+	background: radial-gradient(circle, rgb(235 235 235) 0%, rgb(255, 255, 255) 100%);
+	color: var(--text);
 }
 
 .tooltip-box {
-  width: 300px;
-  background: rgba(0, 0, 0, 0.5);
-  text-align: left;
-  padding: 10px;
+	width: 300px;
+	background: rgba(0, 0, 0, 0.5);
+	text-align: left;
+	padding: 10px;
 }
 
 p {
-  margin: 1em 0em;
-  font-family: 'Source Sans 3';
-  letter-spacing: 0.60px;
-  line-height: 1.25;
+	margin: 1em 0em;
+	font-family: 'Source Sans 3';
+	letter-spacing: 0.60px;
+	line-height: 1.25;
 }
 
 h1 {
-  font-family: "Libre Bodoni Italic";
-  text-transform: uppercase;
-  background: white;
-  padding: 5px;
-  display: inline-block;
-  -webkit-font-smoothing: antialiased;
-  font-size: 24px;
-  letter-spacing: 2px;
+	font-family: "Libre Bodoni Italic";
+	text-transform: uppercase;
+	background: white;
+	padding: 5px;
+	display: inline-block;
+	-webkit-font-smoothing: antialiased;
+	font-size: 24px;
+	letter-spacing: 2px;
+}
+
+h2 {
+	background: white;
 }
 
 h2,
 h3 {
-  font-family: 'Libre Bodoni Italic';
-  font-weight: 500;
-  background: white;
-  font-size: 16px;
-  padding: 4px;
-  margin-top: 11px;
-  display: inline-block;
+	font-family: 'Libre Bodoni Italic';
+	font-weight: 500;
+	font-size: 16px;
+	padding: 4px;
+	margin-top: 11px;
+	display: inline-block;
 }
 
 .close button {
-  background: url(/img/close.svg);
-  border: none;
-  content: "";
-  color: transparent;
-  background-repeat: no-repeat;
-  background-size: contain;
-  white-space: pre;
-  cursor: pointer;
+	background: url(/img/close.svg);
+	border: none;
+	content: "";
+	color: transparent;
+	background-repeat: no-repeat;
+	background-size: contain;
+	white-space: pre;
+	cursor: pointer;
 
-  &:hover {
-    text-decoration: line-through;
-  }
+	&:hover {
+		text-decoration: line-through;
+	}
 }
 
 .close {
-  display: flex;
-  width: 20px;
-  height: 20px;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
+	display: flex;
+	width: 20px;
+	height: 20px;
+	transition: all 0.2s ease-in-out;
+	cursor: pointer;
 }
 
 .embed-iframe {
-  --video--width: 1920;
-  --video--height: 1080;
+	--video--width: 1920;
+	--video--height: 1080;
 
-  position: relative;
-  padding-bottom: calc(var(--video--height) / var(--video--width) * 100%);
-  /* 41.66666667% */
-  overflow: hidden;
-  max-width: 100%;
-  background: black;
-  margin-bottom: 1em;
+	position: relative;
+	padding-bottom: calc(var(--video--height) / var(--video--width) * 100%);
+	/* 41.66666667% */
+	overflow: hidden;
+	max-width: 100%;
+	background: black;
+	margin-bottom: 1em;
 }
 
 .embed-iframe iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 }

@@ -1,17 +1,5 @@
 <template>
   <div>
-    <div class="header show" :class="{ mobile: getIsMobile }">
-      <div class="close">
-        <button @click="closeProject">X</button>
-      </div>
-      <div class="title-wrapper">
-        <h1 class="title">{{ data.title }}</h1>
-        <br />
-        <h2 class="subtitle" v-if="data.subtitle">
-          {{ data.subtitle }}
-        </h2>
-      </div>
-    </div>
     <!-- content -->
     <div class="project-wrapper show">
       <div class="project-bg"></div>
@@ -20,15 +8,7 @@
           <button @click="closeProject">X</button>
         </div>
         <div class="content">
-          <div class="side-content" v-if="!getIsMobile">
-            <div
-              v-if="data.details"
-              class="details"
-              v-html="renderDetails"
-            ></div>
-          </div>
           <div class="description" v-html="renderContent"></div>
-          <div v-if="getIsMobile" class="details" v-html="renderDetails"></div>
         </div>
       </div>
     </div>
@@ -67,46 +47,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.header {
-  left: 50%;
-  transform: translate(-50%, -100%);
-  position: fixed;
-  width: 600px;
-  opacity: 0;
-  top: calc(50% - 300px);
-  z-index: 999;
 
-  &.mobile {
-    top: 12px !important;
-    width: auto !important;
-    transform: none;
-    left: 12px;
-    right: 12px;
-
-    .close {
-      top: 0;
-      transform: none;
-    }
-  }
-
-  .close {
-    position: absolute;
-    top: 50%;
-    right: 0;
-
-    button {
-      background: none;
-      border: none;
-      font-size: 30px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  }
-
-  &.show {
-    opacity: 1;
-    pointer-events: all;
-  }
+.close {
+	position: absolute;
+	top: 0;
+	right: 0;
 }
 
 .project {
@@ -114,6 +59,7 @@ export default {
   position: absolute;
   left: 50%;
   top: 50%;
+	padding-top: 20px;
   transform: translate(-50%, -50%);
   pointer-events: all;
   width: 600px;
@@ -129,28 +75,10 @@ export default {
     top: 100px;
     transform: none;
 
-    .description,
-    .details {
+    .description {
       padding: 0px 12px;
     }
   }
-
-  .close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
-
-    button {
-      background: none;
-      border: none;
-      font-size: 24px;
-      font-weight: bold;
-      cursor: pointer;
-      padding: 5px;
-    }
-  }
-
   .content {
     padding-bottom: 4em;
 
