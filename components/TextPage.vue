@@ -47,11 +47,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .close {
-	position: absolute;
-	top: 0;
-	right: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .project {
@@ -59,7 +58,7 @@ export default {
   position: absolute;
   left: 50%;
   top: 50%;
-	padding-top: 20px;
+  padding-top: 20px;
   transform: translate(-50%, -50%);
   pointer-events: all;
   width: 600px;
@@ -79,6 +78,7 @@ export default {
       padding: 0px 12px;
     }
   }
+
   .content {
     padding-bottom: 4em;
 
@@ -131,15 +131,15 @@ export default {
 
 .title {
   margin: 0px;
-  padding: 5px 7px 2px 7px;
+  padding: 0px 7px 0px 7px;
   max-width: 90%;
 }
 
 .subtitle {
   margin: 0px;
-  margin-top: 10px;
   font-weight: 400;
   padding: 3px 7px 5px 7px;
+  margin-top: 0px;
   max-width: 90%;
 }
 </style>
