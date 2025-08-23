@@ -214,6 +214,7 @@ export default {
     },
 
     setInitialView() {
+			console.log('setInitialView')
       this.g.d3Force("link").distance((link) => LINK_DISTANCE);
       this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
       let project_nodes = this.g
@@ -221,6 +222,7 @@ export default {
         .nodes.filter((n) => n.type == "project");
       const resizeImg = (img, node) => {
         this.imageLoaded++;
+				console.log('imageLoaded', node)
         if (this.imageLoaded == project_nodes.length) {
           allImagesLoaded();
         }
@@ -241,10 +243,12 @@ export default {
       this.imageLoaded = 0;
       // set image sizes...
       this.g.graphData().nodes.forEach((node) => {
-        if (node.type == "project") {
-          if (node.__threeObj) {
-            const img = document.createElement("img");
+				if (node.type == "project") {
+					console.log('test', node)
+					if (node.__threeObj) {
+						const img = document.createElement("img");
             img.src = node.thumbnail;
+						console.log('node', node, img)
             // on load
             if (img.complete) {
               resizeImg(img, node);
@@ -257,6 +261,7 @@ export default {
         }
       });
       const allImagesLoaded = () => {
+				console.log('allImagesLoaded')
         var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
         var w =
           (h * window.innerWidth) / window.innerHeight -
@@ -528,7 +533,7 @@ export default {
 				process.nextTick(() => {
 					this.setInitialView();
 				});
-			}, 1);
+			}, 100);
 		},
 
     setCurrentOpenNode() {
