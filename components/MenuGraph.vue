@@ -1,10 +1,7 @@
 <template>
   <div>
-    <div
-      class="menu-graph"
-      :style="{ width: `${width}px`, height: `${height}px` }"
-      :class="{ mobile: getIsMobile, show }"
-    ></div>
+    <div class="menu-graph" :style="{ width: `${width}px`, height: `${height}px` }"
+      :class="{ mobile: getIsMobile, show }"></div>
   </div>
 </template>
 
@@ -15,6 +12,7 @@ import { mapGetters } from "vuex";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { bboxCollide } from "d3-bboxCollide";
 
 export default {
   name: "MenuGraph",
@@ -107,6 +105,10 @@ export default {
       g.graphData(this.gData)
         .backgroundColor("rgba(0,0,0,0)")
         .showNavInfo(false)
+
+        .d3VelocityDecay(0.8)
+        .d3AlphaMin(0.0)
+        .d3AlphaDecay(0.1)
         .numDimensions(2)
         .width(this.width)
         .height(this.height)
@@ -167,6 +169,22 @@ export default {
         this.g.d3Force("link").distance(() => 40);
         this.g.cameraPosition({ x: 0, y: 0, z: this.cameraDistance });
         this.show = true;
+        this.g.d3Force(
+          "colide",
+          bboxCollide((node) => {
+            if (node.route == "/") {
+              return [
+                [-50, -10],
+                [50, 10],
+              ];
+            } else {
+              return [
+                [-10, -10],
+                [10, 10],
+              ];
+            }
+          })
+        );
       });
     },
 

@@ -1,29 +1,20 @@
 <template>
   <div>
-    <div
-      v-show="currentFilter !== null"
-      class="remove-filter close"
-      @click="showAllElements"
-    >
+    <div v-show="currentFilter !== null" class="remove-filter close" @click="showAllElements">
       <button>{{ currentFilter }}</button>
     </div>
     <div class="loading" v-if="hidden">
-      <span>loading</span><span class="dot">.</span><span class="dot">.</span
-      ><span class="dot">.</span>
+      <span>loading</span><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
     </div>
 
-    <div
-      :class="{
-        hidden,
-        'no-interaction': openProject,
-        'hide-tooltip': openProject || transition,
-      }"
-      class="connections-graph"
-      :style="{
-        top: `-${openProject ? canvasMargin + contentMargin : canvasMargin}px`,
-        height: `calc(${canvasHeight}px)`,
-      }"
-    >
+    <div :class="{
+      hidden,
+      'no-interaction': openProject,
+      'hide-tooltip': openProject || transition,
+    }" class="connections-graph" :style="{
+      top: `-${openProject ? canvasMargin + contentMargin : canvasMargin}px`,
+      height: `calc(${canvasHeight}px)`,
+    }">
       .
     </div>
   </div>
@@ -136,6 +127,8 @@ export default {
       fontFile.load().then((font) => {
         document.fonts.add(font);
         this.buildGraph();
+      }).catch((err) => {
+        console.error("Error loading font", err);
       });
       setTimeout(() => {
         if (this.$route.name == "works-work") {
@@ -207,14 +200,15 @@ export default {
         console.log("onEngineStop");
       });
 
-			process.nextTick(() => {
-				this.setInitialView();
-			});
+			setTimeout(() => {
+				process.nextTick(() => {
+					this.setInitialView();
+				});
+			}, 1);
       window.addEventListener("resize", _.throttle(this.onWindowResize, 1000), false);
     },
 
     setInitialView() {
-			console.log('setInitialView')
       this.g.d3Force("link").distance((link) => LINK_DISTANCE);
       this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
       let project_nodes = this.g
@@ -222,11 +216,10 @@ export default {
         .nodes.filter((n) => n.type == "project");
       const resizeImg = (img, node) => {
         this.imageLoaded++;
-				console.log('imageLoaded', node)
         if (this.imageLoaded == project_nodes.length) {
           allImagesLoaded();
         }
-        let importance = 1; // node.importance; // need to check this later because of the camera distance calculation
+        let importance = node.importance; // node.importance; // need to check this later because of the camera distance calculation
         // On desktop, the height is constant, while on mobile, the width is constant
         const aspect = img.width / img.height;
         const w = importance * IMAGE_SCALE * (this.getIsMobile ? 1 : aspect);
@@ -399,7 +392,13 @@ export default {
         id: node.id,
       });
 
-      var dist = this.getIsMobile ? CAMERA_DISTANCE_FAR - 50 : CAMERA_DISTANCE;
+      // Calculate adjusted camera distance based on node importance
+      const baseDist = this.getIsMobile ? CAMERA_DISTANCE_FAR - 50 : CAMERA_DISTANCE;
+      const baseHeight = IMAGE_SCALE; // height when importance = 1
+      const nodeHeight = node.importance * IMAGE_SCALE; // actual height of this node
+      const adjustedDist = baseDist * (nodeHeight / baseHeight);
+
+      var dist = adjustedDist;
 
       var cameraPos = this.g.cameraPosition();
       this.g.enablePointerInteraction(false);
@@ -533,7 +532,7 @@ export default {
 				process.nextTick(() => {
 					this.setInitialView();
 				});
-			}, 100);
+			}, 1);
 		},
 
     setCurrentOpenNode() {
@@ -725,6 +724,7 @@ export default {
 }
 
 @keyframes dot-flash {
+
   0%,
   20% {
     opacity: 0;

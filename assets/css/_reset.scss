@@ -83,12 +83,9 @@ video {
 	padding: 0;
 	border: 0;
 	font-size: 100%;
-	/* font-family: inherit; */
+	font-family: inherit;
 	vertical-align: baseline;
 	word-wrap: break-word;
-	line-height: 1.5em;
-	letter-spacing: 0.60px;
-
 }
 
 /* HTML5 display-role reset for older browsers */
@@ -106,10 +103,6 @@ section {
 	display: block;
 }
 
-body {
-	line-height: 1;
-}
-
 /*
 ol, ul {
 	list-style: none;
@@ -123,8 +116,7 @@ ul {
 ol,
 ul,
 h3 {
-	margin-bottom: 0.8em;
-	margin-top: 0.8em;
+	margin-bottom: 1em;
 }
 
 

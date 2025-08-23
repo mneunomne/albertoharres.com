@@ -22,3 +22,48 @@
   font-family: 'Source Sans 3 Italic';
   font-style: italic;
 }
+
+/* Geist */
+@font-face {
+  src: url(~assets/fonts/Geist/GeistVF.ttf) format("truetype");
+  font-family: 'Geist';
+  font-weight: 100;
+  font-style: normal;
+}
+
+/* Geist Mono */
+@font-face {
+  src: url(~assets/fonts/Geist_Mono/GeistMonoVF.ttf) format("truetype");
+  font-family: 'Geist Mono';
+  font-weight: 100;
+  font-style: normal;
+}
+
+/* DM Mono */
+@font-face {
+  src: url(~assets/fonts/DM_Mono/DMMono-Regular.ttf) format("truetype");
+  font-family: 'DM Mono';
+  font-style: normal;
+}
+
+/* DM Mono Italic*/
+@font-face {
+  src: url(~assets/fonts/DM_Mono/DMMono-MediumItalic.ttf) format("truetype");
+  font-family: 'DM Mono Italic';
+  font-style: italic;
+}
+
+/* DM Sans Italic*/
+@font-face {
+  src: url(~assets/fonts/DM_Sans/static/DMSans_18pt-MediumItalic.ttf) format("truetype");
+  font-family: 'DM Sans Italic';
+  font-style: italic;
+}
+
+/* DM Sans */
+@font-face {
+  src: url(~assets/fonts/DM_Sans/DMSans-VariableFont_opsz,wght.ttf) format("truetype");
+  font-family: 'DM Sans';
+  font-weight: 400;
+  font-style: normal;
+}
