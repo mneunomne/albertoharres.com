@@ -1,9 +1,9 @@
 <template>
   <div>
     <!-- content -->
-    <div class="project-wrapper show">
+    <div class="project-wrapper" :class="{ show: show }">
       <div class="project-bg"></div>
-      <div class="project">
+      <div class="project" :class="{ mobile: getIsMobile }">
         <div class="close">
           <button @click="closeProject">X</button>
         </div>
@@ -27,6 +27,11 @@ export default {
       required: true,
     },
   },
+	data() {
+		return {
+			show: false
+		}
+	},
   computed: {
     ...mapGetters({
       getIsMobile: "getIsMobile",
@@ -43,6 +48,10 @@ export default {
       this.$emit("closeProject");
     },
   },
+	mounted() {
+		// console.log("TextPage mounted", this.data);
+		this.show = true;
+	}
 };
 </script>
 
@@ -91,9 +100,10 @@ export default {
 
 .project-wrapper {
   z-index: 9999;
-
+	
   .project-bg {
-    opacity: 1;
+		opacity: 0;
+		transition: all 0.5s;
     position: fixed;
     top: 0;
     left: 0;
@@ -101,45 +111,13 @@ export default {
     height: 100vh;
     z-index: 1;
     backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.85);	
   }
-}
-
-.details {
-  font-family: "Source Sans 3";
-  border-top: 1px black solid;
-  padding-top: 1em;
-  opacity: 1;
-
-  h3 {
-    background-color: transparent;
-  }
-}
-
-.side-content {
-  opacity: 1;
-  position: absolute;
-  left: calc(100% + 20px);
-  font-size: 13px;
-
-  .details {
-    width: 220px;
-    border-top: none;
-    padding-top: 0;
-  }
-}
-
-.title {
-  margin: 0px;
-  padding: 0px 7px 0px 7px;
-  max-width: 90%;
-}
-
-.subtitle {
-  margin: 0px;
-  font-weight: 400;
-  padding: 3px 7px 5px 7px;
-  margin-top: 0px;
-  max-width: 90%;
+	&.show {
+		opacity: 1;
+		.content, .project-bg {
+			opacity: 1;
+		}
+	}
 }
 </style>

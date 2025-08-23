@@ -621,7 +621,7 @@ export default {
       let from_name = from.name.split("__")[0];
       if (
         from_name == "works-work" &&
-        (to_name == "works" || to_name == "index")
+        (to_name == "works" || to_name == "index" || to_name == "cv" || to_name == "bio")
       ) {
         this.onCloseProject();
       }

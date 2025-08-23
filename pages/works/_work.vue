@@ -84,6 +84,12 @@ export default {
       console.log("changed project", this.project);
       this.showCurrentProject = true;
     },
+		// check if route changed to cv or bio, by checking the route name
+    $route (to, from) {
+      if (to.name === "cv" || to.name === "bio") {
+        this.showCurrentProject = false;
+      }
+    },
   },
 };
 </script>

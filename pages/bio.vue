@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     onCloseProject() {
-      console.log("onCloseProject");
+      // console.log("onCloseProject");
       this.$router.push({ path: "/works" });
     },
   },
