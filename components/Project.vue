@@ -15,7 +15,6 @@
     </div>
     <!-- project -->
     <div class="project-wrapper" :class="{ show }">
-      <div class="project-bg"></div>
       <div class="project" :class="{ mobile: getIsMobile, tablet: getIsTabletView }" :style="{
         width: `${width}px`,
         height: `${height}px`,

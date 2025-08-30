@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+    <div class="project-bg" :class="{ show: showBackground }"></div>
     <div id="background">
       <img :src="prevImgUrl" :style="{ opacity: imgUrl ? 1 : 0 }" class="background-image prev"
         :class="{ show: showBg }" />
@@ -16,7 +17,7 @@
 <script>
 import Header from "~/components/Header.vue";
 import ConnectionsGraph from "~/components/ConnectionsGraph.vue";
-import { isMobile } from "~/utils";
+import { isMobile, CAMERA_ANIMATION_DURATION } from "~/utils";
 import { mapGetters } from "vuex";
 import { mapActions } from "vuex";
 
@@ -34,6 +35,7 @@ export default {
       imgUrl: "",
       prevImgUrl: "",
       showBg: false,
+      showBackground: false,
     };
   },
   created() {
@@ -123,6 +125,7 @@ export default {
     },
     onBackToInitialView() {
       this.currentProject = null;
+      this.$emit("closeProject");
     },
     generateLinks(data) {
       const links = [];
@@ -137,11 +140,70 @@ export default {
       return links;
     },
   },
+  mounted() {
+    if (this.$route.name == "index" || this.$route.name == "works") {
+      this.currentProject = null;
+      this.showCurrentProject = false;
+      this.showBackground = false;
+    } else {
+      this.showBackground = true;
+    }
+  },
+  watch: {
+    $route(to, from) {
+      // check if route is /works/:slug
+      if (to.name == "bio" || to.name == "cv") {
+        this.currentProject = null;
+        this.showCurrentProject = false;
+        this.showBackground = true;
+      }
+      if (to.name == "index" || to.name == "works") {
+        this.currentProject = null;
+        this.showCurrentProject = false;
+        this.showBackground = false;
+      }
+      if (to.name == "works-work") {
+        const work = to.params.work;
+        const project = this.projects.find((p) => p.slug === work);
+        if (project) {
+          this.currentProject = project;
+          this.showCurrentProject = true;
+          setTimeout(() => {
+            this.showBackground = true;
+          }, CAMERA_ANIMATION_DURATION + 200);
+        } else {
+          this.currentProject = null;
+          this.showCurrentProject = false;
+          this.showBackground = false;
+        }
+      }
+    },
+  }
 };
 </script>
 
 
 <style lang="scss" scoped>
+.project-bg {
+  opacity: 0;
+  transition: all 0.5s;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.85);
+  pointer-events: none;
+
+  opacity: 0;
+
+  &.show {
+    opacity: 1;
+  }
+}
+
 #background {
   display: none;
   position: fixed;

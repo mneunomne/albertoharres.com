@@ -1,9 +1,8 @@
 <template>
   <div>
     <!-- content -->
-    <div class="project-wrapper" :class="{ show: show }">
-      <div class="project-bg"></div>
-      <div class="project" :class="{ mobile: getIsMobile }">
+    <div class="project-wrapper">
+      <div class="project" :class="{ mobile: getIsMobile, show: show }">
         <div class="close">
           <button @click="closeProject">X</button>
         </div>
@@ -27,11 +26,12 @@ export default {
       required: true,
     },
   },
-	data() {
-		return {
-			show: false
-		}
-	},
+  data() {
+    return {
+      show: false,
+      showBackground: false
+    }
+  },
   computed: {
     ...mapGetters({
       getIsMobile: "getIsMobile",
@@ -48,10 +48,12 @@ export default {
       this.$emit("closeProject");
     },
   },
-	mounted() {
-		// console.log("TextPage mounted", this.data);
-		this.show = true;
-	}
+  mounted() {
+    console.log("$route", this.$route);
+    setTimeout(() => {
+      this.show = true;
+    }, 200);
+  }
 };
 </script>
 
@@ -90,6 +92,8 @@ export default {
 
   .content {
     padding-bottom: 4em;
+    transition: all 0.5s;
+    transition-delay: 0.2s;
 
     .description {
       opacity: 1;
@@ -100,24 +104,16 @@ export default {
 
 .project-wrapper {
   z-index: 9999;
-	
-  .project-bg {
-		opacity: 0;
-		transition: all 0.5s;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1;
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.85);	
+
+  .project {
+    opacity: 0;
+    transition: all 0.5s;
+    transition-delay: 0.2s;
+
+    &.show {
+      opacity: 1;
+    }
   }
-	&.show {
-		opacity: 1;
-		.content, .project-bg {
-			opacity: 1;
-		}
-	}
+
 }
 </style>
