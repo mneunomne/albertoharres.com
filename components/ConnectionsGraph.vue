@@ -50,14 +50,14 @@ const LINK_DISTANCE = 50;
 
 // desktop values
 const GRID_MARGIN = 20;
-const TOP_MARGIN = 30;
-const LEFT_MARGIN = 10;
-const BOTTOM_MARGIN = 30;
-const RIGHT_MARGIN = 10;
+const TOP_MARGIN = 20;
+const LEFT_MARGIN = 5;
+const BOTTOM_MARGIN = 20;
+const RIGHT_MARGIN = 5;
 const BLANK_SPACE_RATIO = 0.7;
 const FRONT_MARGIN = 20;
 const BACK_MARGIN = 20;
-const PROJECT_MARGIN = 2;
+const PROJECT_MARGIN = 3;
 
 // mobile values
 const GRID_MARGIN_MOBILE = 5;
@@ -179,9 +179,9 @@ export default {
         .enableNodeDrag(false)
         .cooldownTime(2000)
         .cooldownTicks(Infinity)
-				.d3VelocityDecay(0.9)    // Higher = faster settling 
-				.d3AlphaMin(0.001)       // Higher = stops earlier 
-				.d3AlphaDecay(0.05)      // Higher = faster cooldown
+        .d3VelocityDecay(0.71)    // Higher = faster settling 
+        .d3AlphaMin(0.01)       // Higher = stops earlier 
+        .d3AlphaDecay(0.04)      // Higher = faster cooldown
         .onNodeClick(this.onNodeClick)
         .onNodeHover(this.onNodeHover)
         .nodeThreeObject((node) => {
@@ -200,11 +200,11 @@ export default {
         console.log("onEngineStop");
       });
 
-			setTimeout(() => {
-				process.nextTick(() => {
-					this.setInitialView();
-				});
-			}, 1);
+      setTimeout(() => {
+        process.nextTick(() => {
+          this.setInitialView();
+        });
+      }, 1);
       window.addEventListener("resize", _.throttle(this.onWindowResize, 1000), false);
     },
 
@@ -236,12 +236,12 @@ export default {
       this.imageLoaded = 0;
       // set image sizes...
       this.g.graphData().nodes.forEach((node) => {
-				if (node.type == "project") {
-					console.log('test', node)
-					if (node.__threeObj) {
-						const img = document.createElement("img");
+        if (node.type == "project") {
+          console.log('test', node)
+          if (node.__threeObj) {
+            const img = document.createElement("img");
             img.src = node.thumbnail;
-						console.log('node', node, img)
+            console.log('node', node, img)
             // on load
             if (img.complete) {
               resizeImg(img, node);
@@ -254,7 +254,7 @@ export default {
         }
       });
       const allImagesLoaded = () => {
-				console.log('allImagesLoaded')
+        console.log('allImagesLoaded')
         var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
         var w =
           (h * window.innerWidth) / window.innerHeight -
@@ -272,19 +272,19 @@ export default {
         var plane = new THREE.Mesh(geometry, material);
         plane.position.z = -BACK_MARGIN - 1;
         plane.name = "limit-plane";
-				this.g.d3Force("limit", this.limitWindow(project_nodes)).d3Force(
-					"colide",
-					bboxCollide((node) => {
-						if (node.bbox) {
-							return node.bbox;
-						} else {
-							return [
-								[-1, -1],
-								[1, 1],
-							];
-						}
-					})
-				);
+        this.g.d3Force("limit", this.limitWindow(project_nodes)).d3Force(
+          "colide",
+          bboxCollide((node) => {
+            if (node.bbox) {
+              return node.bbox;
+            } else {
+              return [
+                [-2, -1],
+                [2, 1],
+              ];
+            }
+          })
+        );
         this.hidden = false;
       };
     },
@@ -528,12 +528,12 @@ export default {
         nodes: [...this.allNodes],
         links: [...this.allLinks],
       });
-			setTimeout(() => {
-				process.nextTick(() => {
-					this.setInitialView();
-				});
-			}, 1);
-		},
+      setTimeout(() => {
+        process.nextTick(() => {
+          this.setInitialView();
+        });
+      }, 1);
+    },
 
     setCurrentOpenNode() {
       this.openProject = true;
@@ -565,54 +565,54 @@ export default {
       this.g.d3ReheatSimulation();
     },
     // Cache these values and only recalculate when window resizes
-		limitWindow(nodes) {
-			// Calculate once and cache
-			const isMobile = this.getIsMobile;
-			const margins = {
-				top: isMobile ? TOP_MARGIN_MOBILE : TOP_MARGIN,
-				left: isMobile ? LEFT_MARGIN_MOBILE : LEFT_MARGIN,
-				bottom: isMobile ? BOTTOM_MARGIN_MOBILE : BOTTOM_MARGIN,
-				right: isMobile ? RIGHT_MARGIN_MOBILE : RIGHT_MARGIN,
-				back: isMobile ? BACK_MARGIN_MOBILE : BACK_MARGIN,
-				front: isMobile ? FRONT_MARGIN_MOBILE : FRONT_MARGIN,
-			};
+    limitWindow(nodes) {
+      // Calculate once and cache
+      const isMobile = this.getIsMobile;
+      const margins = {
+        top: isMobile ? TOP_MARGIN_MOBILE : TOP_MARGIN,
+        left: isMobile ? LEFT_MARGIN_MOBILE : LEFT_MARGIN,
+        bottom: isMobile ? BOTTOM_MARGIN_MOBILE : BOTTOM_MARGIN,
+        right: isMobile ? RIGHT_MARGIN_MOBILE : RIGHT_MARGIN,
+        back: isMobile ? BACK_MARGIN_MOBILE : BACK_MARGIN,
+        front: isMobile ? FRONT_MARGIN_MOBILE : FRONT_MARGIN,
+      };
 
-			const window_height = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
-			const window_width = (window_height * window.innerWidth) / window.innerHeight - LEFT_MARGIN - RIGHT_MARGIN;
-			
-			// Pre-calculate boundaries
-			const bounds = {
-				xMax: window_width / 2 - margins.right,
-				xMin: -window_width / 2 + margins.left,
-				yMax: window_height / 2 - margins.top,
-				yMin: -window_height / 2 + margins.bottom,
-				zMax: margins.front,
-				zMin: -margins.back,
-			};
+      const window_height = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
+      const window_width = (window_height * window.innerWidth) / window.innerHeight - LEFT_MARGIN - RIGHT_MARGIN;
 
-			return () => {
-				// Use for loop for better performance than forEach
-				for (let i = 0; i < nodes.length; i++) {
-					const node = nodes[i];
-					
-					// Check current position first (simpler logic)
-					if (node.x < bounds.xMin || node.x > bounds.xMax) {
-						node.vx = node.x < bounds.xMin ? Math.abs(node.vx) : -Math.abs(node.vx);
-					}
-					
-					if (node.y < bounds.yMin || node.y > bounds.yMax) {
-						node.vy = node.y < bounds.yMin ? Math.abs(node.vy) : -Math.abs(node.vy);
-					}
-					
-					if (node.z < bounds.zMin || node.z > bounds.zMax) {
-						node.vz = node.z < bounds.zMin ? Math.abs(node.vz) : -Math.abs(node.vz);
-						if (node.type === "pag" && node.z < bounds.zMin) {
-							node.vz += 0.1;
-						}
-					}
-				}
-			};
-		}
+      // Pre-calculate boundaries
+      const bounds = {
+        xMax: window_width / 2 - margins.right,
+        xMin: -window_width / 2 + margins.left,
+        yMax: window_height / 2 - margins.top,
+        yMin: -window_height / 2 + margins.bottom,
+        zMax: margins.front,
+        zMin: -margins.back,
+      };
+
+      return () => {
+        // Use for loop for better performance than forEach
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i];
+
+          // Check current position first (simpler logic)
+          if (node.x < bounds.xMin || node.x > bounds.xMax) {
+            node.vx = node.x < bounds.xMin ? Math.abs(node.vx) : -Math.abs(node.vx);
+          }
+
+          if (node.y < bounds.yMin || node.y > bounds.yMax) {
+            node.vy = node.y < bounds.yMin ? Math.abs(node.vy) : -Math.abs(node.vy);
+          }
+
+          if (node.z < bounds.zMin || node.z > bounds.zMax) {
+            node.vz = node.z < bounds.zMin ? Math.abs(node.vz) : -Math.abs(node.vz);
+            if (node.type === "pag" && node.z < bounds.zMin) {
+              node.vz += 0.1;
+            }
+          }
+        }
+      };
+    }
   },
   watch: {
     // route change

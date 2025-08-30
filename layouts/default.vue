@@ -1,27 +1,14 @@
 <template>
   <div class="main">
     <div id="background">
-      <img
-        :src="prevImgUrl"
-        :style="{ opacity: imgUrl ? 1 : 0 }"
-        class="background-image prev"
-        :class="{ show: showBg }"
-      />
+      <img :src="prevImgUrl" :style="{ opacity: imgUrl ? 1 : 0 }" class="background-image prev"
+        :class="{ show: showBg }" />
       <!-- current image -->
-      <img
-        :src="imgUrl"
-        :style="{ opacity: imgUrl ? 1 : 0 }"
-        class="background-image prev"
-      />
+      <img :src="imgUrl" :style="{ opacity: imgUrl ? 1 : 0 }" class="background-image prev" />
     </div>
     <Header />
-    <ConnectionsGraph
-      :gData="gData"
-      @clickProject="onClickProject"
-      @backToInitialView="onBackToInitialView"
-      :currentProject="currentProject"
-      @hoverProject="onHoverProject"
-    />
+    <ConnectionsGraph :gData="gData" @clickProject="onClickProject" @backToInitialView="onBackToInitialView"
+      :currentProject="currentProject" @hoverProject="onHoverProject" />
     <nuxt />
   </div>
 </template>
@@ -65,7 +52,7 @@ export default {
       getIsMobile: "getIsMobile",
     }),
     projects() {
-      return this.$store.state.projects;
+      return this.$store.state.projects.filter((p) => !p.disabled);
     },
     gData() {
       const data = this.projects;
