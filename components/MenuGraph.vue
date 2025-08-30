@@ -12,6 +12,7 @@ import { mapGetters } from "vuex";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { bboxCollide } from "d3-bboxCollide";
 
 export default {
   name: "MenuGraph",
@@ -33,7 +34,7 @@ export default {
   },
 
   created() {
-    if (!process.browser) return
+    if (!process.browser) return;
     window.addEventListener("resize", () => {
       this.computeWindowSize();
     });
@@ -44,7 +45,7 @@ export default {
 
     const fontFile = new FontFace(
       "Libre Bodoni Italic",
-      "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)",
+      "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)"
     );
     fontFile.load().then((font) => {
       document.fonts.add(font);
@@ -60,7 +61,6 @@ export default {
       this.height = 150;
       this.cameraDistance = 100;
     }
-
   },
   computed: {
     ...mapGetters({
@@ -105,22 +105,22 @@ export default {
       g.graphData(this.gData)
         .backgroundColor("rgba(0,0,0,0)")
         .showNavInfo(false)
+
+        .d3VelocityDecay(0.8)
+        .d3AlphaMin(0.0)
+        .d3AlphaDecay(0.1)
         .numDimensions(2)
         .width(this.width)
         .height(this.height)
         .onNodeClick((node) => {
-          if (gtag) gtag('event', 'click', {
-            event_category: 'menu_graph_click',
-            event_label: node.route
-          });
-
-          if (node.route.includes("http")) {
-            window.open(node.route, "_blank");
+          if (gtag)
+            gtag("event", "click", {
+              event_category: "menu_graph_click",
+              event_label: node.route,
+            });
+          if (node.route.includes("/")) {
+            this.$router.push({ path: node.route });
             return;
-          } else if (node.name == "mail") {
-            var mail = document.createElement("a");
-            mail.href = node.route;
-            mail.click();
           } else {
             // gp home
             this.$router.push("/");
@@ -169,6 +169,22 @@ export default {
         this.g.d3Force("link").distance(() => 40);
         this.g.cameraPosition({ x: 0, y: 0, z: this.cameraDistance });
         this.show = true;
+        this.g.d3Force(
+          "colide",
+          bboxCollide((node) => {
+            if (node.route == "/") {
+              return [
+                [-50, -10],
+                [50, 10],
+              ];
+            } else {
+              return [
+                [-10, -10],
+                [10, 10],
+              ];
+            }
+          })
+        );
       });
     },
 

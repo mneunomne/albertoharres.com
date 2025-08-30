@@ -1,74 +1,119 @@
 <template>
   <div>
-    <div
-      class="header"
-      :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
-      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }"
-    >
-      <div class="close">
-        <button @click="closeProject">X</button>
-      </div>
-      <div class="title-wrapper">
-        <h1 class="title">{{ page.title }}</h1>
-        <br />
-        <h2 class="subtitle" v-if="project.subtitle">
-          {{ page.subtitle }}
-        </h2>
-      </div>
-    </div>
-    <!-- project -->
-    <div class="project-wrapper" :class="{ show }">
-      <div class="project-bg"></div>
-      <div
-        class="project"
-        :class="{ mobile: getIsMobile, tablet: getIsTabletView }"
-        :style="{
-          width: `${width}px`,
-          height: `${height}px`,
-          top: `calc(50% - ${contentMargin}px)`,
-        }"
-      >
+    <!-- content -->
+    <div class="project-wrapper">
+      <div class="project" :class="{ mobile: getIsMobile, show: show }">
+        <div class="close">
+          <button @click="closeProject">X</button>
+        </div>
         <div class="content">
-          <div class="side-content" v-if="!(getIsMobile || getIsTabletView)">
-            <div
-              v-if="project.details"
-              class="details"
-              v-html="renderDetails"
-            ></div>
-            <div class="tags">
-              <h3>Tags:</h3>
-              <ul>
-                <li v-for="tag in project.tags" :key="tag">
-                  <u>{{ tag }}</u>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="image" :style="{ height: `${height}px` }">
-            <img class="image-el" :src="project.thumbnail" alt="" />
-          </div>
           <div class="description" v-html="renderContent"></div>
-          <div class="gallery-images">
-            <img
-              class="gallery_image"
-              v-for="(image, imageIndex) in imageGallery"
-              :key="imageIndex"
-              @click="onClickImage(imageIndex, image)"
-              :src="image"
-            />
-          </div>
-          <div
-            v-if="getIsMobile || getIsTabletView"
-            class="details"
-            v-html="renderDetails"
-          ></div>
         </div>
       </div>
     </div>
-    <v-gallery
-      :images="allImages"
-      :index="curImageIndex"
-      @close="curImageIndex = null"
-    ></v-gallery>
   </div>
 </template>
+<script>
+import marked from "marked";
+
+import { mapGetters } from "vuex";
+
+export default {
+  name: "TextPage",
+  props: {
+    data: {
+      type: Object,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      show: false,
+      showBackground: false
+    }
+  },
+  computed: {
+    ...mapGetters({
+      getIsMobile: "getIsMobile",
+    }),
+    renderContent() {
+      return marked.parse(this.data.content || "");
+    },
+    renderDetails() {
+      return marked.parse(this.data.details || "");
+    },
+  },
+  methods: {
+    closeProject() {
+      this.$emit("closeProject");
+    },
+  },
+  mounted() {
+    console.log("$route", this.$route);
+    setTimeout(() => {
+      this.show = true;
+    }, 200);
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.close {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.project {
+  z-index: 3;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  padding-top: 20px;
+  transform: translate(-50%, -50%);
+  pointer-events: all;
+  width: 600px;
+  max-height: 80vh;
+  font-family: sans-serif;
+  overflow-y: auto;
+
+  &.mobile {
+    width: 100% !important;
+    height: auto !important;
+    max-height: calc(100vh - 120px);
+    left: 0;
+    top: 100px;
+    transform: none;
+
+    .description {
+      padding: 0px 12px;
+    }
+  }
+
+  .content {
+    padding-bottom: 4em;
+    transition: all 0.5s;
+    transition-delay: 0.2s;
+
+    .description {
+      opacity: 1;
+      padding-bottom: 1em;
+    }
+  }
+}
+
+.project-wrapper {
+  z-index: 9999;
+
+  .project {
+    opacity: 0;
+    transition: all 0.5s;
+    transition-delay: 0.2s;
+
+    &.show {
+      opacity: 1;
+    }
+  }
+
+}
+</style>

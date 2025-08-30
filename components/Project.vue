@@ -1,10 +1,7 @@
 <template>
   <div>
-    <div
-      class="header"
-      :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
-      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }"
-    >
+    <div class="header" :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
+      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }">
       <div class="close">
         <button @click="closeProject">X</button>
       </div>
@@ -18,58 +15,28 @@
     </div>
     <!-- project -->
     <div class="project-wrapper" :class="{ show }">
-      <div class="project-bg"></div>
-      <div
-        class="project"
-        :class="{ mobile: getIsMobile, tablet: getIsTabletView }"
-        :style="{
-          width: `${width}px`,
-          height: `${height}px`,
-          top: `calc(50% - ${contentMargin}px)`,
-        }"
-      >
+      <div class="project" :class="{ mobile: getIsMobile, tablet: getIsTabletView }" :style="{
+        width: `${width}px`,
+        height: `${height}px`,
+        top: `calc(50% - ${contentMargin}px)`,
+      }">
         <div class="content">
           <div class="side-content" v-if="!(getIsMobile || getIsTabletView)">
-            <div
-              v-if="project.details"
-              class="details"
-              v-html="renderDetails"
-            ></div>
-            <div class="tags">
-              <h3>Tags:</h3>
-              <ul>
-                <li v-for="tag in project.tags" :key="tag">
-                  <u>{{ tag }}</u>
-                </li>
-              </ul>
-            </div>
+            <div v-if="project.details" class="details" v-html="renderDetails"></div>
           </div>
           <div class="image" :style="{ height: `${height}px` }">
             <img class="image-el" :src="project.thumbnail" alt="" />
           </div>
           <div class="description" v-html="renderContent"></div>
           <div class="gallery-images">
-            <img
-              class="gallery_image"
-              v-for="(image, imageIndex) in imageGallery"
-              :key="imageIndex"
-              @click="onClickImage(imageIndex, image)"
-              :src="image"
-            />
+            <img class="gallery_image" v-for="(image, imageIndex) in imageGallery" :key="imageIndex"
+              @click="onClickImage(imageIndex, image)" :src="image" />
           </div>
-          <div
-            v-if="getIsMobile || getIsTabletView"
-            class="details"
-            v-html="renderDetails"
-          ></div>
+          <div v-if="getIsMobile || getIsTabletView" class="details" v-html="renderDetails"></div>
         </div>
       </div>
     </div>
-    <v-gallery
-      :images="allImages"
-      :index="curImageIndex"
-      @close="curImageIndex = null"
-    ></v-gallery>
+    <v-gallery :images="allImages" :index="curImageIndex" @close="curImageIndex = null"></v-gallery>
   </div>
 </template>
 
@@ -256,14 +223,6 @@ export default {
     position: absolute;
     top: 50%;
     right: 0;
-
-    a {
-      text-decoration: none;
-      color: black;
-      font-size: 2em;
-      font-weight: bold;
-      font-size: 30px;
-    }
   }
 
   &.show {
@@ -328,6 +287,7 @@ export default {
   z-index: 9999;
 
   &.show {
+
     .description,
     .side-content,
     .header,
@@ -358,15 +318,14 @@ export default {
 }
 
 .details {
-  font-family: "Source Sans 3";
   transition: opacity 0.5s;
   border-top: 1px black solid;
   padding-top: 1em;
   opacity: 0;
 }
 
-.details h3 {
-  background-color: transparent;
+.details li {
+  margin-bottom: 0.5em;
 }
 
 .side-content {
@@ -396,8 +355,9 @@ export default {
 }
 
 .subtitle {
+  font-style: italic;
   margin: 0px;
-  margin-top: 10px;
+  margin-top: 0px;
   font-weight: 400;
   padding: 3px 7px 5px 7px;
   max-width: 90%;

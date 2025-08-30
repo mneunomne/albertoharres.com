@@ -34,7 +34,26 @@ collections:
               widget: string,
               pattern: ['^[a-z]{2}([-])?([A-Za-z]{2})?$', 'Must match "xx" or "xx-XX" syntax (ex. "en" or "sv-SE")'],
             }
-          # - { label: Site Email, name: siteemail, widget: string, required: false }
+      - label: 'cv'
+        name: 'cv'
+        file: 'assets/content/site/cv.json'
+        format: 'json'
+        editor:
+          preview: false
+        fields:
+          - { label: Title, name: title, widget: string, hint: 'title' }
+          - { name: 'content', label: 'content', widget: 'markdown' , required: false, default: ''}
+          - { name: 'details', label: 'details', widget: 'markdown' , required: false, default: ''}
+      - label: 'bio'
+        name: 'bio'
+        file: 'assets/content/site/bio.json'
+        format: 'json'
+        editor:
+          preview: false
+        fields:
+          - { label: Title, name: title, widget: string, hint: 'title' }
+          - { name: 'content', label: 'content', widget: 'markdown' , required: false, default: ''}
+          - { name: 'details', label: 'details', widget: 'markdown' , required: false, default: ''}
   - name: 'projects'
     label: 'Projects'
     identifier_field: title

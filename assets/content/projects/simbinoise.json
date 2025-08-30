@@ -1,5 +1,5 @@
 {
-	"details": "### Artwork collectively developed by: \n\n\\- Caio Chacal\n\n\\- André Anastácio\n\n\\- Igor Abreu\n\n\\- Itajaci Guarani Kaiowá \n\n\\- Alberto Harres\n\n\\- Jabal Murbach",
+	"details": "### Artwork collectively developed by \n\n\\- Caio Chacal\n\n\\- André Anastácio\n\n\\- Igor Abreu\n\n\\- Itajaci Guarani Kaiowá \n\n\\- Alberto Harres\n\n\\- Jabal Murbach",
 	"thumbnail": "/img/mesa.jpg",
 	"content": "Developed by the Art&Technology collective Biônicos, Simbinoise was an interactive installation that transformed a regular street fair fruit stand, into a symbiotic interactive experience. Through rudimentary electronic circuits connected to the fruits in the stands, the public was able to interact with the living organism and produce unexpected sounds by the process circuit-bending. The installation was displayed in different places and contexts in the city of Rio, in Morro da Formiga, Festival Circo Digital and Feira da Glória.",
 	"title": "Simbinoise",
@@ -15,5 +15,5 @@
 		"glitch"
 	],
 	"year": "2014",
-	"importance": 1.0
+	"importance": 0.8
 }

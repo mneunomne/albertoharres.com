@@ -1,7 +1,9 @@
 <template>
   <div>
     <MenuGraph :gData="gData" />
-    <a v-show="false" rel="me" href="https://mastodon.social/@mneunomne">Mastodon</a>
+    <a v-show="false" rel="me" href="https://mastodon.social/@mneunomne"
+      >Mastodon</a
+    >
   </div>
 </template>
 
@@ -31,33 +33,17 @@ export default {
     },
     pages_data: [
       {
-        name: "ig",
-        route: "https://www.instagram.com/mneu_nomne/",
-
-      },
-      {
-        name: "m",
-        route: "https://mastodon.social/@mneunomne",
+        name: "bio",
+        route: "/bio",
       },
       {
         name: "git",
         route: "https://github.com/mneunomne",
-
       },
       {
         name: "cv",
-        route: "https://docs.google.com/spreadsheets/d/1UepqwFz3A6oJvinS_eg5EG3NHAwfTDn6WnMvGzc1DVI/edit?gid=0#gid=0",
+        route: "/cv",
       },
-      /*
-      {
-        name: "mail",
-        route: "mailto:alberto.harres@gmail.com",
-      },
-      {
-        name: "backlog",
-        route: "/backlog",
-      },
-      */
     ],
   }),
   computed: {
@@ -70,7 +56,7 @@ export default {
           return {
             ...page,
             id: page.name,
-            type: "page"
+            type: "page",
           };
         })
         .concat([this.center_data]);

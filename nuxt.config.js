@@ -95,25 +95,6 @@ export default {
   ** Global CSS
   */
   buildModules: ['@nuxtjs/style-resources', '@nuxtjs/google-analytics'],
-  modules: [
-    [
-      '@nuxtjs/i18n',
-      {
-        locales: ['en', 'pt'],
-        defaultLocale: 'en',
-        vueI18n: {
-          fallbackLocale: 'en'
-        }
-      }
-    ]
-  ],
-  i18n: {
-    locales: [
-      { code: 'en', language: 'en-US' },
-      { code: 'pt', language: 'pt-BR' }
-    ],
-    defaultLocale: 'en',
-  },
   styleResources: {
     scss: ['./assets/css/*.scss']
   },
