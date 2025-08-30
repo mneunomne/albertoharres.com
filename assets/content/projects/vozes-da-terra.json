@@ -1,21 +1,21 @@
 {
-	"details": "### Credits\n\n* Alberto Harres: Concept, Software development, Electronics.\n* André Anastácio: Concept, Mediation \n* Ilana Majerowicz: Mediation\n* Tainã Aynoã: Documentation\n\n### Pankararu Mediators\n\n* Geovam Aratikum Pankararu\n* Patrícia Pankararu\n* Antônio Vittal Neto \n* Fernandão Pankararu\n\n### Pottery Artists\n\n* Dona Mercinha Pankararu\n* Luciene Pankararu\n* Maria de Dion\n\n### Thydêwá Core project team\n\n* Sebastián Gerlic (AR), director of Thydêwá, project coordinator, curator\n* Tiago Tao (BR), executive producer, curator\n* Anna Campagnac (BR), local production\n* Helder C Jr (BR), graphic designer, website \n* Thea Pitman (UK), international curator",
-	"thumbnail": "/img/fernando_pote-1.jpg",
-	"content": "This project proposes through the union of the indigenous pottery and electronic sound circuits a different approach on how to store, reproduce and diffuse the Brazilian indigenous oral culture.\n\nIt started as an art residency though the AEI (Eletronic Indigenous Art) program, which consisted of multiple artistic residency in indigenous communities in northeast Brazil with emphasis in electronic art. In the case of the project \"Vozes da Terra\", the residency took place in the Pankararu indigenous community in Tacaratu, Perambuco. There, in collaboration with the local Pankararu artisans, a ceramic pot was made specifically to accommodate an electronic device with a microphone and speakers capable of detecting, recording and reproducing what was said or sang inside the pot in an automated process. This artifact circulated around the community capturing the diversity of voices from Pankararu. From the elders to children from the local indigenous school, the pot captured and reproduced their voices, in an interactive way to store and share their own culture.\n\nTogether with the other projects contemplated by the AEI program, the pot was shown at the Museum of Modern Art of Salvador, Bahia (MAM - Salvador). During the exhibition not only did the pot reproduce the sounds recorded while it was in Pankararu, but it was also able to record the voices of the other indigenous from different ethnic groups people present there. Thus the pot was not only an amplifier from Pankararu's voices, but an artifact of exchange between different cultures and their voices.\n\nIn the summer of 2019 this artifact was shown at the British Academy Summer Showcase, together with 2 other projects from the AEI program.",
-	"title": "Vozes da Terra ",
-	"gallery": [
-		"/img/img_20180802_205823.jpg",
-		"/img/8e2177c5-2887-44db-9dca-cfbc9c3d72e2.jpg",
-		"/img/criancas.jpg",
-		"/img/img_2416-1-.jpg"
-	],
-	"tags": [
-		"ceramics",
-		"archiving",
-		"research",
-		"voices",
-		"sound"
-	],
-	"year": "2018",
-	"importance": 1.2
+  "details": "### Credits\n\n* Alberto Harres: Concept, Software development, Electronics.\n* André Anastácio: Concept, Mediation \n* Ilana Majerowicz: Mediation\n* Tainã Aynoã: Documentation\n\n### Pankararu Mediators\n\n* Geovam Aratikum Pankararu\n* Patrícia Pankararu\n* Antônio Vittal Neto \n* Fernandão Pankararu\n\n### Pottery Artists\n\n* Dona Mercinha Pankararu\n* Luciene Pankararu\n* Maria de Dion\n\n### Thydêwá Core project team\n\n* Sebastián Gerlic (AR), director of Thydêwá, project coordinator, curator\n* Tiago Tao (BR), executive producer, curator\n* Anna Campagnac (BR), local production\n* Helder C Jr (BR), graphic designer, website \n* Thea Pitman (UK), international curator",
+  "thumbnail": "/img/fernando_pote-1.jpg",
+  "content": "This project proposes through the union of the indigenous pottery and electronic sound circuits a different approach on how to store, reproduce and diffuse the Brazilian indigenous oral culture.\n\nIt started as an art residency though the AEI (Eletronic Indigenous Art) program, which consisted of multiple artistic residency in indigenous communities in northeast Brazil with emphasis in electronic art. In the case of the project \"Vozes da Terra\", the residency took place in the Pankararu indigenous community in Tacaratu, Perambuco. There, in collaboration with the local Pankararu artisans, a ceramic pot was made specifically to accommodate an electronic device with a microphone and speakers capable of detecting, recording and reproducing what was said or sang inside the pot in an automated process. This artifact circulated around the community capturing the diversity of voices from Pankararu. From the elders to children from the local indigenous school, the pot captured and reproduced their voices, in an interactive way to store and share their own culture.\n\nTogether with the other projects contemplated by the AEI program, the pot was shown at the Museum of Modern Art of Salvador, Bahia (MAM - Salvador). During the exhibition not only did the pot reproduce the sounds recorded while it was in Pankararu, but it was also able to record the voices of the other indigenous from different ethnic groups people present there. Thus the pot was not only an amplifier from Pankararu's voices, but an artifact of exchange between different cultures and their voices.\n\nIn the summer of 2019 this artifact was shown at the British Academy Summer Showcase, together with 2 other projects from the AEI program.",
+  "title": "Vozes da Terra ",
+  "gallery": [
+    "/img/img_20180802_205823.jpg",
+    "/img/8e2177c5-2887-44db-9dca-cfbc9c3d72e2.jpg",
+    "/img/criancas.jpg",
+    "/img/img_2416-1-.jpg"
+  ],
+  "tags": [
+    "ceramics",
+    "archiving",
+    "research",
+    "voices",
+    "sound"
+  ],
+  "year": "2018",
+  "importance": 1
 }
