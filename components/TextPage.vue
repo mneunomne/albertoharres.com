@@ -74,19 +74,25 @@ export default {
   pointer-events: all;
   width: 600px;
   max-height: 80vh;
-  font-family: sans-serif;
   overflow-y: auto;
 
   &.mobile {
     width: 100% !important;
     height: auto !important;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 20px);
     left: 0;
-    top: 100px;
+    top: 0;
+    padding-top: 2em;
     transform: none;
 
     .description {
-      padding: 0px 12px;
+      padding: 0px 1.5em;
+    }
+
+    .close {
+      position: fixed;
+      top: 1.5em;
+      right: 1.5em;
     }
   }
 

@@ -216,6 +216,7 @@ export default {
     .close {
       top: 0;
       transform: none;
+      right: 1em !important;
     }
   }
 
@@ -238,7 +239,6 @@ export default {
   transform: translate(50%, -50%);
   pointer-events: all;
   width: auto;
-  font-family: sans-serif;
 
   &.mobile {
     width: 100% !important;
@@ -255,7 +255,7 @@ export default {
     .details,
     .image,
     .gallery-images {
-      padding: 0px 12px;
+      padding: 0px 1em;
     }
   }
 

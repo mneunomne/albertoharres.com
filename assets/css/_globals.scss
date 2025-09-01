@@ -11,13 +11,13 @@ html {
 	padding: env(safe-area-inset);
 	overflow-x: hidden;
 	color: var(--text);
+	font-family: "Source Serif 4";
 }
 
 body {
 	width: 100vw;
 	height: 100vh;
 	background: radial-gradient(circle, rgb(235, 235, 235) 0%, rgb(255, 255, 255) 100%);
-	font-family: "DM Sans";
 	font-size: 14px;
 	letter-spacing: 0.01rem;
 	line-height: 1.25;
@@ -78,6 +78,7 @@ em {
 /* ===== TYPOGRAPHY ===== */
 p {
 	margin: 1em 0;
+	font-size: 1em;
 }
 
 li {

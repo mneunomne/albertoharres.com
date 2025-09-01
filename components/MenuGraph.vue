@@ -59,7 +59,7 @@ export default {
     if (this.getIsMobile) {
       this.width = 150;
       this.height = 150;
-      this.cameraDistance = 100;
+      this.cameraDistance = 120;
     }
   },
   computed: {
@@ -79,9 +79,9 @@ export default {
         this.cameraDistance = 120;
       }
       if (window.innerWidth < 900) {
-        this.width = 150;
-        this.height = 150;
-        this.cameraDistance = 100;
+        this.width = 170;
+        this.height = 170;
+        this.cameraDistance = 120;
       }
       if (this.g) this.g.width(this.width).height(this.height);
     },
@@ -107,7 +107,7 @@ export default {
         .showNavInfo(false)
 
         .d3VelocityDecay(0.8)
-        .d3AlphaMin(0.0)
+        .d3AlphaMin(0.1)
         .d3AlphaDecay(0.1)
         .numDimensions(2)
         .width(this.width)
