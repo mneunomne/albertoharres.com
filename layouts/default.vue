@@ -1,5 +1,5 @@
 <template>
-  <div class="main">
+  <div class="main" :class="{ mobile: getIsMobile }">
     <div class="project-bg" :class="{ show: showBackground }"></div>
     <div id="background">
       <img :src="prevImgUrl" :style="{ opacity: imgUrl ? 1 : 0 }" class="background-image prev"
@@ -184,23 +184,31 @@ export default {
 
 
 <style lang="scss" scoped>
-.project-bg {
-  opacity: 0;
-  transition: all 0.5s;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.85);
-  pointer-events: none;
+.main {
+  .project-bg {
+    opacity: 0;
+    transition: all 0.5s;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.85);
+    pointer-events: none;
 
-  opacity: 0;
+    opacity: 0;
 
-  &.show {
-    opacity: 1;
+    &.show {
+      opacity: 1;
+    }
+  }
+
+  &.mobile {
+    .project-bg {
+      z-index: 2;
+    }
   }
 }
 
