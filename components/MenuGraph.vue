@@ -79,9 +79,9 @@ export default {
         this.cameraDistance = 120;
       }
       if (window.innerWidth < 900) {
-        this.width = 170;
-        this.height = 170;
-        this.cameraDistance = 120;
+        this.width = 150;
+        this.height = 150;
+        this.cameraDistance = 100;
       }
       if (this.g) this.g.width(this.width).height(this.height);
     },
