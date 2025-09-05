@@ -1,5 +1,5 @@
 {
-	"thumbnail": "/img/22349c_2d9b39c503d3498292bd804f64e40688~mv2_d_1896_1266_s_2.jpg",
+	"thumbnail": "/img/thumb-central.jpg",
 	"details": "### Credits\n\n* Performance: *Isabel Sanche, Julio Castro, Manuela Libman, Nicole Gomes, and Lucas Inácio Nascimento*. \n* Direction: Victor Seixas \n* Co-direction: *Caito Guimaraens*\n* Dramaturgy: *Gabriela Giffoni and Thaíssa Klotz*\n* Technology and sound: *Hugo Rocha, Miguel Mermelstein, Alberto Harres, Nickolas Borba, and Gabriel Turner*\\\n* Stand-ins: *Caio Chacal and Ian Cukierman*\n* Lighting: *Rafael Turatti / João Maia Peixoto*\n* Costume: *Companhia Volante*\n* Graphic art and visual programming: *Gaya Rachel*\n* Historical research: *Camila Crespo*\n* Infrastructure: *Hector Tabet*\n* Executive production: *Analu Chaves*\n* Production direction: *Gabriela Machado*\n* Realization: *Companhia Volante*\n\n### Technology\n\n* Kinect live interaction with [OpenFrameworks](https://openframeworks.cc/)\n* Object detection with [OpenCV](https://opencv.org/) and [Processing](https://processing.org/)\n* Live Projection Mapping with [Resolume](https://resolume.com/)\n\n### Links \n\n* [Companhia Volante](https://www.companhiavolante.com/)",
 	"subtitle": "Uma peça paisagem em tantos movimentos",
 	"content": "Central is the second show by Companhia Volante focusing on roaming and occupying urban space. Created in a collaborative process with a team of almost twenty artists involved, it premiered in August 2018 on the circuit between Largo da Carioca and Cinelândia, in the center of Rio de Janeiro.\n\nThe play is structured around research into technology, architecture, landscape, the body, politics and performativity. Each of the five performers dealt with topics of personal interest and dear to the community, including: education; death and the black genocide; consumption; public security and social surveillance; the dance epidemic and women's bodies in irruption. Through a trajectory through the city, which establishes different landscapes, the vehicles develop actions and elaborate encounters with the concrete architecture of the spaces and the symbolic construction of their interests.",
@@ -20,5 +20,7 @@
 		"performance"
 	],
 	"year": "2018",
-	"importance": 1.0
+	"importance": 0.9,
+	"thumb_width": 955,
+	"thumb_height": 638
 }

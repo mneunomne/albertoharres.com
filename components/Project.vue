@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="header" :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
-      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }">
+      :style="{ width: `${project.thumb_width}px`, top: `calc(50% - ${titleMargin}px)` }">
       <div class="close">
         <button @click="closeProject">X</button>
       </div>
@@ -16,8 +16,8 @@
     <!-- project -->
     <div class="project-wrapper" :class="{ show }">
       <div class="project" :class="{ mobile: getIsMobile, tablet: getIsTabletView }" :style="{
-        width: `${width}px`,
-        height: `${height}px`,
+        width: `${project.thumb_width}px`,
+        height: `${project.thumb_height}px`,
         top: `calc(50% - ${contentMargin}px)`,
       }">
         <div class="content">
@@ -70,8 +70,6 @@ export default {
   },
   data() {
     return {
-      imageWidth: 0,
-      imageHeight: 0,
       contentMargin: CANVAS_OUT_MARGIN,
       showBg: false,
       tabletView: false,
@@ -107,11 +105,12 @@ export default {
     if (!process.browser) {
       return;
     }
-    if (gtag)
+    if (gtag) {
       gtag("event", "loaded", {
         event_category: "project_loaded",
         event_label: this.project.title,
       });
+    }
     this.reachedBottom = false;
     //this.$ga.page(`/works/${this.project.slug}`);
     this.curImageIndex = null;
@@ -149,13 +148,6 @@ export default {
     } else {
       this.imageGallery = [];
     }
-    // get width of image from src
-    const img = new Image();
-    img.src = this.project.thumbnail;
-    img.onload = () => {
-      this.imageWidth = img.width;
-      this.imageHeight = img.height;
-    };
   },
   beforeDestroy() {
     window.removeEventListener("resize", () => {

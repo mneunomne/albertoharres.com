@@ -1,6 +1,6 @@
 {
   "details": "### REFERENCES\n\n* \\- HUI, Yui. Archivist Manifesto. May 2013. <https://www.metamute.org/editorial/lab/archivist-manifesto>\n* \\- PRECIADO, Paul. THE LOSERS CONSPIRACY - Paul B. Preciado on life after COVID-19. March \n\n### LINKS\n\n* [Pandemic archive of Voices Open Source API](https://pandemic-archive-of-voices.herokuapp.com/)\n* [Installation Website.](https://mneunomne.github.io/pandemic-archive-installation/)\n* [Project Documentation.](https://github.com/digitalmediabremen/the_living_body_is_the_center_of_all_politics-documentation)",
-  "thumbnail": "/img/telegram-screenshot.jpg",
+  "thumbnail": "/img/thumb-archive.jpg",
   "gallery": [
     "/img/archive-screenshot.jpg"
   ],
@@ -9,9 +9,12 @@
   "tags": [
     "archiving",
     "api",
-    "research"
+    "research",
+    "voices"
   ],
   "content": "The sight of empty airports and a great unknown during Covid-19 was an experience that confronted my own present desire to archive and structure the ephemeral. The paradox of sharing this experience of physical isolation in the winter of 2020-21 with a community of fellow students from many different parts of the world at HfK Bremen pushed me to seek ways to capture this collective experience of an eerie new world through a personal perspective of language and voice. With the idea to formulate a form of archive of voices based on this hyperobject, around November 2020 I created a Telegram group where people could share audio fragments of words/expressions that could reflect their own personal experience during the lockdown. The participants of this group was mostly the people I have met in the first two months of online studies at HfK, and for me it was interesting to build my archive based on the affection I slowly built towards these people.\n\nBetween November 2020 and January 2021 more than 200 voice audios fragments were collected in X number of language by Y participants. Based on this collection of audios, an API (Application Programming Interface) was published to make it possible for the audios and data associated with them, to be able to be downloaded from any point of the internet. Therefore, the collection of audio messages that were confined inside telegram's platform became part of a public, retrievable archive of voices. In this particular context, one can understand this archiving gesture as an re-appropriation of data, which was at first confined to \"telegram's archive\" together with its interface and rules, to an alternative archive of direct access.",
   "disabled": true,
-  "year": "2020"
+  "year": "2020",
+  "thumb_width": 613,
+  "thumb_height": 656
 }

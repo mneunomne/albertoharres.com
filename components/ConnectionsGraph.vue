@@ -214,77 +214,57 @@ export default {
       let project_nodes = this.g
         .graphData()
         .nodes.filter((n) => n.type == "project");
-      const resizeImg = (img, node) => {
-        this.imageLoaded++;
-        if (this.imageLoaded == project_nodes.length) {
-          allImagesLoaded();
-        }
-        let importance = node.importance; // node.importance; // need to check this later because of the camera distance calculation
-        // On desktop, the height is constant, while on mobile, the width is constant
-        const aspect = img.width / img.height;
-        const w = importance * IMAGE_SCALE * (this.getIsMobile ? 1 : aspect);
-        const h = (importance * IMAGE_SCALE) / (this.getIsMobile ? aspect : 1);
-        node.__threeObj.children[1].scale.set(w, h);
-        let margin = this.getIsMobile ? PROJECT_MARGIN_MOBILE : PROJECT_MARGIN;
-        node.bbox = [
-          [-w / 2 - margin, -h / 2 - margin],
-          [w / 2 + margin, h / 2 + margin],
-        ];
-        // border
-        node.__threeObj.children[2].scale.set(w, h);
-      };
-      this.imageLoaded = 0;
-      // set image sizes...
+
+      // Set image sizes directly from node data
       this.g.graphData().nodes.forEach((node) => {
-        if (node.type == "project") {
-          if (node.__threeObj) {
-            const img = document.createElement("img");
-            img.src = node.thumbnail;
-            // on load
-            if (img.complete) {
-              resizeImg(img, node);
-            } else {
-              img.onload = () => {
-                resizeImg(img, node);
-              };
-            }
-          }
+        if (node.type == "project" && node.__threeObj && node.width && node.height) {
+          let importance = node.importance;
+          const aspect = node.width / node.height;
+          const w = importance * IMAGE_SCALE * (this.getIsMobile ? 1 : aspect);
+          const h = (importance * IMAGE_SCALE) / (this.getIsMobile ? aspect : 1);
+          node.__threeObj.children[1].scale.set(w, h);
+          let margin = this.getIsMobile ? PROJECT_MARGIN_MOBILE : PROJECT_MARGIN;
+          node.bbox = [
+            [-w / 2 - margin, -h / 2 - margin],
+            [w / 2 + margin, h / 2 + margin],
+          ];
+          // border
+          node.__threeObj.children[2].scale.set(w, h);
         }
       });
-      const allImagesLoaded = () => {
-        console.log('allImagesLoaded')
-        var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
-        var w =
-          (h * window.innerWidth) / window.innerHeight -
-          LEFT_MARGIN -
-          RIGHT_MARGIN;
-        var geometry = new THREE.PlaneGeometry(w, h, 32);
-        var material = new THREE.MeshBasicMaterial({
-          color: 0xffff00,
-          side: THREE.DoubleSide,
-        });
-        // transparent material
-        material.transparent = true;
-        material.opacity = 1;
 
-        var plane = new THREE.Mesh(geometry, material);
-        plane.position.z = -BACK_MARGIN - 1;
-        plane.name = "limit-plane";
-        this.g.d3Force("limit", this.limitWindow(project_nodes)).d3Force(
-          "colide",
-          bboxCollide((node) => {
-            if (node.bbox) {
-              return node.bbox;
-            } else {
-              return [
-                [-2, -1],
-                [2, 1],
-              ];
-            }
-          })
-        );
-        this.hidden = false;
-      };
+      console.log('Images sized from node data')
+      var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
+      var w =
+        (h * window.innerWidth) / window.innerHeight -
+        LEFT_MARGIN -
+        RIGHT_MARGIN;
+      var geometry = new THREE.PlaneGeometry(w, h, 32);
+      var material = new THREE.MeshBasicMaterial({
+        color: 0xffff00,
+        side: THREE.DoubleSide,
+      });
+      // transparent material
+      material.transparent = true;
+      material.opacity = 1;
+
+      var plane = new THREE.Mesh(geometry, material);
+      plane.position.z = -BACK_MARGIN - 1;
+      plane.name = "limit-plane";
+      this.g.d3Force("limit", this.limitWindow(project_nodes)).d3Force(
+        "colide",
+        bboxCollide((node) => {
+          if (node.bbox) {
+            return node.bbox;
+          } else {
+            return [
+              [-2, -1],
+              [2, 1],
+            ];
+          }
+        })
+      );
+      this.hidden = false;
     },
 
     tagNode(node, group) {

@@ -3,91 +3,94 @@ logo_url: https://albertoharres.netlify.app/icon.png
 
 # publish_mode: editorial_workflow
 backend:
-  name: git-gateway
-  branch: master
+    name: git-gateway
+    branch: master
 
 media_folder: static/img
 public_folder: /img
 
 # Docs: https://www.netlifycms.org/docs/configuration-options/#collections
 collections:
-  - label: 'Site settings'
-    name: 'site'
-    files:
-      - label: 'Info'
-        name: 'info'
-        file: 'assets/content/site/info.json'
-        format: 'json'
-        editor:
-          preview: false
-        fields:
-          - { label: Site Name, name: sitename, widget: string, hint: 'This is used for the site title' }
+    - label: "Site settings"
+      name: "site"
+      files:
+          - label: "Info"
+            name: "info"
+            file: "assets/content/site/info.json"
+            format: "json"
+            editor:
+                preview: false
+            fields:
+                - { label: Site Name, name: sitename, widget: string, hint: "This is used for the site title" }
+                - {
+                      label: Site Description,
+                      name: sitedescription,
+                      widget: string,
+                      hint: "This is used as descriptive text for links that link to this site",
+                  }
+                - {
+                      label: Site Language,
+                      name: sitelang,
+                      widget: string,
+                      pattern:
+                          ["^[a-z]{2}([-])?([A-Za-z]{2})?$", 'Must match "xx" or "xx-XX" syntax (ex. "en" or "sv-SE")'],
+                  }
+          - label: "cv"
+            name: "cv"
+            file: "assets/content/site/cv.json"
+            format: "json"
+            editor:
+                preview: false
+            fields:
+                - { label: Title, name: title, widget: string, hint: "title" }
+                - { name: "content", label: "content", widget: "markdown", required: false, default: "" }
+                - { name: "details", label: "details", widget: "markdown", required: false, default: "" }
+          - label: "bio"
+            name: "bio"
+            file: "assets/content/site/bio.json"
+            format: "json"
+            editor:
+                preview: false
+            fields:
+                - { label: Title, name: title, widget: string, hint: "title" }
+                - { name: "content", label: "content", widget: "markdown", required: false, default: "" }
+                - { name: "details", label: "details", widget: "markdown", required: false, default: "" }
+    - name: "projects"
+      label: "Projects"
+      identifier_field: title
+      folder: "assets/content/projects"
+      create: true
+      format: "json"
+      slug: "{{slug}}"
+      fields:
+          - { name: "title", label: "Title en", widget: "string", required: true, default: "" }
+          - { name: "subtitle", label: "Subtitle en", widget: "string", required: false, default: "" }
+          - { name: "year", label: "Year", widget: "string", required: false }
+          - { name: "tags", label: "Tags", widget: "list", default: [], required: false }
+          - { name: "importance", label: "Importance", widget: "number", required: false, default: 1.0 }
+          - { name: "thumbnail", required: false, label: "Thumbnail Image", widget: "image" }
+          - { name: "content", label: "content", widget: "markdown", required: false, default: "" }
+          - { name: "details", label: "details", widget: "markdown", required: false, default: "" }
           - {
-              label: Site Description,
-              name: sitedescription,
-              widget: string,
-              hint: 'This is used as descriptive text for links that link to this site',
+                label: "Gallery",
+                name: "gallery",
+                widget: "list",
+                required: false,
+                summary: "{{fields.image}}",
+                field: { label: "Image", name: "image", widget: "image" },
             }
-          - {
-              label: Site Language,
-              name: sitelang,
-              widget: string,
-              pattern: ['^[a-z]{2}([-])?([A-Za-z]{2})?$', 'Must match "xx" or "xx-XX" syntax (ex. "en" or "sv-SE")'],
-            }
-      - label: 'cv'
-        name: 'cv'
-        file: 'assets/content/site/cv.json'
-        format: 'json'
-        editor:
-          preview: false
-        fields:
-          - { label: Title, name: title, widget: string, hint: 'title' }
-          - { name: 'content', label: 'content', widget: 'markdown' , required: false, default: ''}
-          - { name: 'details', label: 'details', widget: 'markdown' , required: false, default: ''}
-      - label: 'bio'
-        name: 'bio'
-        file: 'assets/content/site/bio.json'
-        format: 'json'
-        editor:
-          preview: false
-        fields:
-          - { label: Title, name: title, widget: string, hint: 'title' }
-          - { name: 'content', label: 'content', widget: 'markdown' , required: false, default: ''}
-          - { name: 'details', label: 'details', widget: 'markdown' , required: false, default: ''}
-  - name: 'projects'
-    label: 'Projects'
-    identifier_field: title
-    folder: 'assets/content/projects'
-    create: true
-    format: 'json'
-    slug: '{{slug}}'
-    fields:
-      - { name: 'title', label: 'Title en', widget: 'string' , required: true , default: ''} 
-      - { name: 'subtitle', label: 'Subtitle en', widget: 'string' , required: false , default: ''} 
-      - { name: 'year' , label: 'Year', widget: 'string' , required: false }
-      - { name: 'tags', label: 'Tags', widget: 'list', default: [], required: false } 
-      - { name: 'importance' , label: 'Importance', widget: 'number' , required: false, default: 1.0 }
-      - { name: 'thumbnail', required: false, label: 'Thumbnail Image', widget: 'image' }
-      - { name: 'content', label: 'content', widget: 'markdown' , required: false, default: ''}
-      - { name: 'details', label: 'details', widget: 'markdown' , required: false, default: ''}
-      - {
-          label: 'Gallery',
-          name: 'gallery',
-          widget: 'list',
-          required: false,
-          summary: '{{fields.image}}',
-          field: { label: 'Image', name: 'image', widget: 'image' },
-        }
-      - {label: "Disabled", name: "disabled", widget: "boolean", default: false, required: false}
+          - { label: "Disabled", name: "disabled", widget: "boolean", default: false, required: false }
+          - { label: "Image Width", name: "thumb_width", widget: "number", default: 600, required: true }
+          - { label: "Image Height", name: "thumb_height", widget: "number", default: 400, required: true }
 
-  - name: 'news'
-    label: 'News'
-    folder: 'assets/content/news'
-    create: true
-    format: 'json'
-    slug: '{{slug}}'
-    fields:
-      - { label: 'Title', name: 'title', widget: 'string' }
-      - { label: 'Publish Date', name: 'date', widget: 'datetime' }
-      - { label: 'Description', name: 'description', widget: 'string' }
-      - { label: 'Body', name: 'body', widget: 'markdown' }
+    - name: "news"
+      label: "News"
+      folder: "assets/content/news"
+      create: true
+      format: "json"
+      slug: "{{slug}}"
+      fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Publish Date", name: "date", widget: "datetime" }
+          - { label: "Description", name: "description", widget: "string" }
+          - { label: "Body", name: "body", widget: "markdown" }

@@ -1,6 +1,6 @@
 {
 	"details": "### Credits\n\n* Alberto Harres: Concept, Visualization, Database structure, Web-design\n* Chi Him Chik: Concept, Sound Design, Documentation\n* Special thanks to: Kazu2, Qianxun Chen, Hem Poudyal, Julia Vollmer\n\n### Links\n\n* [Pandemic Archive of Voices API](<>)\n* [Dynamic Archive: On The Gesture of Archiving, by Alberto Harres](https://www.thedynamicarchive.net/component/on-the-gesture-of-archiving)\n* [Documentation webpage](https://mneunomne.github.io/pandemic-archive-installation/)\n\n### References\n\n* **HUI, Yui.** *Archivist Manifesto.* May 2013. https://www.metamute.org/editorial/lab/archivist-manifesto\n* **PRECIADO, Paul.** *THE LOSERS CONSPIRACY - Paul B. Preciado on life after COVID-19.* March 2020",
-	"thumbnail": "/img/photo-002.jpg",
+	"thumbnail": "/img/thumb-living.jpg",
 	"content": "The installation presents a dynamic archive of voices as an audio-visual experience, an algorithmic mantra, seeking to create a meditative space of communion during this time of collective struggle.\n\n This [pandemic archive of voices](https://github.com/mneunomne/pandemic-archive-of-voices-DB) seeks to capture fragments of voices gravitating the current context of the pandemic, putting\\\nin perspective the diversity of cultures, backgrounds and language by which this global event can be seen through.\n\n This installation is produced as a language-specific experience. Through the exploration of interaction and collisions between sounds, images, and shapes of different languages, an abstract environment is formed orbiting the uncertainty of our present time.\n\n<div class=\"embed-iframe\"><iframe src=\"https://player.vimeo.com/video/712561027?h=229939b371\" width=\"620px\"  height=\"460px\"  frameborder=\"0\" allow=\"autoplay; fullscreen; picture-in-picture\" allowfullscreen></iframe></div>\n<p><a href=\"https://vimeo.com/712561027\">The living body is the center of all politics</a> from <a href=\"https://vimeo.com/user40750497\">Alberto Harres</a> on <a href=\"https://vimeo.com\">Vimeo</a>.</p>",
 	"title": "The living body is the center of all politics",
 	"gallery": [
@@ -10,12 +10,14 @@
 		"/img/max-screenshot-1.jpg"
 	],
 	"tags": [
-		"mapping",
 		"archiving",
 		"processing",
 		"installation",
-		"sound"
+		"sound",
+		"voices"
 	],
 	"year": "2021",
-	"importance": 1.0
+	"importance": 1.0,
+	"thumb_width": 1024,
+	"thumb_height": 903
 }

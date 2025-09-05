@@ -1,6 +1,6 @@
 {
   "details": "",
-  "thumbnail": "/img/img_0282_thumb.jpg",
+  "thumbnail": "/img/thumb-anti-epigraph-of-a-colonial-monument.jpg",
   "gallery": [
     "/img/img_0349.jpg",
     "/img/img_0289.jpg",
@@ -14,14 +14,13 @@
     "ceramics",
     "installation",
     "processing",
-    "arduino",
     "electronics",
-    "materiality",
     "clay",
-    "laser-engraving",
     "ai"
   ],
   "content": "**“Anti-epigraph of a colonial monument”** proposes a reinterpretation of the tile panel located in Montemor-o-Novo City Hall, which depicts the 1495 *Cortes* at the *Paço dos Alcaides*—the moment when King Manuel I authorized Vasco da Gama’s voyage to India. This episode can be understood as the first step in Portuguese maritime expansion and colonial enterprise. The ceramic here functions as a means of inscribing official history, resisting time and perpetuating a supposed heroic narrative.\n\nThe installation offers a counterpoint to this narrative. Through a reproduction of the panel by laser engraving, the tiles become a negative matrix of the original image: a remaking of the panel, transformed into a material memory device that, like the original, can withstand time. This new inscription, however, does not seek to celebrate the founding act of an empire, but to recall its dire consequences.\n\nUsing a methodology that understands earth—clay—as a witness that holds and transmits fragments of memory, the work re-signifies ceramics as an alternative for creating localized memory systems: counter-archives that challenge the dominant narrative from a material perspective.",
   "disabled": false,
-  "year": "2025"
+  "year": "2025",
+  "thumb_width": 1200,
+  "thumb_height": 800
 }

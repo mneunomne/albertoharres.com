@@ -65,6 +65,8 @@ export default {
           val: 10,
           type: "project",
           thumbnail: node.thumbnail,
+          width: node.thumb_width,
+          height: node.thumb_height,
           importance: node.importance,
           title: node.title,
         });
