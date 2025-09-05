@@ -237,11 +237,9 @@ export default {
       // set image sizes...
       this.g.graphData().nodes.forEach((node) => {
         if (node.type == "project") {
-          console.log('test', node)
           if (node.__threeObj) {
             const img = document.createElement("img");
             img.src = node.thumbnail;
-            console.log('node', node, img)
             // on load
             if (img.complete) {
               resizeImg(img, node);
