@@ -347,11 +347,12 @@ export default {
     },
 
     onNodeClick(node) {
-      if (gtag)
+      if (gtag) {
         gtag("event", "click", {
           event_category: "node_click",
           event_label: node.id,
         });
+      }
       if (node.type == "tag") {
         if (!this.getIsMobile) this.filterNodes(node);
         return;
@@ -360,8 +361,6 @@ export default {
         return;
       }
 
-      this.resetNodesStyle();
-      node.__threeObj.children[0].renderOrder = 99;
 
       this.currentNode = node;
       this.openProject = true;
@@ -370,49 +369,54 @@ export default {
         id: node.id,
       });
 
-      // Calculate adjusted camera distance based on node importance
-      const baseDist = this.getIsMobile ? CAMERA_DISTANCE_FAR - 50 : CAMERA_DISTANCE;
-      const baseHeight = IMAGE_SCALE; // height when importance = 1
-      const nodeHeight = node.importance * IMAGE_SCALE; // actual height of this node
-      const adjustedDist = baseDist * (nodeHeight / baseHeight);
+      if (node.__threeObj) {
+        node.__threeObj.children[0].renderOrder = 99;
 
-      var dist = adjustedDist;
+        this.resetNodesStyle();
+        // Calculate adjusted camera distance based on node importance
+        const baseDist = this.getIsMobile ? CAMERA_DISTANCE_FAR - 50 : CAMERA_DISTANCE;
+        const baseHeight = IMAGE_SCALE; // height when importance = 1
+        const nodeHeight = node.importance * IMAGE_SCALE; // actual height of this node
+        const adjustedDist = baseDist * (nodeHeight / baseHeight);
 
-      var cameraPos = this.g.cameraPosition();
-      this.g.enablePointerInteraction(false);
+        var dist = adjustedDist;
 
-      // Calculate the direction vector from camera to new point
-      this.direction = new THREE.Vector3(
-        node.x - cameraPos.x,
-        node.y - cameraPos.y,
-        node.z - cameraPos.z
-      );
+        var cameraPos = this.g.cameraPosition();
+        this.g.enablePointerInteraction(false);
 
-      // Normalize the direction vector (to get a unit vector)
-      this.direction.normalize();
+        // Calculate the direction vector from camera to new point
+        this.direction = new THREE.Vector3(
+          node.x - cameraPos.x,
+          node.y - cameraPos.y,
+          node.z - cameraPos.z
+        );
 
-      // Calculate the new position that is 75 units distant from the new point
-      const newPosition = new THREE.Vector3(
-        node.x - this.direction.x * dist,
-        node.y - this.direction.y * dist,
-        node.z - this.direction.z * dist
-      );
+        // Normalize the direction vector (to get a unit vector)
+        this.direction.normalize();
 
-      this.g.cameraPosition(
-        newPosition, // new position
-        { x: node.x, y: node.y, z: node.z }, // lookAt ({ x, y, z })
-        CAMERA_ANIMATION_DURATION // ms transition duration
-      );
+        // Calculate the new position that is 75 units distant from the new point
+        const newPosition = new THREE.Vector3(
+          node.x - this.direction.x * dist,
+          node.y - this.direction.y * dist,
+          node.z - this.direction.z * dist
+        );
 
-      this.transition = true;
+        this.g.cameraPosition(
+          newPosition, // new position
+          { x: node.x, y: node.y, z: node.z }, // lookAt ({ x, y, z })
+          CAMERA_ANIMATION_DURATION // ms transition duration
+        );
 
-      setTimeout(() => {
-        this.transition = false;
+        this.transition = true;
+
         setTimeout(() => {
-          node.__threeObj.children[0].material.opacity = 0;
-          this.g.pauseAnimation();
-        }, 100);
-      }, CAMERA_ANIMATION_DURATION + 500);
+          this.transition = false;
+          setTimeout(() => {
+            node.__threeObj.children[0].material.opacity = 0;
+            this.g.pauseAnimation();
+          }, 100);
+        }, CAMERA_ANIMATION_DURATION + 500);
+      }
     },
     resetNodesStyle() {
       this.allNodes.forEach((_node) => {
