@@ -1,13 +1,7 @@
 <template>
   <div>
-    <Project
-      v-if="project"
-      :height="imageHeight"
-      :width="imageWidth"
-      :project="project"
-      @closeProject="onCloseProject"
-      :show="showCurrentProject"
-    />
+    <Project v-if="project" :height="imageHeight" :width="imageWidth" :project="project" @closeProject="onCloseProject"
+      :show="showCurrentProject" />
   </div>
 </template>
 
@@ -53,20 +47,20 @@ export default {
     const graphParam = urlParams.get("graph");
     const isDirectNavigation = !graphParam;
 
-    getImageSizeOnScreen(this.project.thumbnail).then((size) => {
-      this.imageHeight = size.height;
-      this.imageWidth = size.width;
+    const { width, height } = getImageSizeOnScreen(this.project.thumb_width, this.project.thumb_height);
 
-      if (isDirectNavigation) {
-        // If directly navigated to this page, show project immediately
+    this.imageHeight = height;
+    this.imageWidth = width;
+
+    if (isDirectNavigation) {
+      // If directly navigated to this page, show project immediately
+      this.showCurrentProject = true;
+    } else {
+      // Otherwise use the camera animation delay
+      setTimeout(() => {
         this.showCurrentProject = true;
-      } else {
-        // Otherwise use the camera animation delay
-        setTimeout(() => {
-          this.showCurrentProject = true;
-        }, CAMERA_ANIMATION_DURATION + 100);
-      }
-    });
+      }, CAMERA_ANIMATION_DURATION + 100);
+    }
   },
   methods: {
     ...mapActions({
@@ -84,8 +78,8 @@ export default {
       console.log("changed project", this.project);
       this.showCurrentProject = true;
     },
-		// check if route changed to cv or bio, by checking the route name
-    $route (to, from) {
+    // check if route changed to cv or bio, by checking the route name
+    $route(to, from) {
       if (to.name === "cv" || to.name === "bio") {
         this.showCurrentProject = false;
       }

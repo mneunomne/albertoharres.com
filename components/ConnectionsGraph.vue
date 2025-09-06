@@ -431,12 +431,14 @@ export default {
     },
     onNodeHover(node) {
       // stop animation
+      this.resetNodesStyle();
       if (node) {
         this.g.pauseAnimation();
-        this.resetNodesStyle();
         if (node.type == "project") {
           //node.__threeObj.children[1].material.opacity = 1;
           node.__threeObj.children[1].renderOrder = 99;
+          node.__threeObj.children[1].depthWrite = true;
+
           node.__threeObj.children[0].visible = true; // title
         }
         if (node.type == "tag") {
@@ -445,7 +447,7 @@ export default {
         }
       }
     },
-    onCloseProject() {
+    async onCloseProject() {
       this.openProject = false;
       var node = this.currentNode;
 

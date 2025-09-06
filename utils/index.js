@@ -41,31 +41,17 @@ export const getImageHeightOnScreen = () => {
 	return objectHeightOnScreen;
 };
 
-const calculateImageSize = (img, visibleHeight, canvasHeight) => {
-	let aspect = img.width / img.height;
+export const getImageSizeOnScreen = (img_width, img_height) => {
+	var canvasHeight = getCanvasHeight(window);
+	var vFOV = (CAMERA_FOV * Math.PI) / 180;
+	var visibleHeight = 2 * Math.tan(vFOV / 2) * CAMERA_DISTANCE; // visible height
+
+	let aspect = img_width / img_height;
 	let height = IMAGE_SCALE;
 	let objectHeightOnScreen = (height / visibleHeight) * canvasHeight;
 	let objectWidthOnScreen = objectHeightOnScreen * aspect;
 	return { width: objectWidthOnScreen, height: objectHeightOnScreen };
 };
-
-export const getImageSizeOnScreen = (img_src) =>
-	new Promise((res, rej) => {
-		var canvasHeight = getCanvasHeight(window);
-		var vFOV = (CAMERA_FOV * Math.PI) / 180;
-		var visibleHeight = 2 * Math.tan(vFOV / 2) * CAMERA_DISTANCE; // visible height
-		// load image
-		var img = new Image();
-		img.src = img_src;
-		// on load
-		if (img.complete) {
-			res(calculateImageSize(img, visibleHeight, canvasHeight));
-		} else {
-			img.onload = () => {
-				res(calculateImageSize(img, visibleHeight, canvasHeight));
-			};
-		}
-	});
 
 export const getCanvasHeight = (_window) => {
 	return _window.innerHeight + CANVAS_OUT_MARGIN * 2;
