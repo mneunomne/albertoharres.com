@@ -105,10 +105,9 @@ export default {
       g.graphData(this.gData)
         .backgroundColor("rgba(0,0,0,0)")
         .showNavInfo(false)
-
-        .d3VelocityDecay(0.8)
-        .d3AlphaMin(0.1)
-        .d3AlphaDecay(0.1)
+        //.d3VelocityDecay(0.8)
+        //.d3AlphaMin(0.1)
+        //.d3AlphaDecay(0.1)
         .numDimensions(2)
         .width(this.width)
         .height(this.height)
