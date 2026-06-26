@@ -48,6 +48,20 @@ const LINE_OPACITY = 0.1;
 
 const LINK_DISTANCE = 50;
 
+// Shared texture loader + cache so each thumbnail is decoded only once and
+// reused across (re)builds and filtering instead of re-fetching per node.
+const textureLoader = new THREE.TextureLoader();
+const textureCache = new Map();
+function loadTexture(url) {
+  let tex = textureCache.get(url);
+  if (!tex) {
+    tex = textureLoader.load(url);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    textureCache.set(url, tex);
+  }
+  return tex;
+}
+
 // desktop values
 const GRID_MARGIN = 20;
 const TOP_MARGIN = 20;
@@ -90,6 +104,18 @@ export default {
       g: null,
       fullGraphData: null,
       graphData: null,
+      // Non-reactive: these hold the live node/link objects that the physics
+      // engine mutates every frame (x/y/z, vx/vy/vz) and to which it attaches
+      // Three.js objects (__threeObj). Keeping them out of reactive `data()`
+      // prevents Vue 2 from deep-walking the entire scene graph 60x/sec.
+      allNodes: null,
+      allLinks: null,
+      currentNode: null,
+      // Scratch vectors reused across camera transitions (no per-click alloc).
+      _dir: null,
+      _camTarget: null,
+      // RAF id / settle bookkeeping for on-demand rendering.
+      _isPaused: false,
     };
   },
   data() {
@@ -102,10 +128,7 @@ export default {
       openProject: false,
       contentMargin: 0,
       canvasMargin: CANVAS_OUT_MARGIN,
-      currentNode: null,
       currentFilter: null,
-      allNodes: null,
-      allLinks: null,
     };
   },
   mounted() {
@@ -143,6 +166,20 @@ export default {
       }, 10);
     });
   },
+  beforeDestroy() {
+    if (!process.browser) return;
+    clearTimeout(this._sleepTimer);
+    if (this._onResize) window.removeEventListener("resize", this._onResize);
+    if (this.el && this._onPointerMove) {
+      this.el.removeEventListener("pointermove", this._onPointerMove);
+    }
+    if (this.g) {
+      this.g.pauseAnimation();
+      // Release WebGL context / GPU resources.
+      if (this.g.renderer) this.g.renderer().dispose();
+      this.g._destructor && this.g._destructor();
+    }
+  },
   methods: {
     buildGraph() {
       let ForceGraph3D;
@@ -167,6 +204,10 @@ export default {
         links: [...this.gData.links],
       };
 
+      // Reusable scratch vectors for camera maths (avoid per-click allocation).
+      this._dir = new THREE.Vector3();
+      this._camTarget = new THREE.Vector3();
+
       g.graphData(this.graphData)
         .backgroundColor("rgba(0,0,0,0)")
         .linkColor(() => "rgb(0,0,0)")
@@ -178,9 +219,9 @@ export default {
         .height(this.canvasHeight)
         .enableNodeDrag(false)
         .cooldownTime(2000)
-        .cooldownTicks(Infinity)
-        .d3VelocityDecay(0.71)    // Higher = faster settling 
-        .d3AlphaMin(0.01)       // Higher = stops earlier 
+        .cooldownTicks(200)
+        .d3VelocityDecay(0.71)    // Higher = faster settling
+        .d3AlphaMin(0.01)       // Higher = stops earlier
         .d3AlphaDecay(0.04)      // Higher = faster cooldown
         .onNodeClick(this.onNodeClick)
         .onNodeHover(this.onNodeHover)
@@ -193,19 +234,42 @@ export default {
           }
           return group;
         });
+      // Cap pixel ratio: hi-DPI phones otherwise render at 3x cost for no
+      // visible gain on these sprite-based scenes.
+      g.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       this.g = g;
 
-      // on stop animation
+      // Once the layout settles, stop the perpetual render loop. It is woken
+      // on demand by pointer activity / clicks / resize (see requestRender).
       this.g.onEngineStop(() => {
-        console.log("onEngineStop");
+        this._settled = true;
+        if (!this.openProject) this.g.pauseAnimation();
       });
+
+      // Wake rendering while the pointer is over the canvas so hover raycasting
+      // and highlights work; it sleeps again shortly after the pointer stops.
+      this._onPointerMove = () => this.requestRender(800);
+      this.el.addEventListener("pointermove", this._onPointerMove, { passive: true });
 
       setTimeout(() => {
         process.nextTick(() => {
           this.setInitialView();
         });
       }, 1);
-      window.addEventListener("resize", _.throttle(this.onWindowResize, 1000), false);
+      this._onResize = _.throttle(this.onWindowResize, 1000);
+      window.addEventListener("resize", this._onResize, false);
+    },
+
+    // On-demand rendering: resume the loop and schedule it to pause again after
+    // `ms` of inactivity. No-op until the initial layout has settled so we never
+    // interrupt the first cool-down.
+    requestRender(ms = 800) {
+      if (!this.g || !this._settled) return;
+      this.g.resumeAnimation();
+      clearTimeout(this._sleepTimer);
+      this._sleepTimer = setTimeout(() => {
+        if (this.g && !this.openProject) this.g.pauseAnimation();
+      }, ms);
     },
 
     setInitialView() {
@@ -281,8 +345,7 @@ export default {
     },
 
     projectNode(node, group) {
-      const imgTexture = new THREE.TextureLoader().load(node.thumbnail);
-      imgTexture.colorSpace = THREE.SRGBColorSpace;
+      const imgTexture = loadTexture(node.thumbnail);
       const material = new THREE.SpriteMaterial({ map: imgTexture });
       const sprite = new THREE.Sprite(material);
       sprite.scale.set(1, 1);
@@ -344,6 +407,7 @@ export default {
 
       this.g.graphData({ nodes, links });
       this.g.d3Force("link").distance((link) => LINK_DISTANCE);
+      this.requestRender(3000);
     },
 
     onNodeClick(node) {
@@ -384,22 +448,20 @@ export default {
         var cameraPos = this.g.cameraPosition();
         this.g.enablePointerInteraction(false);
 
-        // Calculate the direction vector from camera to new point
-        this.direction = new THREE.Vector3(
-          node.x - cameraPos.x,
-          node.y - cameraPos.y,
-          node.z - cameraPos.z
-        );
+        // Keep rendering through the camera transition, then it sleeps again.
+        this.requestRender(CAMERA_ANIMATION_DURATION + 800);
 
-        // Normalize the direction vector (to get a unit vector)
-        this.direction.normalize();
+        // Calculate the direction vector from camera to new point (reused scratch)
+        this._dir
+          .set(node.x - cameraPos.x, node.y - cameraPos.y, node.z - cameraPos.z)
+          .normalize();
 
-        // Calculate the new position that is 75 units distant from the new point
-        const newPosition = new THREE.Vector3(
-          node.x - this.direction.x * dist,
-          node.y - this.direction.y * dist,
-          node.z - this.direction.z * dist
-        );
+        // Calculate the new position that is `dist` units from the new point
+        const newPosition = {
+          x: node.x - this._dir.x * dist,
+          y: node.y - this._dir.y * dist,
+          z: node.z - this._dir.z * dist,
+        };
 
         this.g.cameraPosition(
           newPosition, // new position
@@ -430,10 +492,10 @@ export default {
       });
     },
     onNodeHover(node) {
-      // stop animation
       this.resetNodesStyle();
+      // Ensure the hover highlight paints even if pointer motion has stopped.
+      this.requestRender();
       if (node) {
-        this.g.pauseAnimation();
         if (node.type == "project") {
           //node.__threeObj.children[1].material.opacity = 1;
           node.__threeObj.children[1].renderOrder = 99;
@@ -451,29 +513,25 @@ export default {
       this.openProject = false;
       var node = this.currentNode;
 
-      this.g.resumeAnimation();
+      // Wake rendering for the return camera transition, then let it settle.
+      this.requestRender(CAMERA_ANIMATION_DURATION + 800);
 
       // reset camera position
       var cameraPos = this.g.cameraPosition();
 
       if (node) {
-        // Calculate the direction vector from camera to new point
-        var direction = new THREE.Vector3(
-          node.x - cameraPos.x,
-          node.y - cameraPos.y,
-          node.z - cameraPos.z
-        );
+        // Calculate the direction vector from camera to new point (reused scratch)
         var dist = CAMERA_DISTANCE_FAR;
+        this._dir
+          .set(node.x - cameraPos.x, node.y - cameraPos.y, node.z - cameraPos.z)
+          .normalize();
 
-        // Normalize the direction vector (to get a unit vector)
-        direction.normalize();
-
-        // Calculate the new position that is 75 units distant from the new point
-        const newPosition = new THREE.Vector3(
-          node.x - direction.x * dist,
-          node.y - direction.y * dist,
-          node.z - direction.z * dist
-        );
+        // Calculate the new position that is `dist` units from the new point
+        const newPosition = {
+          x: node.x - this._dir.x * dist,
+          y: node.y - this._dir.y * dist,
+          z: node.z - this._dir.z * dist,
+        };
 
         this.g.cameraPosition(
           newPosition,
@@ -512,6 +570,7 @@ export default {
         nodes: [...this.allNodes],
         links: [...this.allLinks],
       });
+      this.requestRender(3000);
       setTimeout(() => {
         process.nextTick(() => {
           this.setInitialView();
@@ -543,10 +602,14 @@ export default {
         .scene()
         .children.filter((child) => child.name == "limit-plane")[0];
       if (plane) {
+        // Dispose the previous geometry so the GPU buffer is freed instead of
+        // leaking on every resize.
+        plane.geometry.dispose();
         plane.geometry = new THREE.PlaneGeometry(w, h, 32);
       }
-      // reheat
+      // reheat (and keep rendering until the layout settles again)
       this.g.d3ReheatSimulation();
+      this.requestRender(3000);
     },
     // Cache these values and only recalculate when window resizes
     limitWindow(nodes) {

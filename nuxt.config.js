@@ -98,6 +98,7 @@ export default {
 	/*
 	 ** Global CSS
 	 */
+	modules: ["@nuxtjs/sitemap"],
 	buildModules: ["@nuxtjs/style-resources", "@nuxtjs/google-analytics"],
 	styleResources: {
 		scss: ["./assets/css/*.scss"],

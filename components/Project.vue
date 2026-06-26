@@ -42,6 +42,7 @@
 
 <script>
 import marked from "marked";
+import _ from "lodash";
 
 import { CANVAS_OUT_MARGIN, getContentMargin } from "/utils";
 
@@ -83,6 +84,22 @@ export default {
     };
   },
   methods: {
+    onResize() {
+      this.contentMargin = getContentMargin(window);
+    },
+    onScroll() {
+      const contentEl = document.querySelector(".content");
+      if (!contentEl) return;
+      const height = contentEl.offsetHeight;
+      if (window.scrollY + window.innerHeight >= height && !this.reachedBottom) {
+        this.reachedBottom = true;
+        if (gtag)
+          gtag("event", "scroll", {
+            event_category: "scrolled_bottom",
+            event_label: this.project.title,
+          });
+      }
+    },
     closeProject() {
       this.$emit("closeProject");
       this.$root.$emit("closeProject");
@@ -120,30 +137,22 @@ export default {
     this.contentMargin = getContentMargin(window);
     this.tabletView = this.getIsTabletView;
     this.mobileView = this.getIsMobile;
-    // add resize listener
-    window.addEventListener("resize", () => {
-      this.contentMargin = getContentMargin(window);
-      // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
-    });
-    // detect when scroll reached bottom
-
-    window.addEventListener("scroll", () => {
-      if (document.querySelector(".content")) {
-        let height = document.querySelector(".content").offsetHeight;
-        if (
-          window.scrollY + window.innerHeight >= height &&
-          !this.reachedBottom
-        ) {
-          this.reachedBottom = true;
-          if (gtag)
-            gtag("event", "scroll", {
-              event_category: "scrolled_bottom",
-              event_label: this.project.title,
-            });
-          console.log("reached bottom");
-        }
-      }
-    });
+    // Named handlers stored so they can be removed in beforeDestroy (anonymous
+    // handlers could never be unregistered → listener leak on every project
+    // navigation). Resize drives visible layout (contentMargin), so coalesce it
+    // onto requestAnimationFrame — updates once per frame for a smooth effect
+    // without running multiple times within a single frame. Scroll is only
+    // analytics, so a passive throttle is fine.
+    this._onResize = () => {
+      if (this._resizeRaf) return;
+      this._resizeRaf = requestAnimationFrame(() => {
+        this._resizeRaf = null;
+        this.onResize();
+      });
+    };
+    this._onScroll = _.throttle(this.onScroll, 150);
+    window.addEventListener("resize", this._onResize);
+    window.addEventListener("scroll", this._onScroll, { passive: true });
 
     this.imageGallery = this.project.gallery;
     if (this.imageGallery) {
@@ -153,24 +162,9 @@ export default {
     }
   },
   beforeDestroy() {
-    window.removeEventListener("resize", () => {
-      this.canvasMargin = getContentMargin(window);
-    });
-    window.removeEventListener("scroll", () => {
-      let height = document.querySelector(".content").offsetHeight;
-      if (
-        window.scrollY + window.innerHeight >= height &&
-        !this.reachedBottom
-      ) {
-        this.reachedBottom = true;
-      }
-      if (gtag)
-        gtag("event", "scroll", {
-          event_category: "scrolled_bottom",
-          event_label: this.project.title,
-        });
-      // this.tabletView = window.innerWidth < MIN_CONTENT_WIDTH;
-    });
+    if (this._resizeRaf) cancelAnimationFrame(this._resizeRaf);
+    if (this._onResize) window.removeEventListener("resize", this._onResize);
+    if (this._onScroll) window.removeEventListener("scroll", this._onScroll);
   },
   computed: {
     ...mapGetters({

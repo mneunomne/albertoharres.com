@@ -8,6 +8,7 @@
 <script>
 import * as THREE from "three";
 import SpriteText from "three-spritetext";
+import _ from "lodash";
 import { mapGetters } from "vuex";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
@@ -22,22 +23,38 @@ export default {
       required: true,
     },
   },
-  data() {
+  // Non-reactive: the graph instance and its post-processing composer hold
+  // Three.js objects (and the gData nodes get __threeObj attached). Keeping
+  // them out of reactive `data()` stops Vue from deep-walking the scene graph.
+  static() {
     return {
       g: null,
+      composer: null,
+    };
+  },
+  data() {
+    return {
       width: 250,
       height: 250,
       cameraDistance: 130,
       show: false,
-      composer: null, // For post-processing
     };
   },
 
   created() {
     if (!process.browser) return;
-    window.addEventListener("resize", () => {
-      this.computeWindowSize();
-    });
+    this._onResize = _.throttle(() => this.computeWindowSize(), 150);
+    window.addEventListener("resize", this._onResize);
+  },
+  beforeDestroy() {
+    if (!process.browser) return;
+    if (this._rafId) cancelAnimationFrame(this._rafId);
+    if (this._onResize) window.removeEventListener("resize", this._onResize);
+    if (this.g) {
+      this.g.pauseAnimation();
+      if (this.g.renderer) this.g.renderer().dispose();
+      this.g._destructor && this.g._destructor();
+    }
   },
   mounted() {
     if (!process.browser) return;
@@ -83,7 +100,10 @@ export default {
         this.height = 150;
         this.cameraDistance = 100;
       }
-      if (this.g) this.g.width(this.width).height(this.height);
+      if (this.g) {
+        this.g.width(this.width).height(this.height);
+        this.wakeRender(600);
+      }
     },
     buildGraph() {
       let ForceGraph3D;
@@ -129,10 +149,12 @@ export default {
           nodes.forEach((node) => {
             node.__threeObj.children[0].backgroundColor = "white";
           });
+          this.wakeRender(600);
         })
         .onNodeDrag((node, translate) => {
           node.fx = node.x;
           node.fy = node.y;
+          this.wakeRender(600);
         })
         .onNodeDragEnd((node) => {
           node.fx = null;
@@ -164,7 +186,7 @@ export default {
       this.g.controls().noRotate = true;
 
       process.nextTick(() => {
-        this.g.renderer().setPixelRatio(window.devicePixelRatio);
+        this.g.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         this.g.d3Force("link").distance(() => 40);
         this.g.cameraPosition({ x: 0, y: 0, z: this.cameraDistance });
         this.show = true;
@@ -236,13 +258,35 @@ export default {
       // Save composer for the render loop
       this.composer = composer;
 
-      // Replace the render loop
-      const animate = () => {
-        requestAnimationFrame(animate);
-        //this.g.tickFrame(); // Render graph animation
-        composer.render();
+      // Stop the library's own perpetual render loop; we drive rendering on
+      // demand through the composer instead (avoids a second, always-on loop).
+      this.g.pauseAnimation();
+      this.wakeRender(2500); // render the initial layout settle
+    },
+
+    // Render a single frame: advance the layout, then run the post-processing
+    // composer (which applies the radial fade mask).
+    renderFrame() {
+      if (!this.g || !this.composer) return;
+      this.g.tickFrame();
+      this.composer.render();
+    },
+
+    // Keep rendering for `ms` after the latest request, then stop. Cheap idle
+    // state: no RAF scheduled once the menu is static and nothing interacts.
+    wakeRender(ms = 1200) {
+      this._renderUntil = (window.performance ? performance.now() : 0) + ms;
+      if (this._rafId) return; // already looping
+      const loop = () => {
+        this.renderFrame();
+        const now = window.performance ? performance.now() : this._renderUntil;
+        if (now < this._renderUntil) {
+          this._rafId = requestAnimationFrame(loop);
+        } else {
+          this._rafId = null;
+        }
       };
-      animate();
+      this._rafId = requestAnimationFrame(loop);
     },
   },
   watch: {
@@ -258,6 +302,7 @@ export default {
           this.g.cameraPosition({ x: 0, y: 0, z: 150 });
         }
         this.g.width(this.width).height(this.height);
+        this.wakeRender(600);
       }
     },
   },

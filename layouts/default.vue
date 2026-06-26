@@ -17,6 +17,7 @@
 <script>
 import Header from "~/components/Header.vue";
 import ConnectionsGraph from "~/components/ConnectionsGraph.vue";
+import _ from "lodash";
 import { isMobile, CAMERA_ANIMATION_DURATION } from "~/utils";
 import { mapGetters } from "vuex";
 import { mapActions } from "vuex";
@@ -43,9 +44,15 @@ export default {
       return;
     }
 
-    // check is mobile
+    // check is mobile (throttled; named handler so it can be removed)
     this.checkScreenSize();
-    window.addEventListener("resize", this.checkScreenSize);
+    this._onResize = _.throttle(this.checkScreenSize, 150);
+    window.addEventListener("resize", this._onResize);
+  },
+  beforeDestroy() {
+    if (process.browser && this._onResize) {
+      window.removeEventListener("resize", this._onResize);
+    }
   },
   computed: {
     ...mapGetters({
@@ -98,8 +105,14 @@ export default {
       setIsTabletView: "setIsTabletView",
     }),
     checkScreenSize() {
-      this.setIsMobile(window.innerWidth < 768);
-      this.setIsTabletView(window.innerWidth > 768 && window.innerWidth < 1200);
+      // Only commit when the boolean actually flips so a resize drag doesn't
+      // spam mutations to every component bound to these getters.
+      const mobile = window.innerWidth < 768;
+      const tablet = window.innerWidth > 768 && window.innerWidth < 1200;
+      if (mobile !== this.$store.getters.getIsMobile) this.setIsMobile(mobile);
+      if (tablet !== this.$store.getters.getIsTabletView) {
+        this.setIsTabletView(tablet);
+      }
     },
     onClickProject(data) {
       const { id, transitionTime } = data;
