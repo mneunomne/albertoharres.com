@@ -4,6 +4,13 @@
 @import './_globals.scss';
 @import './_fonts.scss';
 
-.scene-container {
-  filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 0px 5px);
+// `filter: drop-shadow()` on the canvas container re-runs a full-viewport
+// alpha blur EVERY frame the WebGL canvas repaints, and the cost scales with
+// pixel area — negligible on the tiny menu graph, but catastrophic on the
+// full-screen connections graph (this is the "recalculate style"/paint that
+// makes desktop unusable while the camera moves). Keep it only on the small one.
+// To bring the shadow back on the main thumbnails cheaply, bake it into the
+// thumbnail images instead of filtering the live canvas.
+.menu-graph .scene-container {
+	filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 0px 5px);
 }

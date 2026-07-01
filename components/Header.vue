@@ -8,13 +8,14 @@
 </template>
 
 <script>
-import MenuGraph from "~/components/MenuGraph.vue";
 import { mapGetters } from "vuex";
 
 export default {
   name: "Header",
   components: {
-    MenuGraph,
+    // Async: pulls three + 3d-force-graph into a separate chunk loaded on
+    // demand instead of the initial bundle.
+    MenuGraph: () => import("~/components/MenuGraph.vue"),
   },
   head() {
     return {

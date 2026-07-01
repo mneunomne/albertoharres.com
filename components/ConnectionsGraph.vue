@@ -58,8 +58,49 @@ function loadTexture(url) {
   if (!tex) {
     tex = textureLoader.load(url);
     tex.colorSpace = THREE.SRGBColorSpace;
+    // No mipmap chain: it's generated synchronously on first render (a big
+    // one-off frame stall for these 1280px thumbnails) and buys nothing for
+    // sprites that are almost always shown larger, not smaller.
+    tex.generateMipmaps = false;
+    tex.minFilter = THREE.LinearFilter;
     textureCache.set(url, tex);
   }
+  return tex;
+}
+
+// In-scene drop shadow for project thumbnails — replaces the per-frame CSS
+// `filter: drop-shadow()` that used to run over the whole canvas. A single soft
+// black rounded-rect texture, generated once and reused (scaled per node), so
+// the GPU composites it for free and it tracks the image and zoom. Tweak these
+// to taste: SCALE = how far past the image it spreads, OPACITY = darkness.
+const SHADOW_SCALE = 1.18;
+const SHADOW_OPACITY = 0.45;
+let _shadowTexture = null;
+function getShadowTexture() {
+  if (_shadowTexture) return _shadowTexture;
+  const size = 128;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  const inset = size * 0.14;
+  const w = size - inset * 2;
+  const r = size * 0.03;
+  ctx.shadowColor = "rgba(0,0,0,1)";
+  ctx.shadowBlur = size * 0.1;
+  ctx.fillStyle = "rgba(0,0,0,1)";
+  ctx.beginPath();
+  ctx.moveTo(inset + r, inset);
+  ctx.arcTo(inset + w, inset, inset + w, inset + w, r);
+  ctx.arcTo(inset + w, inset + w, inset, inset + w, r);
+  ctx.arcTo(inset, inset + w, inset, inset, r);
+  ctx.arcTo(inset, inset, inset + w, inset, r);
+  ctx.closePath();
+  ctx.fill();
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.generateMipmaps = false;
+  tex.minFilter = THREE.LinearFilter;
+  _shadowTexture = tex;
   return tex;
 }
 
@@ -192,17 +233,27 @@ export default {
       this.el = document.querySelector(".connections-graph");
       const g = ForceGraph3D({
         rendererConfig: {
-          antialias: true,
+          // MSAA is pure fill-rate cost and does almost nothing for
+          // image/text sprites (they're bilinear-filtered textures). Off.
+          antialias: false,
           powerPreference: "high-performance",
         },
         controlType: "orbit",
       })(this.el);
-      this.allNodes = [...this.gData.nodes];
-      this.allLinks = [...this.gData.links];
+      // Detach the graph data from Vue's reactivity. The physics engine mutates
+      // these objects (x/y/z, __threeObj) 60x/sec and reads their fields during
+      // layout + rendering; plain copies keep all of that off Vue's reactive
+      // getters/setters entirely. allNodes and graphData.nodes intentionally
+      // share the SAME instances so the __threeObj the engine attaches is
+      // visible through both.
+      const plainNodes = this.gData.nodes.map((n) => ({ ...n }));
+      const plainLinks = this.gData.links.map((l) => ({ ...l }));
+      this.allNodes = plainNodes;
+      this.allLinks = plainLinks;
 
       this.graphData = {
-        nodes: [...this.gData.nodes],
-        links: [...this.gData.links],
+        nodes: [...plainNodes],
+        links: [...plainLinks],
       };
 
       // Reusable scratch vectors for camera maths (avoid per-click allocation).
@@ -237,7 +288,18 @@ export default {
         });
       // Cap pixel ratio: hi-DPI phones otherwise render at 3x cost for no
       // visible gain on these sprite-based scenes.
-      g.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      // The heavy cost is fill-rate on this full-viewport canvas: a project
+      // sprite flown close to the camera covers the whole screen, and every
+      // pixel is shaded devicePixelRatio^2 times. Capping at 1 quarters the
+      // pixel count on retina/hi-DPI desktops — the difference between smooth
+      // and unusable when zooming in on a large display.
+      g.renderer().setPixelRatio(1);
+      // Three validates every shader link with a synchronous
+      // gl.getProgramInfoLog + gl.getProgramParameter(LINK_STATUS) round-trip
+      // when this is on (its default). That blocks the main thread until the
+      // GPU finishes compiling — it's exactly the getProgramInfoLog cost in the
+      // profile. We don't author shaders here, so turn it off in the browser.
+      g.renderer().debug.checkShaderErrors = false;
       this.g = g;
 
       // Once the layout settles, stop the perpetual render loop. It is woken
@@ -295,6 +357,15 @@ export default {
           ];
           // border
           node.__threeObj.children[2].scale.set(w, h);
+          // shadow: a bit larger than the image, nudged down for a drop feel
+          const shadow = node.__threeObj.children[3];
+          if (shadow) {
+            shadow.scale.set(w * SHADOW_SCALE, h * SHADOW_SCALE);
+            // Nudge down for a drop feel and slightly behind, so the opaque
+            // image (drawn first, writing depth) clips the shadow's core via
+            // the depth test and only the soft edge remains.
+            shadow.position.set(0, -h * 0.05, -h * 0.04);
+          }
         }
       });
 
@@ -361,6 +432,10 @@ export default {
       //make transparent
       // opacity 0
       border.material.opacity = 0;
+      // Never actually shown (opacity stays 0), so skip drawing it entirely —
+      // otherwise it's a second full-screen transparent quad to fill whenever a
+      // project is zoomed close to the camera.
+      border.visible = false;
 
       // add text with the project title
       const title = new SpriteText(node.title);
@@ -375,9 +450,25 @@ export default {
       //title.position.set(0, 0, 0);
       //title.scale.set(1, 1, 1);
 
+      // soft drop shadow behind the image (in-scene, GPU-composited). Added
+      // last so children[0..2] (title/image/border) keep their indices; drawn
+      // first via renderOrder so the opaque image paints over its core and only
+      // the soft edge shows. Sized in setInitialView.
+      const shadow = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: getShadowTexture(),
+          transparent: true,
+          opacity: SHADOW_OPACITY,
+          depthWrite: false,
+        })
+      );
+      shadow.renderOrder = 8;
+      shadow.raycast = () => {}; // don't enlarge the hover hit-area
+
       group.add(title);
       group.add(sprite);
       group.add(border);
+      group.add(shadow);
       return group;
     },
 
@@ -483,7 +574,13 @@ export default {
     resetNodesStyle() {
       this.allNodes.forEach((_node) => {
         if (_node.type == "tag" && _node.__threeObj) {
-          _node.__threeObj.children[0].backgroundColor = "white";
+          // Assigning backgroundColor re-runs three-spritetext's _genCanvas():
+          // it redraws the 2D canvas and allocates a brand-new GPU texture
+          // (disposing the old one). Only the hovered tag is ever non-white, so
+          // skip the write when it's already white — otherwise every hover
+          // regenerates a texture for every tag in the graph.
+          const label = _node.__threeObj.children[0];
+          if (label.backgroundColor !== "white") label.backgroundColor = "white";
         }
         if (_node.type == "project" && _node.__threeObj) {
           _node.__threeObj.children[1].renderOrder = 10;
@@ -727,6 +824,14 @@ export default {
 .no-interaction canvas,
 .no-interaction .scene-container {
   pointer-events: none;
+}
+
+// The library repositions this tooltip on every pointermove
+// (container.getBoundingClientRect() + 3 style writes), which forces a
+// "Recalculate style" per pointer event while orbiting. We never use it, so
+// take it out of layout entirely.
+.connections-graph .scene-tooltip {
+  display: none !important;
 }
 
 .hidden {

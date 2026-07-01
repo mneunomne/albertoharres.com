@@ -118,8 +118,15 @@ export default {
         },
       })(el);
 
-      var nodes = this.gData.nodes;
-      g.graphData(this.gData)
+      // Detach from Vue reactivity (see ConnectionsGraph): the engine reads and
+      // mutates these objects every frame, so hand it plain copies rather than
+      // reactive proxies.
+      const graphData = {
+        nodes: this.gData.nodes.map((n) => ({ ...n })),
+        links: this.gData.links.map((l) => ({ ...l })),
+      };
+      var nodes = graphData.nodes;
+      g.graphData(graphData)
         .backgroundColor("rgba(0,0,0,0)")
         .showNavInfo(false)
         //.d3VelocityDecay(0.8)
@@ -143,8 +150,11 @@ export default {
           }
         })
         .onNodeHover((node) => {
-          nodes.forEach((node) => {
-            node.__threeObj.children[0].backgroundColor = "white";
+          // Only write backgroundColor when it actually changes — the setter
+          // regenerates the sprite's canvas + GPU texture (three-spritetext).
+          nodes.forEach((n) => {
+            const label = n.__threeObj.children[0];
+            if (label.backgroundColor !== "white") label.backgroundColor = "white";
           });
           this.wakeRender(600);
         })
@@ -184,6 +194,9 @@ export default {
 
       process.nextTick(() => {
         this.g.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        // Avoid the synchronous getProgramInfoLog / LINK_STATUS stall on every
+        // shader compile (see ConnectionsGraph).
+        this.g.renderer().debug.checkShaderErrors = false;
         this.g.d3Force("link").distance(() => 40);
         this.g.cameraPosition({ x: 0, y: 0, z: this.cameraDistance });
         this.show = true;
@@ -289,6 +302,11 @@ export default {
 </script>
 
 <style global lang="scss">
+.menu-graph .scene-tooltip {
+  // Unused tooltip; repositioned via getBoundingClientRect on every pointermove.
+  display: none !important;
+}
+
 .menu-graph {
   mix-blend-mode: darken;
   opacity: 0;

@@ -16,7 +16,6 @@
 
 <script>
 import Header from "~/components/Header.vue";
-import ConnectionsGraph from "~/components/ConnectionsGraph.vue";
 import _ from "lodash";
 import { isMobile, CAMERA_ANIMATION_DURATION } from "~/utils";
 import { mapGetters } from "vuex";
@@ -25,7 +24,9 @@ import { mapActions } from "vuex";
 export default {
   components: {
     Header,
-    ConnectionsGraph,
+    // Async: the graph (three + 3d-force-graph, the heaviest deps) loads in its
+    // own chunk after the initial page renders instead of blocking first paint.
+    ConnectionsGraph: () => import("~/components/ConnectionsGraph.vue"),
   },
   data() {
     return {
