@@ -49,7 +49,6 @@ export default {
     },
   },
   mounted() {
-    console.log("$route", this.$route);
     setTimeout(() => {
       this.show = true;
     }, 200);

@@ -120,7 +120,6 @@ export default {
     },
   },
   mounted() {
-    console.log("MOUNTED!");
     this.imageWidth = this.project.thumb_width;
     this.imageHeight = this.project.thumb_height;
     if (!process.browser) {
@@ -175,7 +174,6 @@ export default {
       return marked.parse(this.project.content || "");
     },
     renderDetails() {
-      console.log("renderDetails", this.project.details);
       return marked.parse(this.project.details || "");
     },
     titleMargin() {
@@ -295,15 +293,14 @@ export default {
 
 .project-bg {
   opacity: 0;
-  transition: backdrop-filter 1s, opacity 0.5s;
+  transition: opacity 0.5s;
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 1;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.93);
 }
 
 .details {

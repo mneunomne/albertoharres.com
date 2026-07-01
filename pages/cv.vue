@@ -13,7 +13,6 @@ export default {
     TextPage,
   },
   async asyncData({ params, payload, route }) {
-    console.log("asyncData", params, payload);
     if (payload)
       return {
         data: payload,
@@ -30,7 +29,6 @@ export default {
   },
   methods: {
     onCloseProject() {
-      console.log("onCloseProject");
       this.$router.push({ path: "/works" });
     },
   },

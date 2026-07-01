@@ -67,7 +67,6 @@ export default {
       setCurrentProject: "setCurrentProject",
     }),
     onCloseProject() {
-      console.log("onCloseProject");
       // go back to route "works"
       this.showCurrentProject = false;
       this.$router.push({ path: "/works" });
@@ -75,7 +74,6 @@ export default {
   },
   watch: {
     project() {
-      console.log("changed project", this.project);
       this.showCurrentProject = true;
     },
     // check if route changed to cv or bio, by checking the route name

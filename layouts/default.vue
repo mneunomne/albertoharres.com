@@ -202,18 +202,18 @@ export default {
 .main {
   .project-bg {
     opacity: 0;
-    transition: all 0.5s;
+    // Only opacity animates here; `transition: all` also re-samples the
+    // (removed) backdrop-filter every frame. A flat translucent white is far
+    // cheaper than blurring the whole viewport over the live WebGL canvas.
+    transition: opacity 0.5s;
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
     z-index: 1;
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.93);
     pointer-events: none;
-
-    opacity: 0;
 
     &.show {
       opacity: 1;

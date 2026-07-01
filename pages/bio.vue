@@ -13,7 +13,6 @@ export default {
     TextPage,
   },
   async asyncData({ params, payload, route }) {
-    console.log("asyncData", params, payload);
     if (payload)
       return {
         data: payload,

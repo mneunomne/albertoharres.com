@@ -12,8 +12,9 @@
       'no-interaction': openProject,
       'hide-tooltip': openProject || transition,
     }" class="connections-graph" :style="{
-      top: `-${openProject ? canvasMargin + contentMargin : canvasMargin}px`,
+      top: `-${canvasMargin}px`,
       height: `calc(${canvasHeight}px)`,
+      transform: openProject ? `translateY(-${contentMargin}px)` : 'translateY(0)',
     }">
       .
     </div>
@@ -297,7 +298,6 @@ export default {
         }
       });
 
-      console.log('Images sized from node data')
       var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
       var w =
         (h * window.innerWidth) / window.innerHeight -
@@ -716,19 +716,17 @@ export default {
   position: fixed;
   left: 0;
   width: 100vw;
-  transition: opacity 0.25s ease-in-out, top 2s ease-in-out,
-    filter 2s ease-in-out;
-  transform: scale(1);
-  filter: blur(0px);
+  // Animate `transform` (compositor-only) instead of `top` (relayouts the
+  // full-viewport canvas every frame for 2s). The `filter: blur(0px)` was a
+  // no-op that still forced a filter backing layer, so it's gone.
+  transition: opacity 0.25s ease-in-out, transform 2s ease-in-out;
+  transform: translateY(0);
+  will-change: transform;
 }
 
 .no-interaction canvas,
 .no-interaction .scene-container {
   pointer-events: none;
-}
-
-.no-interaction {
-  filter: blur(0px);
 }
 
 .hidden {

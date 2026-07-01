@@ -10,9 +10,7 @@ import * as THREE from "three";
 import SpriteText from "three-spritetext";
 import _ from "lodash";
 import { mapGetters } from "vuex";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { bboxCollide } from "d3-bboxCollide";
 
 export default {
@@ -23,13 +21,12 @@ export default {
       required: true,
     },
   },
-  // Non-reactive: the graph instance and its post-processing composer hold
-  // Three.js objects (and the gData nodes get __threeObj attached). Keeping
-  // them out of reactive `data()` stops Vue from deep-walking the scene graph.
+  // Non-reactive: the graph instance holds Three.js objects (and the gData
+  // nodes get __threeObj attached). Keeping it out of reactive `data()` stops
+  // Vue from deep-walking the scene graph.
   static() {
     return {
       g: null,
-      composer: null,
     };
   },
   data() {
@@ -48,7 +45,7 @@ export default {
   },
   beforeDestroy() {
     if (!process.browser) return;
-    if (this._rafId) cancelAnimationFrame(this._rafId);
+    if (this._idleTimer) clearTimeout(this._idleTimer);
     if (this._onResize) window.removeEventListener("resize", this._onResize);
     if (this.g) {
       this.g.pauseAnimation();
@@ -210,15 +207,7 @@ export default {
     },
 
     canvasMask() {
-      // Access the Three.js components
-      const renderer = this.g.renderer();
-      const scene = this.g.scene();
-      const camera = this.g.camera();
-
-      // Set up post-processing
-      const composer = new EffectComposer(renderer);
-      const renderPass = new RenderPass(scene, camera);
-      composer.addPass(renderPass);
+      if (!this.g) return;
 
       // Custom radial gradient shader
       const radialGradientShader = {
@@ -252,41 +241,31 @@ export default {
         `,
       };
 
+      // Add the radial fade to the graph's own post-processing composer. The
+      // library already wired a RenderPass into it and drives it through its
+      // animation loop, so EffectComposer routes this (the last pass) to the
+      // screen. Building a second composer on the same renderer is what caused
+      // the "Maximum call stack size exceeded" texture recursion.
       const radialGradientPass = new ShaderPass(radialGradientShader);
-      composer.addPass(radialGradientPass);
+      this.g.postProcessingComposer().addPass(radialGradientPass);
 
-      // Save composer for the render loop
-      this.composer = composer;
-
-      // Stop the library's own perpetual render loop; we drive rendering on
-      // demand through the composer instead (avoids a second, always-on loop).
+      // Idle by default; the library's perpetual render loop stays paused until
+      // something needs to be drawn (settle, hover, drag, resize).
       this.g.pauseAnimation();
       this.wakeRender(2500); // render the initial layout settle
     },
 
-    // Render a single frame: advance the layout, then run the post-processing
-    // composer (which applies the radial fade mask).
-    renderFrame() {
-      if (!this.g || !this.composer) return;
-      this.g.tickFrame();
-      this.composer.render();
-    },
-
-    // Keep rendering for `ms` after the latest request, then stop. Cheap idle
-    // state: no RAF scheduled once the menu is static and nothing interacts.
+    // Run the library's render loop for `ms` after the latest request, then
+    // pause it again. Its loop advances the force layout (tickFrame) and renders
+    // through the composer, so nothing keeps drawing once the menu is static.
     wakeRender(ms = 1200) {
-      this._renderUntil = (window.performance ? performance.now() : 0) + ms;
-      if (this._rafId) return; // already looping
-      const loop = () => {
-        this.renderFrame();
-        const now = window.performance ? performance.now() : this._renderUntil;
-        if (now < this._renderUntil) {
-          this._rafId = requestAnimationFrame(loop);
-        } else {
-          this._rafId = null;
-        }
-      };
-      this._rafId = requestAnimationFrame(loop);
+      if (!this.g) return;
+      this.g.resumeAnimation(); // idempotent: only restarts if paused
+      if (this._idleTimer) clearTimeout(this._idleTimer);
+      this._idleTimer = setTimeout(() => {
+        this._idleTimer = null;
+        if (this.g) this.g.pauseAnimation();
+      }, ms);
     },
   },
   watch: {
