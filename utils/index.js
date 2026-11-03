@@ -1,4 +1,8 @@
 export const COLOR_MODE_FALLBACK = "dark";
+// Viewports narrower than this are "mobile": no three.js at all, a plain
+// header nav and in-flow pages instead. Keep in sync with $mobile-max in
+// assets/css/_vars.scss (which is this value minus 1px).
+export const MOBILE_BREAKPOINT = 768;
 export const CAMERA_FOV = 50;
 export const IMAGE_SCALE = 35;
 export const CANVAS_OUT_MARGIN = 200;
@@ -7,6 +11,8 @@ export const MOBILE_CAMERA_DISTANCE = 170;
 export const CAMERA_ANIMATION_DURATION = 2000;
 export const CAMERA_DISTANCE_FAR = 400;
 export const CAMERA_DISTANCE_2D = 330;
+// Duration of the 3D graph <-> 2D grid morph.
+export const VIEW_TRANSITION_DURATION = 1600;
 
 export const convertSizeValues = (ratio) => {
 	var canvasHeight = getCanvasHeight(window);
@@ -60,6 +66,23 @@ export const getCanvasHeight = (_window) => {
 export const getContentMargin = (_window) => {
 	var contentMargin = (_window.innerHeight - getImageHeightOnScreen()) / 2 - 150;
 	return contentMargin;
+};
+
+// Resolves once the document is visible. Background tabs (e.g. a link opened
+// with target=_blank) never run requestAnimationFrame, but the force-graph
+// cool-down is measured in wall-clock time from when the graph is built, so a
+// graph built in a hidden tab stops its layout on the very first frame after
+// the tab is focused, with every node still in its initial clump.
+export const whenTabVisible = () => {
+  if (typeof document === "undefined" || !document.hidden) return Promise.resolve();
+  return new Promise((resolve) => {
+    const onChange = () => {
+      if (document.hidden) return;
+      document.removeEventListener("visibilitychange", onChange);
+      resolve();
+    };
+    document.addEventListener("visibilitychange", onChange);
+  });
 };
 
 export const isMobile = () => {

@@ -43,8 +43,36 @@ collections:
                 preview: false
             fields:
                 - { label: Title, name: title, widget: string, hint: "title" }
-                - { name: "content", label: "content", widget: "markdown", required: false, default: "" }
-                - { name: "details", label: "details", widget: "markdown", required: false, default: "" }
+                - { label: Title pt, name: title_pt, widget: string, required: false, hint: "Portuguese title. Empty = English is shown." }
+                - { name: "intro", label: "Intro", widget: "text", required: false, default: "", hint: "Short paragraph shown under the title. Inline markdown (*italics*, [links](url)) is allowed." }
+                - { name: "intro_pt", label: "Intro pt", widget: "text", required: false, hint: "Portuguese intro. Empty = English is shown." }
+                - label: "Contact"
+                  name: "contact"
+                  widget: "list"
+                  required: false
+                  summary: "{{fields.label}}: {{fields.text}}"
+                  fields:
+                      - { name: "label", label: "Label", widget: "string" }
+                      - { name: "label_pt", label: "Label pt", widget: "string", required: false }
+                      - { name: "text", label: "Text", widget: "string" }
+                      - { name: "text_pt", label: "Text pt", widget: "string", required: false }
+                      - { name: "url", label: "URL", widget: "string", required: false, default: "", hint: "Optional. Use mailto: for e-mail addresses." }
+                - label: "Sections"
+                  name: "sections"
+                  widget: "list"
+                  summary: "{{fields.title}}"
+                  fields:
+                      - { name: "title", label: "Section title", widget: "string" }
+                      - { name: "title_pt", label: "Section title pt", widget: "string", required: false }
+                      - label: "Entries"
+                        name: "entries"
+                        widget: "list"
+                        summary: "{{fields.label}} — {{fields.text}}"
+                        fields:
+                            - { name: "label", label: "Label", widget: "string", hint: "Year or range (2020–2024), or a category (Front-end, German). Repeated labels are only printed once." }
+                            - { name: "label_pt", label: "Label pt", widget: "string", required: false, hint: "Only needed when the label is a word (e.g. a language), not a year." }
+                            - { name: "text", label: "Text", widget: "text", hint: "Inline markdown is allowed: *italics*, [link text](https://...)." }
+                            - { name: "text_pt", label: "Text pt", widget: "text", required: false, hint: "Portuguese text. Empty = English is shown." }
           - label: "bio"
             name: "bio"
             file: "assets/content/site/bio.json"
@@ -54,7 +82,9 @@ collections:
             fields:
                 - { label: Title, name: title, widget: string, hint: "title" }
                 - { name: "content", label: "content", widget: "markdown", required: false, default: "" }
+                - { name: "content_pt", label: "content pt", widget: "markdown", required: false, hint: "Portuguese. Empty = English is shown." }
                 - { name: "details", label: "details", widget: "markdown", required: false, default: "" }
+                - { name: "details_pt", label: "details pt", widget: "markdown", required: false }
     - name: "projects"
       label: "Projects"
       identifier_field: title
@@ -64,13 +94,17 @@ collections:
       slug: "{{slug}}"
       fields:
           - { name: "title", label: "Title en", widget: "string", required: true, default: "" }
+          - { name: "title_pt", label: "Title pt", widget: "string", required: false, hint: "Portuguese. Empty = English is shown." }
           - { name: "subtitle", label: "Subtitle en", widget: "string", required: false, default: "" }
+          - { name: "subtitle_pt", label: "Subtitle pt", widget: "string", required: false }
           - { name: "year", label: "Year", widget: "string", required: false }
           - { name: "tags", label: "Tags", widget: "list", default: [], required: false }
           - { name: "importance", label: "Importance", widget: "number", required: false, default: 1.0 }
           - { name: "thumbnail", required: false, label: "Thumbnail Image", widget: "image" }
           - { name: "content", label: "content", widget: "markdown", required: false, default: "" }
+          - { name: "content_pt", label: "content pt", widget: "markdown", required: false, hint: "Portuguese. Empty = English is shown." }
           - { name: "details", label: "details", widget: "markdown", required: false, default: "" }
+          - { name: "details_pt", label: "details pt", widget: "markdown", required: false }
           - {
                 label: "Gallery",
                 name: "gallery",

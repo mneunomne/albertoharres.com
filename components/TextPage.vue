@@ -37,10 +37,10 @@ export default {
       getIsMobile: "getIsMobile",
     }),
     renderContent() {
-      return marked.parse(this.data.content || "");
+      return marked.parse(this.$l(this.data, "content") || "");
     },
     renderDetails() {
-      return marked.parse(this.data.details || "");
+      return marked.parse(this.$l(this.data, "details") || "");
     },
   },
   methods: {
@@ -49,10 +49,18 @@ export default {
     },
   },
   mounted() {
-    console.log("$route", this.$route);
-    setTimeout(() => {
+    // Phones: no fade, show at once (also re-renders so the `.mobile` class
+    // is applied right after hydration).
+    if (this.getIsMobile) {
+      this.show = true;
+      return;
+    }
+    this._showTimer = setTimeout(() => {
       this.show = true;
     }, 200);
+  },
+  beforeDestroy() {
+    clearTimeout(this._showTimer);
   }
 };
 </script>
@@ -76,23 +84,18 @@ export default {
   max-height: 80vh;
   overflow-y: auto;
 
+  // Phones: a plain in-flow page under the sticky nav (which is the way back).
   &.mobile {
-    width: 100% !important;
-    height: auto !important;
-    max-height: calc(100vh - 20px);
-    left: 0;
-    top: 0;
-    padding-top: 2em;
+    position: static;
+    width: auto;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: 1em 1em 2em;
     transform: none;
 
-    .description {
-      padding: 0px 1.5em;
-    }
-
     .close {
-      position: fixed;
-      top: 1.5em;
-      right: 1.5em;
+      display: none;
     }
   }
 
@@ -118,6 +121,12 @@ export default {
 
     &.show {
       opacity: 1;
+    }
+
+    // Phones: shown at once, no fade.
+    &.mobile {
+      opacity: 1;
+      transition: none;
     }
   }
 

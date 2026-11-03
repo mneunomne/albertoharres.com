@@ -1,19 +1,31 @@
 <template>
   <div>
-    <TextPage @closeProject="onCloseProject" :data="data" />
+    <CvPage @closeProject="onCloseProject" :data="data" />
   </div>
 </template>
 
 <script>
-import TextPage from "~/components/TextPage.vue";
+import CvPage from "~/components/CvPage.vue";
 
 export default {
-  name: "Work",
+  name: "Cv",
   components: {
-    TextPage,
+    CvPage,
   },
-  async asyncData({ params, payload, route }) {
-    console.log("asyncData", params, payload);
+  head() {
+    return {
+      title: "cv – alberto harres",
+      meta: [
+        {
+          hid: "description",
+          name: "description",
+          content:
+            "Curriculum vitae of Alberto Harres: education, work experience, research, exhibitions, workshops, awards, press and skills.",
+        },
+      ],
+    };
+  },
+  async asyncData({ payload }) {
     if (payload)
       return {
         data: payload,
@@ -30,7 +42,6 @@ export default {
   },
   methods: {
     onCloseProject() {
-      console.log("onCloseProject");
       this.$router.push({ path: "/works" });
     },
   },

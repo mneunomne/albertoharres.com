@@ -1,8 +1,11 @@
 {
-	"details": "### Supervisors\n\n* P﻿etra Klusmeyer\n* R﻿alf Beacker\n* L﻿uiz Zanotello\n\n### Credits\n\n* Documentation Photos: **Alina Barvid**\n* Assistance in ceramic production: **Prof. Ute Fischer**\n* C﻿uratorship exhibition Estação Jaqueira: **Carlos Feijó**",
+	"details": "### Supervisors\n\n* Petra Klusmeyer\n* Ralf Beacker\n* Luiz Zanotello\n\n### Credits\n\n* Documentation Photos: **Alina Barvid**\n* Assistance in ceramic production: **Prof. Ute Fischer**\n* Curatorship exhibition Estação Jaqueira: **Carlos Feijó**",
+	"details_pt": "### Orientação\n\n* Petra Klusmeyer\n* Ralf Beacker\n* Luiz Zanotello\n\n### Créditos\n\n* Fotos de documentação: **Alina Barvid**\n* Assistência na produção cerâmica: **Prof. Ute Fischer**\n* Curadoria da exposição na Estação Jaqueira: **Carlos Feijó**",
 	"thumbnail": "/img/thumb-terra-inscrita.jpg",
 	"content": "Terra Inscrita (Inscribed Earth/Land/Soil) is a methodology for addressing personal and collective trauma through artistic research and practice. It stems from memories of the floods and landslides of January 2011 in the mountainous region of Rio de Janeiro, Brazil—an event that left visible scars on the mountains and rivers, as well as on those who inhabit the region, including myself.\n\n5kg of clay were locally extracted, filtered, dried, and transported to Bremen, Germany. This “migrant” piece of terra became the foundation for this material-specific investigation, understood not as a passive material to be shaped, but as an intra-acting agent—the constituting matter of this landscape’s ongoing process of becoming.\n\nCentral to this work is a performative installation where magnetics traverse a pool of clay and water, generating images within this dynamic material field as a metaphor for the scars of the landscape and the sedimenting memories of the community. This machinic gesture mediates between scales and topologies, functioning as a sublimation machine that re-enacts the processes endured by those who lived through these events.\n\n<div style=\"padding:56.25% 0 0 0;position:relative;\"><iframe src=\"https://player.vimeo.com/video/1038697430?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479\" frameborder=\"0\" allow=\"autoplay; fullscreen; picture-in-picture; clipboard-write\" style=\"position:absolute;top:0;left:0;width:100%;height:100%;\" title=\"Terra Inscrita - Topographic Scars \\ Sedimenting Memories\"></iframe></div><script src=\"https://player.vimeo.com/api/player.js\"></script>",
+	"content_pt": "Terra Inscrita é uma metodologia para lidar com traumas pessoais e coletivos por meio da pesquisa e da prática artística. Ela nasce das memórias das enchentes e deslizamentos de janeiro de 2011 na Região Serrana do Rio de Janeiro — um evento que deixou cicatrizes visíveis nas montanhas e nos rios, assim como em quem habita a região, inclusive em mim.\n\nCinco quilos de argila foram extraídos localmente, filtrados, secos e transportados para Bremen, na Alemanha. Esse pedaço “migrante” de terra tornou-se a base desta investigação específica ao material, entendido não como uma matéria passiva a ser moldada, mas como um agente intra-ativo — a matéria que constitui o contínuo processo de devir dessa paisagem.\n\nNo centro do trabalho está uma instalação performativa em que ímãs atravessam um tanque de argila e água, gerando imagens nesse campo material dinâmico como metáfora para as cicatrizes da paisagem e as memórias sedimentadas da comunidade. Esse gesto maquínico faz a mediação entre escalas e topologias, funcionando como uma máquina de sublimação que reencena os processos vividos por quem atravessou esses eventos.\n\n<div style=\"padding:56.25% 0 0 0;position:relative;\"><iframe src=\"https://player.vimeo.com/video/1038697430?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479\" frameborder=\"0\" allow=\"autoplay; fullscreen; picture-in-picture; clipboard-write\" style=\"position:absolute;top:0;left:0;width:100%;height:100%;\" title=\"Terra Inscrita - Topographic Scars \\ Sedimenting Memories\"></iframe></div><script src=\"https://player.vimeo.com/api/player.js\"></script>",
 	"subtitle": "Topographic Scars \\ Sedimenting Memories",
+	"subtitle_pt": "Cicatrizes Topográficas \\ Memórias em Sedimentação",
 	"title": "Terra Inscrita",
 	"gallery": [
 		"/img/p1100314.jpg",
@@ -16,11 +19,11 @@
 		"materiality",
 		"clay",
 		"water",
-		"installation",
 		"processing",
 		"electronics",
 		"research",
-		"projection_mapping"
+		"projection_mapping",
+		"memory"
 	],
 	"disabled": false,
 	"year": "2024",

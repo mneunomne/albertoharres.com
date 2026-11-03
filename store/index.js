@@ -1,11 +1,23 @@
-import { SET_NEWS, SET_PROJECTS, SET_CURRENT_PROJECT, SET_IS_MOBILE, SET_IS_TABLET_VIEW } from './mutations.type'
+import { SET_NEWS, SET_PROJECTS, SET_CURRENT_PROJECT, SET_IS_MOBILE, SET_IS_TABLET_VIEW, SET_VIEW_MODE, SET_OPENING_FROM_GRAPH, SET_LOCALE } from './mutations.type'
+import { DEFAULT_LOCALE, isLocale, LOCALE_STORAGE_KEY, HTML_LANG } from '~/utils/i18n'
+
+const VIEW_MODES = ['3d', '2d']
 
 export const state = () => ({
   news: [],
   projects: [],
   currentProject: null,
   isMobile: false,
-  isTabletView: false
+  isTabletView: false,
+  // '3d' = force graph (default on every load), '2d' = grid. Not persisted.
+  viewMode: '3d',
+  // True only between a click on a project node in the graph and the mount of
+  // the project page it navigates to. Lets the page know it must wait for the
+  // camera flight instead of showing at once (direct URL load / history).
+  openingFromGraph: false,
+  // 'en' | 'pt'. Always 'en' on the server; the visitor's choice is applied
+  // after hydration (see layouts/default.vue) and kept in localStorage.
+  locale: DEFAULT_LOCALE
 })
 
 export const mutations = {
@@ -23,6 +35,15 @@ export const mutations = {
   },
   [SET_IS_TABLET_VIEW](state, isTabletView) {
     state.isTabletView = isTabletView
+  },
+  [SET_VIEW_MODE](state, mode) {
+    state.viewMode = mode
+  },
+  [SET_OPENING_FROM_GRAPH](state, value) {
+    state.openingFromGraph = value
+  },
+  [SET_LOCALE](state, locale) {
+    state.locale = locale
   }
 }
 
@@ -38,6 +59,15 @@ export const getters = {
   },
   getIsTabletView(state) {
     return state.isTabletView
+  },
+  getViewMode(state) {
+    return state.viewMode
+  },
+  getOpeningFromGraph(state) {
+    return state.openingFromGraph
+  },
+  getLocale(state) {
+    return state.locale
   }
 }
 
@@ -51,6 +81,24 @@ export const actions = {
   },
   setIsTabletView({ commit }, isTabletView) {
     commit('setIsTabletView', isTabletView)
+  },
+  setOpeningFromGraph({ commit }, value) {
+    commit(SET_OPENING_FROM_GRAPH, !!value)
+  },
+  setLocale({ commit }, locale) {
+    if (!isLocale(locale)) return
+    commit(SET_LOCALE, locale)
+    if (!process.browser) return
+    document.documentElement.lang = HTML_LANG[locale]
+    try {
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, locale)
+    } catch (e) {
+      // Storage unavailable (private mode, blocked cookies): session only.
+    }
+  },
+  setViewMode({ commit }, mode) {
+    if (!VIEW_MODES.includes(mode)) return
+    commit(SET_VIEW_MODE, mode)
   },
   getPosts(files) {
     return files.keys().map((key) => {

@@ -6,7 +6,7 @@ const dynamicContentPath = "assets/content"; // ? No prepending/appending backsl
 const dynamicRoutes = getDynamicPaths(
 	{
 		news: "news/*.json",
-		projects: "projects/*.json",
+		"": "projects/*.json", // project pages are at the root: /<slug>
 	},
 	dynamicContentPath
 );
@@ -67,6 +67,18 @@ export default {
 	},
 	router: {
 		extendRoutes(routes, resolve) {
+			// Project pages live at the root (/terra-inscrita), not under /works.
+			// The page file stays at pages/works/_work.vue so its route keeps
+			// the name "works-work" everywhere. It is moved to the end so the
+			// static pages (/bio, /cv, /works) still win over the slug.
+			const i = routes.findIndex((r) => r.name === "works-work");
+			if (i !== -1) {
+				const [work] = routes.splice(i, 1);
+				work.path = "/:work";
+				routes.push(work);
+			}
+			// Old /works/:slug links.
+			routes.push({ path: "/works/:work", redirect: "/:work" });
 			// Add a catch-all route that redirects to home
 			routes.push({
 				path: "*",
@@ -94,6 +106,7 @@ export default {
 			src: "~plugins/vue-gallery.client.js",
 			mode: "client",
 		},
+		"~/plugins/i18n.js",
 	],
 	/*
 	 ** Global CSS
@@ -107,7 +120,13 @@ export default {
 	 ** Build configuration
 	 */
 	build: {
-		transpile: ["three", "three-spritetext"],
+		transpile: ["three", "three-spritetext", "3d-force-graph"],
+		babel: {
+			// three >= r160 uses `static {}` class blocks. Nuxt's server build
+			// targets the current Node version, so preset-env skips the transform
+			// and never enables the parser syntax for it.
+			plugins: ["@babel/plugin-transform-class-static-block"],
+		},
 		extractCSS: true,
 		// Enable compression
 		compress: true,
@@ -116,10 +135,14 @@ export default {
 			splitChunks: {
 				chunks: "all",
 				cacheGroups: {
+					// Only what the initial render needs goes into "vendors".
+					// Packages used solely by async components (three,
+					// 3d-force-graph, ... via the graph components) get their own
+					// async vendor chunk, which phones never download.
 					vendor: {
 						test: /[\\/]node_modules[\\/]/,
 						name: "vendors",
-						chunks: "all",
+						chunks: "initial",
 					},
 				},
 			},
@@ -128,6 +151,22 @@ export default {
 		 ** You can extend webpack config here
 		 */
 		extend(config) {
+			// Always use three's ES module build. webpack 4 resolves `.mjs`
+			// importers (3d-force-graph, three-render-objects, ...) through the
+			// `main` field, and the server build prefers `main` too, which since
+			// three r16x is a deprecated CommonJS shim that calls
+			// process.emitWarning() and throws in the browser.
+			config.resolve.alias["three$"] = path.resolve(
+				__dirname,
+				"node_modules/three/build/three.module.js"
+			);
+			// webpack 4 ignores package.json `exports`, so the `three/webgpu`
+			// subpath imported by three-render-objects cannot be resolved.
+			// See utils/three-webgpu-stub.js.
+			config.resolve.alias["three/webgpu"] = path.resolve(
+				__dirname,
+				"utils/three-webgpu-stub.js"
+			);
 			config.module.rules.push({
 				test: /\.mjs$/,
 				include: /node_modules/,
@@ -157,7 +196,7 @@ function getDynamicPaths(urlFilepathTable, cwdPath) {
 		...Object.keys(urlFilepathTable).map((url) => {
 			const filepathGlob = urlFilepathTable[url];
 			return glob.sync(filepathGlob, { cwd: cwdPath }).map((filepath) => {
-				return `/${url}/${path.basename(filepath, ".json")}`;
+				return `${url ? `/${url}` : ""}/${path.basename(filepath, ".json")}`;
 			});
 		})
 	);

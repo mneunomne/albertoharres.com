@@ -4,3 +4,9 @@ publish = "dist/"
 
 [[plugins]]
 package = "netlify-plugin-subfont"
+
+# Project pages moved from /works/<slug> to /<slug>.
+[[redirects]]
+from = "/works/:slug"
+to = "/:slug"
+status = 301

@@ -1,7 +1,9 @@
 {
-	"details": "### Links\n\n* [adnauseam.io](https://adnauseam.io/)\n* [ZKM Exhibition – *Choose Your Filter!*](https://zkm.de/en/2025/02/choose-your-filter)\n\n### Credits\n\n*   (Lead Developer and Co-Initiator)\n* Helen Nissenbaum (Co-Initator)\n* Mushon Zer-Aviv (Lead Designer)\n*﻿ Alberto Harres (Software Developer 2020-2025)",
+	"details": "### Links\n\n* [adnauseam.io](https://adnauseam.io/)\n* [ZKM Exhibition – *Choose Your Filter!*](https://zkm.de/en/2025/02/choose-your-filter)\n\n### Credits\n\n* Daniel C. Howe (Lead Developer and Co-Initiator)\n* Helen Nissenbaum (Co-Initiator)\n* Mushon Zer-Aviv (Lead Designer)\n* Alberto Harres (Software Developer 2020-2025)",
+	"details_pt": "### Links\n\n* [adnauseam.io](https://adnauseam.io/)\n* [Exposição no ZKM – *Choose Your Filter!*](https://zkm.de/en/2025/02/choose-your-filter)\n\n### Créditos\n\n* Daniel C. Howe (Desenvolvedor principal e cocriador)\n* Helen Nissenbaum (Cocriadora)\n* Mushon Zer-Aviv (Designer principal)\n* Alberto Harres (Desenvolvedor de software 2020-2025)",
 	"thumbnail": "/img/thumb-adnauseam.jpg",
 	"content": "[AdNauseam](https://adnauseam.io/) is a free, open-source browser extension designed to obfuscate browsing data and protect users from tracking by advertising networks. It also acts as a form of protest against surveillance capitalism, amplifying user discontent with ad networks that violate privacy and promote mass surveillance.\n\nOriginally authored by [Daniel C. Howe](https://rednoise.org/daniel), [Helen Nissenbaum](https://www.nyu.edu/projects/nissenbaum/), and [Mushon Zer-Aviv](http://mushon.com/), the project has over 100,000 users across platforms.\n\nI worked on AdNauseam as a software developer from 2020 to 2025. My contributions included implementing key features, maintaining and documenting the codebase, and developing the exhibition version of the project for *[Choose Your Filter!](https://zkm.de/en/2025/02/choose-your-filter)* at ZKM.",
+	"content_pt": "[AdNauseam](https://adnauseam.io/) é uma extensão de navegador gratuita e de código aberto, criada para ofuscar os dados de navegação e proteger os usuários do rastreamento feito por redes de publicidade. Ela também funciona como uma forma de protesto contra o capitalismo de vigilância, amplificando a insatisfação dos usuários com redes de anúncios que violam a privacidade e promovem a vigilância em massa.\n\nCriado originalmente por [Daniel C. Howe](https://rednoise.org/daniel), [Helen Nissenbaum](https://www.nyu.edu/projects/nissenbaum/) e [Mushon Zer-Aviv](http://mushon.com/), o projeto tem mais de 100.000 usuários em diferentes plataformas.\n\nTrabalhei no AdNauseam como desenvolvedor de software de 2020 a 2025. Minhas contribuições incluíram a implementação de funcionalidades centrais, a manutenção e a documentação do código e o desenvolvimento da versão expositiva do projeto para a exposição *[Choose Your Filter!](https://zkm.de/en/2025/02/choose-your-filter)* no ZKM.",
 	"subtitle": "",
 	"title": "AdNauseam",
 	"gallery": [
@@ -11,7 +13,6 @@
 	"importance": 1,
 	"tags": [
 		"web",
-		"javascript",
 		"obfuscation",
 		"dataviz"
 	],

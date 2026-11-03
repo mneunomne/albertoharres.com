@@ -1,19 +1,34 @@
 <template>
   <div>
-    <div class="menu-graph" :style="{ width: `${width}px`, height: `${height}px` }"
+    <div ref="el" class="menu-graph" :style="{ width: `${width}px`, height: `${height}px` }"
       :class="{ mobile: getIsMobile, show }"></div>
   </div>
 </template>
 
 <script>
 import * as THREE from "three";
-import SpriteText from "three-spritetext";
+import SpriteText from "~/utils/CrispSpriteText";
 import _ from "lodash";
 import { mapGetters } from "vuex";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { bboxCollide } from "d3-bboxCollide";
+import { whenTabVisible } from "~/utils";
+import { otherLocale } from "~/utils/i18n";
+
+// Per viewport tier: canvas side length, the camera distance that keeps the
+// labels at a readable, consistent scale, and the link length that keeps the
+// whole graph inside the un-faded part of a canvas that size. First match wins.
+const SIZE_TIERS = [
+  { minWidth: 1200, size: 300, cameraDistance: 170, linkDistance: 40 },
+  { minWidth: 900, size: 180, cameraDistance: 120, linkDistance: 36 },
+  { minWidth: 0, size: 150, cameraDistance: 100, linkDistance: 32 },
+];
+
+// Declared in assets/css/_fonts.scss. The labels are rasterised onto canvases,
+// so the face has to be resident before the first label is drawn.
+const LABEL_FONT = "Libre Bodoni Italic";
+const FONT_WAIT_MS = 3000;
+
+const LABEL_HEIGHT = 10;
 
 export default {
   name: "MenuGraph",
@@ -23,287 +38,254 @@ export default {
       required: true,
     },
   },
-  // Non-reactive: the graph instance and its post-processing composer hold
-  // Three.js objects (and the gData nodes get __threeObj attached). Keeping
-  // them out of reactive `data()` stops Vue from deep-walking the scene graph.
+  // Non-reactive: the graph instance holds Three.js objects (and the gData
+  // nodes get __threeObj attached). Keeping it out of reactive `data()` stops
+  // Vue from deep-walking the scene graph.
   static() {
     return {
       g: null,
-      composer: null,
     };
   },
   data() {
     return {
-      width: 250,
-      height: 250,
-      cameraDistance: 130,
+      width: SIZE_TIERS[0].size,
+      height: SIZE_TIERS[0].size,
+      cameraDistance: SIZE_TIERS[0].cameraDistance,
+      linkDistance: SIZE_TIERS[0].linkDistance,
       show: false,
     };
-  },
-
-  created() {
-    if (!process.browser) return;
-    this._onResize = _.throttle(() => this.computeWindowSize(), 150);
-    window.addEventListener("resize", this._onResize);
-  },
-  beforeDestroy() {
-    if (!process.browser) return;
-    if (this._rafId) cancelAnimationFrame(this._rafId);
-    if (this._onResize) window.removeEventListener("resize", this._onResize);
-    if (this.g) {
-      this.g.pauseAnimation();
-      if (this.g.renderer) this.g.renderer().dispose();
-      this.g._destructor && this.g._destructor();
-    }
-  },
-  mounted() {
-    if (!process.browser) return;
-    this.computeWindowSize();
-
-    const fontFile = new FontFace(
-      "Libre Bodoni Italic",
-      "url(/fonts/Libre_Bodoni/static/LibreBodoni-Italic.ttf)"
-    );
-    fontFile.load().then((font) => {
-      document.fonts.add(font);
-      this.buildGraph();
-      setTimeout(() => {
-        this.canvasMask();
-      }, 1000);
-    });
-    //document.fonts.add(fontFile);
-
-    if (this.getIsMobile) {
-      this.width = 150;
-      this.height = 150;
-      this.cameraDistance = 120;
-    }
   },
   computed: {
     ...mapGetters({
       getIsMobile: "getIsMobile",
+      getLocale: "getLocale",
     }),
   },
-  methods: {
-    computeWindowSize() {
-      this.width = 300;
-      this.height = 300;
-      this.cameraDistance = 170;
 
-      if (window.innerWidth < 1200) {
-        this.width = 180;
-        this.height = 180;
-        this.cameraDistance = 120;
-      }
-      if (window.innerWidth < 900) {
-        this.width = 150;
-        this.height = 150;
-        this.cameraDistance = 100;
-      }
+  created() {
+    if (!process.browser) return;
+    this._onResize = _.throttle(() => this.applySize(), 150);
+    window.addEventListener("resize", this._onResize);
+  },
+  mounted() {
+    if (!process.browser) return;
+    this.applySize();
+    // Wait for the font and for the tab to be visible: in a background tab no
+    // frame runs, so the layout cool-down would expire before the first one.
+    this.whenFontReady()
+      .then(() => whenTabVisible())
+      .then(() => {
+        if (!this._destroyed) this.buildGraph();
+      });
+  },
+  beforeDestroy() {
+    if (!process.browser) return;
+    this._destroyed = true;
+    clearTimeout(this._sleepTimer);
+    if (this._onResize) window.removeEventListener("resize", this._onResize);
+    if (this._el && this._onPointer) {
+      ["pointermove", "pointerdown"].forEach((type) =>
+        this._el.removeEventListener(type, this._onPointer)
+      );
+    }
+    if (this.g) {
+      this.g.pauseAnimation();
+      if (this.g.renderer) this.g.renderer().dispose();
+      this.g._destructor && this.g._destructor();
+      this.g = null;
+    }
+  },
+
+  methods: {
+    // Resolves once the label font is usable (or after a short timeout, so a
+    // missing font can never prevent the menu from appearing).
+    whenFontReady() {
+      if (!document.fonts || !document.fonts.load) return Promise.resolve();
+      const load = document.fonts.load(`italic 90px "${LABEL_FONT}"`);
+      const timeout = new Promise((resolve) => setTimeout(resolve, FONT_WAIT_MS));
+      return Promise.race([load.catch(() => {}), timeout]);
+    },
+
+    sizeTier() {
+      if (this.getIsMobile) return SIZE_TIERS[SIZE_TIERS.length - 1];
+      const w = window.innerWidth;
+      return SIZE_TIERS.find((tier) => w >= tier.minWidth);
+    },
+
+    // Single source of truth for the canvas size and camera distance; called on
+    // mount, on resize and when the mobile flag flips.
+    applySize() {
+      const tier = this.sizeTier();
+      const linkChanged = tier.linkDistance !== this.linkDistance;
+      this.width = tier.size;
+      this.height = tier.size;
+      this.cameraDistance = tier.cameraDistance;
+      this.linkDistance = tier.linkDistance;
       if (this.g) {
         this.g.width(this.width).height(this.height);
-        this.wakeRender(600);
+        this.g.cameraPosition({ x: 0, y: 0, z: this.cameraDistance });
+        if (linkChanged) {
+          this.g.d3Force("link").distance(() => this.linkDistance);
+          this.g.d3ReheatSimulation();
+        }
+        this.wake(600);
       }
     },
+
     buildGraph() {
-      let ForceGraph3D;
-      if (window) {
-        ForceGraph3D = require("3d-force-graph").default;
-      } else {
-        return;
-      }
-      const el = document.querySelector(".menu-graph");
+      const ForceGraph3D = require("3d-force-graph").default;
+      const el = this.$refs.el;
+      this._el = el;
 
       const g = ForceGraph3D({
         rendererConfig: {
           antialias: true,
+          alpha: true,
           powerPreference: "high-performance",
         },
       })(el);
+      this.g = g;
 
-      var nodes = this.gData.nodes;
       g.graphData(this.gData)
         .backgroundColor("rgba(0,0,0,0)")
         .showNavInfo(false)
-        //.d3VelocityDecay(0.8)
-        //.d3AlphaMin(0.1)
-        //.d3AlphaDecay(0.1)
         .numDimensions(2)
         .width(this.width)
         .height(this.height)
+        // Settle the layout a little before the first frame so the menu never
+        // pops in as an overlapping clump, then animate the rest.
+        .warmupTicks(20)
+        // Stop the simulation once it has effectively settled instead of
+        // running it for the library's default 15s cooldown.
+        .d3AlphaMin(0.01)
+        .onEngineTick(() => {
+          this._engineRunning = true;
+        })
+        .onEngineStop(() => {
+          this._engineRunning = false;
+          this.scheduleSleep(300);
+        })
         .onNodeClick((node) => {
-          if (gtag)
+          if (node.type === "lang") {
+            const locale = otherLocale(this.getLocale);
+            if (typeof gtag === "function") {
+              gtag("event", "click", {
+                event_category: "menu_graph_click",
+                event_label: `lang:${locale}`,
+              });
+            }
+            this.$store.dispatch("setLocale", locale);
+            return;
+          }
+          if (typeof gtag === "function") {
             gtag("event", "click", {
               event_category: "menu_graph_click",
               event_label: node.route,
             });
-          if (node.route.includes("/")) {
+          }
+          if (node.route && node.route.includes("/")) {
             this.$router.push({ path: node.route });
-            return;
           } else {
-            // gp home
             this.$router.push("/");
           }
         })
-        .onNodeHover((node) => {
-          nodes.forEach((node) => {
-            node.__threeObj.children[0].backgroundColor = "white";
-          });
-          this.wakeRender(600);
-        })
-        .onNodeDrag((node, translate) => {
-          node.fx = node.x;
-          node.fy = node.y;
-          this.wakeRender(600);
-        })
-        .onNodeDragEnd((node) => {
-          node.fx = null;
-          node.fy = null;
-        })
-        .nodeLabel((node) => {
-          return false;
-        })
+        // The library pins the node and reheats the simulation itself while
+        // dragging; we only need to keep the frames coming.
+        .onNodeDrag(() => this.wake(600))
+        .nodeLabel(() => "")
         .linkColor(() => "rgb(0,0,0)")
-        .nodeThreeObject((node) => {
-          const group = new THREE.Group();
-          const sprite = new SpriteText(node.name);
-          sprite.fontFace = "Libre Bodoni Italic";
-          sprite.material.depthWrite = true; // make sprite background transparent
-          sprite.material.opacity = 1;
-          sprite.backgroundColor = "white";
-          sprite.color = "black";
-          sprite.textHeight = 10;
-          sprite.padding = 2;
-          sprite.renderOrder = 999;
-          sprite.position.set(0, 1.6, 0);
-          group.add(sprite);
-          return group;
-        });
+        .nodeThreeObject((node) => this.makeLabel(node));
 
-      this.g = g;
-      this.g.controls().noZoom = true;
-      this.g.controls().noPan = true;
-      this.g.controls().noRotate = true;
-
-      process.nextTick(() => {
-        this.g.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-        this.g.d3Force("link").distance(() => 40);
-        this.g.cameraPosition({ x: 0, y: 0, z: this.cameraDistance });
-        this.show = true;
-        this.g.d3Force(
-          "colide",
-          bboxCollide((node) => {
-            if (node.route == "/") {
-              return [
+      g.d3Force("link").distance(() => this.linkDistance);
+      g.d3Force(
+        "collide",
+        bboxCollide((node) =>
+          node.route === "/"
+            ? [
                 [-50, -10],
                 [50, 10],
-              ];
-            } else {
-              return [
+              ]
+            : [
                 [-10, -10],
                 [10, 10],
-              ];
-            }
-          })
-        );
-      });
+              ]
+        )
+      );
+
+      const controls = g.controls();
+      controls.noZoom = true;
+      controls.noPan = true;
+      controls.noRotate = true;
+
+      g.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      g.cameraPosition({ x: 0, y: 0, z: this.cameraDistance });
+
+      // Hover/click detection happens inside the render loop, so wake it on
+      // any pointer activity (pointerdown covers taps, which may not move).
+      this._onPointer = () => this.wake(800);
+      ["pointermove", "pointerdown"].forEach((type) =>
+        el.addEventListener(type, this._onPointer, { passive: true })
+      );
+
+      // The loop is already running; let it go until the layout settles.
+      this._engineRunning = true;
+      this.scheduleSleep(1000);
+      this.show = true;
     },
 
-    canvasMask() {
-      // Access the Three.js components
-      const renderer = this.g.renderer();
-      const scene = this.g.scene();
-      const camera = this.g.camera();
+    labelText(node) {
+      return node.type === "lang" ? otherLocale(this.getLocale) : node.name;
+    },
 
-      // Set up post-processing
-      const composer = new EffectComposer(renderer);
-      const renderPass = new RenderPass(scene, camera);
-      composer.addPass(renderPass);
+    makeLabel(node) {
+      const sprite = new SpriteText(this.labelText(node), LABEL_HEIGHT, "black");
+      sprite.fontFace = LABEL_FONT;
+      sprite.backgroundColor = "white";
+      sprite.padding = 2;
+      sprite.material.depthWrite = true; // the white box hides the link ends
+      sprite.renderOrder = 999;
+      sprite.position.set(0, 1.6, 0);
 
-      // Custom radial gradient shader
-      const radialGradientShader = {
-        uniforms: {
-          tDiffuse: { value: null },
-          resolution: { value: new THREE.Vector2(this.width, this.height) },
-          center: { value: new THREE.Vector2(0.5, 0.5) },
-          radius: { value: 0.6 }, // Radius of the gradient
-        },
-        vertexShader: `
-          varying vec2 vUv;
-          void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform sampler2D tDiffuse;
-          uniform vec2 center;
-          uniform float radius;
-          varying vec2 vUv;
+      const group = new THREE.Group();
+      group.add(sprite);
+      return group;
+    },
 
-          void main() {
-            vec4 texColor = texture2D(tDiffuse, vUv);
-            float dist = distance(vUv, center);
-            float mask = smoothstep(radius, radius - 0.3, dist);
-
-            // Apply mask to the alpha channel to fade to transparent
-            gl_FragColor = vec4(texColor.rgb, texColor.a * mask);
-          }
-        `,
-      };
-
-      const radialGradientPass = new ShaderPass(radialGradientShader);
-      composer.addPass(radialGradientPass);
-
-      // Save composer for the render loop
-      this.composer = composer;
-
-      // Stop the library's own perpetual render loop; we drive rendering on
-      // demand through the composer instead (avoids a second, always-on loop).
+    // On-demand rendering: run the library's loop while something is
+    // happening (layout settling, pointer over the menu, resize) and pause it
+    // when idle so a static menu costs nothing.
+    wake(idleMs = 800) {
+      if (!this.g) return;
+      this.g.resumeAnimation();
+      this.scheduleSleep(idleMs);
+    },
+    scheduleSleep(ms) {
+      clearTimeout(this._sleepTimer);
+      this._sleepTimer = setTimeout(() => this.sleepIfIdle(), ms);
+    },
+    sleepIfIdle() {
+      if (!this.g) return;
+      if (this._engineRunning) {
+        // Layout still moving: pausing now would freeze it mid-motion.
+        this.scheduleSleep(250);
+        return;
+      }
       this.g.pauseAnimation();
-      this.wakeRender(2500); // render the initial layout settle
-    },
-
-    // Render a single frame: advance the layout, then run the post-processing
-    // composer (which applies the radial fade mask).
-    renderFrame() {
-      if (!this.g || !this.composer) return;
-      this.g.tickFrame();
-      this.composer.render();
-    },
-
-    // Keep rendering for `ms` after the latest request, then stop. Cheap idle
-    // state: no RAF scheduled once the menu is static and nothing interacts.
-    wakeRender(ms = 1200) {
-      this._renderUntil = (window.performance ? performance.now() : 0) + ms;
-      if (this._rafId) return; // already looping
-      const loop = () => {
-        this.renderFrame();
-        const now = window.performance ? performance.now() : this._renderUntil;
-        if (now < this._renderUntil) {
-          this._rafId = requestAnimationFrame(loop);
-        } else {
-          this._rafId = null;
-        }
-      };
-      this._rafId = requestAnimationFrame(loop);
     },
   },
+
   watch: {
-    getIsMobile(isMobile) {
-      if (this.g) {
-        if (isMobile) {
-          this.width = 150;
-          this.height = 150;
-          this.g.cameraPosition({ x: 0, y: 0, z: 120 });
-        } else {
-          this.width = 250;
-          this.height = 250;
-          this.g.cameraPosition({ x: 0, y: 0, z: 150 });
-        }
-        this.g.width(this.width).height(this.height);
-        this.wakeRender(600);
-      }
+    getIsMobile() {
+      this.applySize();
+    },
+    // Swap the language switch's label ("pt" <-> "en") in place.
+    getLocale() {
+      if (!this.g) return;
+      this.g.graphData().nodes.forEach((node) => {
+        const sprite = node.type === "lang" && node.__threeObj && node.__threeObj.children[0];
+        if (sprite) sprite.text = this.labelText(node);
+      });
+      this.wake(300);
     },
   },
 };
@@ -318,9 +300,30 @@ export default {
   position: fixed;
   top: 0;
   margin: 0px;
-  width: 250px;
-  height: 250px;
   z-index: 2;
+
+  // Radial fade towards the edges. Done in CSS rather than as a
+  // post-processing pass: an extra pass forces the scene through a linear
+  // render target and skips the renderer's sRGB output conversion, which made
+  // every antialiased edge pixel darker and the labels look bold.
+  // Fully opaque out to 70% of the half-side, smoothstep-like fade to the
+  // corners (which sit at ~141%), so nodes stay readable on the small tiers.
+  -webkit-mask-image: radial-gradient(
+    circle closest-side,
+    #000 70%,
+    rgba(0, 0, 0, 0.84) 85%,
+    rgba(0, 0, 0, 0.5) 100%,
+    rgba(0, 0, 0, 0.16) 115%,
+    transparent 130%
+  );
+  mask-image: radial-gradient(
+    circle closest-side,
+    #000 70%,
+    rgba(0, 0, 0, 0.84) 85%,
+    rgba(0, 0, 0, 0.5) 100%,
+    rgba(0, 0, 0, 0.16) 115%,
+    transparent 130%
+  );
 
   &.mobile {
     z-index: 1;

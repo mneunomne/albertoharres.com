@@ -4,6 +4,10 @@
 @import './_globals.scss';
 @import './_fonts.scss';
 
-.scene-container {
+// Only the small menu graph keeps a CSS shadow. On the full-screen graph canvas
+// a CSS filter re-runs over the whole (oversized, hi-DPI) layer on every WebGL
+// frame, which is what made camera transitions janky; that graph draws its
+// shadows in three.js instead (see shadowTexture in ConnectionsGraph.vue).
+.menu-graph .scene-container {
   filter: drop-shadow(rgba(0, 0, 0, 0.25) 0px 0px 5px);
 }

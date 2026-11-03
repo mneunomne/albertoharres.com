@@ -1,9 +1,6 @@
 <template>
   <div>
     <MenuGraph :gData="gData" />
-    <a v-show="false" rel="me" href="https://mastodon.social/@mneunomne"
-      >Mastodon</a
-    >
   </div>
 </template>
 
@@ -15,13 +12,6 @@ export default {
   name: "Header",
   components: {
     MenuGraph,
-  },
-  head() {
-    return {
-      script: [
-        { src: "https://identity.netlify.com/v1/netlify-identity-widget.js" },
-      ],
-    };
   },
   data: () => ({
     center_data: {
@@ -44,6 +34,13 @@ export default {
         name: "cv",
         route: "/cv",
       },
+      // Language switch. Its label is the language it switches to ("pt" or
+      // "en"), set by MenuGraph from the store; it never navigates.
+      {
+        id: "lang",
+        name: "pt",
+        type: "lang",
+      },
     ],
   }),
   computed: {
@@ -54,9 +51,9 @@ export default {
       const nodes = this.pages_data
         .map((page) => {
           return {
-            ...page,
             id: page.name,
             type: "page",
+            ...page,
           };
         })
         .concat([this.center_data]);

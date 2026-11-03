@@ -38,3 +38,22 @@
   --black: rgb(0, 0, 0);
   --gray: rgb(218 218 218);
 }
+/**
+  * Breakpoints
+  *
+  * Phones get a plain interface (no three.js). $mobile-max must stay equal to
+  * MOBILE_BREAKPOINT - 1 in utils/index.js, which drives the same decision in JS.
+  */
+$mobile-max: 767px;
+
+@mixin mobile {
+  @media (max-width: $mobile-max) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $mobile-max + 1px) {
+    @content;
+  }
+}

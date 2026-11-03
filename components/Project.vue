@@ -1,38 +1,50 @@
 <template>
   <div>
+    <!-- On phones the header and body are plain in-flow blocks (see the
+         .mobile rules below); the inline geometry only applies to the overlay. -->
     <div class="header" :class="{ show, mobile: getIsMobile, tablet: getIsTabletView }"
-      :style="{ width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }">
+      :style="getIsMobile ? null : { width: `${width}px`, top: `calc(50% - ${titleMargin}px)` }">
       <div class="close">
         <button @click="closeProject">X</button>
       </div>
+      <nuxt-link to="/works" class="back-link">&larr; {{ $t("works") }}</nuxt-link>
       <div class="title-wrapper">
-        <h1 class="title">{{ project.title }}</h1>
+        <h1 class="title">{{ $l(project, "title") }}</h1>
         <br />
-        <h2 class="subtitle" v-if="project.subtitle">
-          {{ project.subtitle }}
+        <h2 class="subtitle" v-if="$l(project, 'subtitle')">
+          {{ $l(project, "subtitle") }}
         </h2>
       </div>
     </div>
     <!-- project -->
-    <div class="project-wrapper" :class="{ show }">
-      <div class="project" :class="{ mobile: getIsMobile, tablet: getIsTabletView }" :style="{
+    <!--
+      The heavy body (markdown, gallery, details) is only mounted once the
+      overlay is shown, i.e. after the camera tween has finished, so building
+      that DOM and fetching its images doesn't steal frames from the tween.
+      `revealed` flips a couple of frames after mounting so it still fades in.
+    -->
+    <div class="project-wrapper" :class="{ show, revealed, mobile: getIsMobile }">
+      <div class="project" :class="{ mobile: getIsMobile, tablet: getIsTabletView }" :style="getIsMobile ? null : {
         width: `${width}px`,
         height: `${height}px`,
         top: `calc(50% - ${contentMargin}px)`,
       }">
         <div class="content">
-          <div class="side-content" v-if="!(getIsMobile || getIsTabletView)">
-            <div v-if="project.details" class="details" v-html="renderDetails"></div>
+          <div class="side-content" v-if="renderBody && !(getIsMobile || getIsTabletView)">
+            <div v-if="$l(project, 'details')" class="details" v-html="renderDetails"></div>
           </div>
-          <div class="image" :style="{ height: `${height}px` }">
-            <img class="image-el" :src="project.thumbnail" alt="" />
+          <div class="image" :style="getIsMobile ? null : { height: `${height}px` }">
+            <img class="image-el" :src="project.thumbnail" alt="" :width="project.thumb_width || null"
+              :height="project.thumb_height || null" />
           </div>
-          <div class="description" v-html="renderContent"></div>
-          <div class="gallery-images">
-            <img class="gallery_image" v-for="(image, imageIndex) in imageGallery" :key="imageIndex"
-              @click="onClickImage(imageIndex, image)" :src="image" />
-          </div>
-          <div v-if="getIsMobile || getIsTabletView" class="details" v-html="renderDetails"></div>
+          <template v-if="renderBody">
+            <div class="description" v-html="renderContent"></div>
+            <div class="gallery-images">
+              <img class="gallery_image" v-for="(image, imageIndex) in imageGallery" :key="imageIndex"
+                loading="lazy" decoding="async" @click="onClickImage(imageIndex, image)" :src="image" />
+            </div>
+            <div v-if="getIsMobile || getIsTabletView" class="details" v-html="renderDetails"></div>
+          </template>
         </div>
       </div>
     </div>
@@ -81,9 +93,29 @@ export default {
       allImages: [],
       curImageIndex: null,
       reachedBottom: false,
+      renderBody: false,
+      revealed: false,
     };
   },
+  watch: {
+    show(val) {
+      if (val) this.reveal();
+      else this.revealed = false;
+    },
+  },
   methods: {
+    reveal() {
+      this.renderBody = true;
+      // Wait for the freshly mounted body to be painted at opacity 0 before
+      // adding `revealed`, otherwise the opacity transition is skipped.
+      cancelAnimationFrame(this._revealRaf);
+      this._revealRaf = requestAnimationFrame(() => {
+        this._revealRaf = requestAnimationFrame(() => {
+          this._revealRaf = null;
+          if (this.show) this.revealed = true;
+        });
+      });
+    },
     onResize() {
       this.contentMargin = getContentMargin(window);
     },
@@ -120,7 +152,6 @@ export default {
     },
   },
   mounted() {
-    console.log("MOUNTED!");
     this.imageWidth = this.project.thumb_width;
     this.imageHeight = this.project.thumb_height;
     if (!process.browser) {
@@ -160,8 +191,12 @@ export default {
     } else {
       this.imageGallery = [];
     }
+
+    // Direct navigation: the overlay is shown from the start.
+    if (this.show) this.reveal();
   },
   beforeDestroy() {
+    if (this._revealRaf) cancelAnimationFrame(this._revealRaf);
     if (this._resizeRaf) cancelAnimationFrame(this._resizeRaf);
     if (this._onResize) window.removeEventListener("resize", this._onResize);
     if (this._onScroll) window.removeEventListener("scroll", this._onScroll);
@@ -172,11 +207,14 @@ export default {
       getIsTabletView: "getIsTabletView",
     }),
     renderContent() {
-      return marked.parse(this.project.content || "");
+      // Lazy-load / async-decode embedded media so it doesn't block the fade.
+      return marked
+        .parse(this.$l(this.project, "content") || "")
+        .replace(/<img(?![^>]*\bloading=)/g, '<img loading="lazy" decoding="async"')
+        .replace(/<iframe(?![^>]*\bloading=)/g, '<iframe loading="lazy"');
     },
     renderDetails() {
-      console.log("renderDetails", this.project.details);
-      return marked.parse(this.project.details || "");
+      return marked.parse(this.$l(this.project, "details") || "");
     },
     titleMargin() {
       return this.height / 2 + this.contentMargin + 20;
@@ -195,17 +233,24 @@ export default {
   top: -1em;
   z-index: 999;
 
+  // Phones: a normal in-flow page header. The sticky nav is the way back, so
+  // the X is replaced by a small text link.
+  // `!important`: the static HTML is rendered desktop-first and carries the
+  // overlay's inline geometry (width/top/height); Vue keeps server inline
+  // styles on hydration, so the stylesheet has to win over them.
   &.mobile {
-    top: 12px !important;
+    position: static;
     width: auto !important;
     transform: none;
-    left: 12px;
-    right: 12px;
+    opacity: 1;
+    padding: 1.25em 1em 0;
 
     .close {
-      top: 0;
-      transform: none;
-      right: 1em !important;
+      display: none;
+    }
+
+    .back-link {
+      display: inline-block;
     }
   }
 
@@ -213,6 +258,14 @@ export default {
     position: absolute;
     top: 50%;
     right: 0;
+  }
+
+  .back-link {
+    display: none;
+    margin-bottom: 0.75em;
+    font-size: 13px;
+    color: black;
+    text-decoration: none;
   }
 
   &.show {
@@ -229,22 +282,18 @@ export default {
   pointer-events: all;
   width: auto;
 
+  // Phones: plain document flow under the header (see the note on
+  // `!important` in .header.mobile).
   &.mobile {
-    width: 100% !important;
+    position: static;
+    width: auto !important;
     height: auto !important;
     right: auto;
     transform: none;
-    top: 100px !important;
+    padding: 0 1em 2em;
 
     .image {
       height: auto !important;
-    }
-
-    .description,
-    .details,
-    .image,
-    .gallery-images {
-      padding: 0px 1em;
     }
   }
 
@@ -267,6 +316,7 @@ export default {
       .image-el {
         max-width: 100%;
         width: 100%;
+        height: auto;
       }
     }
   }
@@ -275,36 +325,39 @@ export default {
 .project-wrapper {
   z-index: 9999;
 
-  &.show {
+  // The thumbnail must appear the instant the overlay shows (it lines up with
+  // the canvas sprite underneath); the body fades in once it is mounted.
+  &.show .image {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  &.show.revealed {
 
     .description,
     .side-content,
-    .header,
     .details,
-    .image,
     .gallery_image {
       opacity: 1;
       pointer-events: all;
     }
+  }
 
-    .project-bg {
+  // Phones: no reveal choreography, everything is visible at once.
+  &.mobile .project .content {
+
+    .image,
+    .description,
+    .details,
+    .gallery_image {
       opacity: 1;
+      transition: none;
+      pointer-events: all;
     }
   }
 }
 
-.project-bg {
-  opacity: 0;
-  transition: backdrop-filter 1s, opacity 0.5s;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.85);
-}
+/* .project-bg lives in layouts/default.vue */
 
 .details {
   transition: opacity 0.5s;
@@ -313,8 +366,25 @@ export default {
   opacity: 0;
 }
 
+.details ul,
+.details ol {
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 1.25em;
+}
+
 .details li {
-  margin-bottom: 0.5em;
+  margin-bottom: 0.35em;
+  line-height: 1.4;
+}
+
+.details h3 {
+  margin-bottom: 0.4em;
+}
+
+.details a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
 .side-content {

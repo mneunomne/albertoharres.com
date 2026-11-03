@@ -8,27 +8,24 @@
 <script>
 import Project from "~/components/Project.vue";
 import { getImageSizeOnScreen, CAMERA_ANIMATION_DURATION } from "/utils";
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "Work",
   components: {
     Project,
   },
-  async asyncData({ params, payload, route }) {
-    const isDirectAccess =
-      process.client && !document.referrer.includes(window.location.host);
-
-    if (payload)
-      return {
-        project: payload,
-        isDirectAccess,
-      };
-    else
+  async asyncData({ params, payload, redirect }) {
+    if (payload) return { project: payload };
+    // Project pages sit at the root (/:work), so any unknown path lands here
+    // too: send it home like the catch-all route used to.
+    try {
       return {
         project: await require(`~/assets/content/projects/${params.work}.json`),
-        isDirectAccess,
       };
+    } catch (e) {
+      return redirect("/");
+    }
   },
   data() {
     return {
@@ -36,35 +33,42 @@ export default {
       imageWidth: 0,
       project: null,
       showCurrentProject: false,
-      isDirectAccess: false,
     };
+  },
+  computed: {
+    ...mapGetters({
+      getOpeningFromGraph: "getOpeningFromGraph",
+    }),
   },
   mounted() {
     this.setCurrentProject(this.project);
 
-    // Check if there is "graph=true" parameter in the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const graphParam = urlParams.get("graph");
-    const isDirectNavigation = !graphParam;
-
     const { width, height } = getImageSizeOnScreen(this.project.thumb_width, this.project.thumb_height);
-
     this.imageHeight = height;
     this.imageWidth = width;
 
-    if (isDirectNavigation) {
-      // If directly navigated to this page, show project immediately
-      this.showCurrentProject = true;
-    } else {
-      // Otherwise use the camera animation delay
-      setTimeout(() => {
+    // Opened by a click on the graph: the camera is flying to the node, so the
+    // overlay waits for it. Anything else (direct URL load, reload, history,
+    // a link from another page) shows the project at once; the graph behind
+    // snaps itself to the node as soon as it is ready (see ConnectionsGraph).
+    const fromGraph = this.getOpeningFromGraph;
+    this.setOpeningFromGraph(false);
+
+    if (fromGraph) {
+      this._showTimer = setTimeout(() => {
         this.showCurrentProject = true;
       }, CAMERA_ANIMATION_DURATION + 100);
+    } else {
+      this.showCurrentProject = true;
     }
+  },
+  beforeDestroy() {
+    clearTimeout(this._showTimer);
   },
   methods: {
     ...mapActions({
       setCurrentProject: "setCurrentProject",
+      setOpeningFromGraph: "setOpeningFromGraph",
     }),
     onCloseProject() {
       console.log("onCloseProject");
