@@ -11,6 +11,8 @@ import { mapGetters } from "vuex";
 export default {
   name: "Header",
   components: {
+    // Static on purpose: Header itself is the async "graph-menu" chunk
+    // (layouts/default.vue), so MenuGraph and three already load on demand.
     MenuGraph,
   },
   data: () => ({

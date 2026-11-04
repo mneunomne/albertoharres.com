@@ -372,12 +372,20 @@ export default {
         },
         controlType: "orbit",
       })(this.el);
-      this.allNodes = [...this.gData.nodes];
-      this.allLinks = [...this.gData.links];
+      // Detach the graph data from Vue's reactivity. The physics engine mutates
+      // these objects (x/y/z, __threeObj) 60x/sec and reads their fields during
+      // layout + rendering; plain copies keep all of that off Vue's reactive
+      // getters/setters entirely. allNodes and graphData.nodes intentionally
+      // share the SAME instances so the __threeObj the engine attaches is
+      // visible through both.
+      const plainNodes = this.gData.nodes.map((n) => ({ ...n }));
+      const plainLinks = this.gData.links.map((l) => ({ ...l }));
+      this.allNodes = plainNodes;
+      this.allLinks = plainLinks;
 
       this.graphData = {
-        nodes: [...this.gData.nodes],
-        links: [...this.gData.links],
+        nodes: [...plainNodes],
+        links: [...plainLinks],
       };
 
       // Reusable scratch vectors for camera maths (avoid per-click allocation).
@@ -413,8 +421,15 @@ export default {
           return group;
         });
       // Cap pixel ratio: hi-DPI phones otherwise render at 3x cost for no
-      // visible gain on these sprite-based scenes.
+      // visible gain on these sprite-based scenes. (Motion renders at
+      // MOTION_PIXEL_RATIO, see setMotionResolution.)
       g.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      // Three validates every shader link with a synchronous
+      // gl.getProgramInfoLog + gl.getProgramParameter(LINK_STATUS) round-trip
+      // when this is on (its default). That blocks the main thread until the
+      // GPU finishes compiling — it's exactly the getProgramInfoLog cost in the
+      // profile. We don't author shaders here, so turn it off in the browser.
+      g.renderer().debug.checkShaderErrors = false;
       this.g = g;
 
       // Once the layout settles, stop the perpetual render loop. It is woken
@@ -611,7 +626,6 @@ export default {
         }
       });
 
-      console.log('Images sized from node data')
       var h = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
       var w =
         (h * window.innerWidth) / window.innerHeight -
@@ -720,6 +734,9 @@ export default {
       border.material.opacity = 0;
       // Invisible, so it must not carve its quad out of sprites drawn after it.
       border.material.depthWrite = false;
+      // Never shown (opacity 0): don't draw it at all, it would be another
+      // full-screen transparent quad when a project is zoomed in.
+      border.visible = false;
 
       // add text with the project title
       const title = new SpriteText(this.nodeLabel(node));
@@ -872,7 +889,10 @@ export default {
     resetNodesStyle() {
       this.allNodes.forEach((_node) => {
         if (_node.type == "tag" && _node.__threeObj) {
-          _node.__threeObj.children[0].backgroundColor = "white";
+          // Assigning backgroundColor regenerates the label's canvas texture;
+          // only write it when it actually changes (just the hovered tag).
+          const label = _node.__threeObj.children[0];
+          if (label.backgroundColor !== "white") label.backgroundColor = "white";
           // shadow (stays hidden with the tag in the 2d grid)
           if (_node.__threeObj.children[1]) {
             _node.__threeObj.children[1].visible = this.getViewMode !== "2d";
@@ -1617,6 +1637,12 @@ export default {
   &.hidden {
     transition: opacity 0.25s ease-in-out;
   }
+}
+
+// The library repositions its tooltip on every pointermove (a forced style
+// recalculation each time); it is never used.
+.connections-graph .scene-tooltip {
+  display: none !important;
 }
 
 .no-interaction canvas,

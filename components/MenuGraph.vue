@@ -219,6 +219,9 @@ export default {
       controls.noRotate = true;
 
       g.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      // Skip three's synchronous shader-link validation (a main-thread stall
+      // per compile); no custom shaders here.
+      g.renderer().debug.checkShaderErrors = false;
       g.cameraPosition({ x: 0, y: 0, z: this.cameraDistance });
 
       // Hover/click detection happens inside the render loop, so wake it on
@@ -293,6 +296,11 @@ export default {
 </script>
 
 <style global lang="scss">
+// Unused library tooltip, repositioned on every pointermove.
+.menu-graph .scene-tooltip {
+  display: none !important;
+}
+
 .menu-graph {
   mix-blend-mode: darken;
   opacity: 0;

@@ -112,7 +112,11 @@ export default {
 	 ** Global CSS
 	 */
 	modules: ["@nuxtjs/sitemap"],
-	buildModules: ["@nuxtjs/style-resources", "@nuxtjs/google-analytics"],
+	// GA4 is loaded directly via gtag (see `head.script` + /js/ga.js). The
+	// @nuxtjs/google-analytics module was for legacy Universal Analytics
+	// (shut down 2023), had no id configured, and shipped an unused
+	// vue-analytics runtime — removed.
+	buildModules: ["@nuxtjs/style-resources"],
 	styleResources: {
 		scss: ["./assets/css/*.scss"],
 	},
