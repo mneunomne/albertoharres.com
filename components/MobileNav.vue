@@ -1,7 +1,7 @@
 <template>
   <!--
-    Phone header: a plain sticky bar with text links. It replaces the three.js
-    menu graph below the mobile breakpoint. It is always rendered (so the static
+    Phone / tablet-portrait header: a plain bar with text links. It replaces
+    the three.js menu graph below NAV_BAR_BREAKPOINT (utils/index.js). It is always rendered (so the static
     HTML is right before any JS runs) and hidden on wider screens by CSS.
   -->
   <nav class="mobile-nav">
@@ -64,7 +64,7 @@ export default {
   display: none;
 }
 
-@include mobile {
+@include nav-bar {
   .mobile-nav {
     position: sticky;
     top: 0;
@@ -76,6 +76,17 @@ export default {
     padding: 0.9em 1em;
     background: white;
     border-bottom: 1px solid black;
+  }
+
+  // Tablets: the page under it is the fixed full-screen graph, so the bar
+  // floats on top instead of taking room in the flow.
+  @include desktop {
+    .mobile-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      padding: 0.9em 1.5em;
+    }
   }
 
   .site-name {
@@ -110,6 +121,18 @@ export default {
       &.active {
         text-decoration: underline;
         text-underline-offset: 3px;
+      }
+
+      // No focus ring after a tap or click (it stayed on the current page's
+      // link); keyboard focus still gets a quiet one.
+      &:focus:not(:focus-visible) {
+        outline: none;
+      }
+
+      &:focus-visible {
+        outline: 1px dotted black;
+        outline-offset: 3px;
+        border-radius: 0;
       }
     }
 

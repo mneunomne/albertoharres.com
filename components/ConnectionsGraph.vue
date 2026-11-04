@@ -25,7 +25,7 @@
     </div>
 
     <!-- 3d graph <-> 2d grid toggle -->
-    <div key="view-mode" class="view-mode" v-show="!hidden && !openProject && currentFilter === null">
+    <div key="view-mode" class="view-mode" v-show="!hidden && !openProject && !textPageOpen && currentFilter === null">
       <span :class="{ active: getViewMode === '3d' }" @click="setView('3d')">3d</span>
       /
       <span :class="{ active: getViewMode === '2d' }" @click="setView('2d')">2d</span>
@@ -79,6 +79,7 @@ import {
   getMobileCameraDistance,
   CAMERA_DISTANCE_FAR,
   getVisibleHeight,
+  getProjectImageFit,
   whenTabVisible,
 } from "~/utils";
 
@@ -104,6 +105,17 @@ const GRID_RESIZE_DURATION = 300;
 const MOTION_PIXEL_RATIO = 1;
 
 const LINK_DISTANCE = 50;
+
+// Narrowest viewport aspect (width / height) the 3d layout is designed for.
+// Below it (tablet portrait) the layout box would get too narrow for the
+// images, so the box is scaled up by (MIN_LAYOUT_ASPECT / aspect) ^
+// LAYOUT_SCALE_EXP and the camera pulls back by the same factor, so the whole
+// box still fits on screen (0.5 would keep the box's area; less keeps the
+// images larger and relies on squeezeX to narrow the cluster).
+const MIN_LAYOUT_ASPECT = 1.4;
+const LAYOUT_SCALE_EXP = 0.3;
+// Strength of squeezeX(), scaled by how far below MIN_LAYOUT_ASPECT we are.
+const SQUEEZE_STRENGTH = 0.3;
 
 // Max pointer travel (px) between down and up that still counts as a click.
 const CLICK_TOLERANCE = 6;
@@ -378,7 +390,7 @@ export default {
         .linkOpacity(LINE_OPACITY)
         .showNavInfo(false)
         .numDimensions(3)
-        .cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR })
+        .cameraPosition({ x: 0, y: 0, z: this.farDistance() })
         .width(window.innerWidth)
         .height(this.canvasHeight)
         .enableNodeDrag(false)
@@ -575,7 +587,7 @@ export default {
       // In 2d the camera is placed by the grid morph; a tween here would
       // fight it.
       if (this.getViewMode !== "2d") {
-        this.g.cameraPosition({ x: 0, y: 0, z: CAMERA_DISTANCE_FAR }, 0, 1000);
+        this.g.cameraPosition({ x: 0, y: 0, z: this.farDistance() }, 0, 1000);
       }
       let project_nodes = this.g
         .graphData()
@@ -630,6 +642,7 @@ export default {
           }
         })
       );
+      this.g.d3Force("squeeze", this.squeezeX());
       // While a direct-load open is pending the graph stays hidden until the
       // camera has been placed on the node (see onEngineStop).
       if (!this._pendingOpen) this.hidden = false;
@@ -803,7 +816,10 @@ export default {
       // importance; in the 2d grid from the column width.
       const baseDist = this.getIsMobile ? CAMERA_DISTANCE_FAR - 50 : CAMERA_DISTANCE;
       const slot = this.getViewMode === "2d" && this._grid ? this._grid.slots.get(node.id) : null;
-      const dist = slot ? baseDist * (slot.h / IMAGE_SCALE) : baseDist * node.importance;
+      // Narrow screens shrink the overlay image (getProjectImageFit): back
+      // off by the same factor.
+      const fit = getProjectImageFit(node.width, node.height);
+      const dist = (slot ? baseDist * (slot.h / IMAGE_SCALE) : baseDist * node.importance) / fit;
 
       const cameraPos = this.g.cameraPosition();
       this.g.enablePointerInteraction(false);
@@ -926,7 +942,7 @@ export default {
         );
       } else if (node) {
         // Calculate the direction vector from camera to new point (reused scratch)
-        var dist = CAMERA_DISTANCE_FAR;
+        var dist = this.farDistance();
         this._dir
           .set(node.x - cameraPos.x, node.y - cameraPos.y, node.z - cameraPos.z)
           .normalize();
@@ -1015,6 +1031,26 @@ export default {
         plane.geometry.dispose();
         plane.geometry = new THREE.PlaneGeometry(w, h, 32);
       }
+
+      // New viewport, new bounds (e.g. a tablet rotated).
+      if (this.currentFilter === null) {
+        const projects = this.g.graphData().nodes.filter((n) => n.type == "project");
+        this.g.d3Force("limit", this.limitWindow(projects));
+      }
+      this.g.d3Force("squeeze", this.squeezeX());
+      // And the overview camera distance that frames them, keeping the
+      // current viewing direction. Not while a project is framed or the grid /
+      // a morph owns the camera.
+      if (this.getViewMode !== "2d" && !this.openProject && !this._morphing) {
+        const cam = this.cameraState();
+        const t = cam.lookAt;
+        const dir = new THREE.Vector3(cam.x - t.x, cam.y - t.y, cam.z - t.z);
+        if (dir.lengthSq() > 0) {
+          dir.setLength(this.farDistance());
+          this.g.cameraPosition({ x: t.x + dir.x, y: t.y + dir.y, z: t.z + dir.z }, t, 600);
+        }
+      }
+
       // reheat (and keep rendering until the layout settles again)
       this.g.d3ReheatSimulation();
       this.requestRender(3000);
@@ -1404,9 +1440,37 @@ export default {
       this.g.cameraPosition({ x: 0, y, z: CAMERA_DISTANCE_2D }, { x: 0, y, z: 0 }, 0);
       this.requestRender(300);
     },
-    // Cache these values and only recalculate when window resizes
+    // >= 1: how much larger than designed the 3d layout box is made (and how
+    // much further back the camera sits) on viewports narrower than
+    // MIN_LAYOUT_ASPECT. See limitWindow().
+    layoutScale() {
+      const aspect = window.innerWidth / window.innerHeight;
+      return aspect >= MIN_LAYOUT_ASPECT ? 1 : Math.pow(MIN_LAYOUT_ASPECT / aspect, LAYOUT_SCALE_EXP);
+    },
+
+    // Narrow viewports: a weak pull towards x = 0 so the cluster spreads
+    // vertically and fills a tall screen instead of sitting in a wide band
+    // across its middle. No-op (null force) at MIN_LAYOUT_ASPECT and wider.
+    squeezeX() {
+      const aspect = window.innerWidth / window.innerHeight;
+      const k = SQUEEZE_STRENGTH * (1 - aspect / MIN_LAYOUT_ASPECT);
+      if (k <= 0) return null;
+      let nodes = [];
+      const force = (alpha) => {
+        for (let i = 0; i < nodes.length; i++) nodes[i].vx -= nodes[i].x * k * alpha;
+      };
+      force.initialize = (n) => (nodes = n);
+      return force;
+    },
+
+    // Camera distance of the 3d overview.
+    farDistance() {
+      return CAMERA_DISTANCE_FAR * this.layoutScale();
+    },
+
+    // Bounds force keeping the project images inside the viewport. Captures
+    // the viewport size, so it is re-registered on resize.
     limitWindow(nodes) {
-      // Calculate once and cache
       const isMobile = this.getIsMobile;
       const margins = {
         top: isMobile ? TOP_MARGIN_MOBILE : TOP_MARGIN,
@@ -1417,8 +1481,12 @@ export default {
         front: isMobile ? FRONT_MARGIN_MOBILE : FRONT_MARGIN,
       };
 
-      const window_height = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
-      const window_width = (window_height * window.innerWidth) / window.innerHeight - LEFT_MARGIN - RIGHT_MARGIN;
+      // Narrow viewports: scaled up as a whole together with the camera
+      // distance (see farDistance), so it still spans the screen.
+      const s = this.layoutScale();
+      const base_height = getVisibleHeight(window) - TOP_MARGIN - BOTTOM_MARGIN;
+      const window_height = base_height * s;
+      const window_width = (base_height * s * window.innerWidth) / window.innerHeight - LEFT_MARGIN - RIGHT_MARGIN;
 
       // Pre-calculate boundaries
       const bounds = {
@@ -1435,9 +1503,14 @@ export default {
         for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i];
 
-          // Check current position first (simpler logic)
-          if (node.x < bounds.xMin || node.x > bounds.xMax) {
-            node.vx = node.x < bounds.xMin ? Math.abs(node.vx) : -Math.abs(node.vx);
+          // Horizontally the whole image must stay inside, not just its
+          // centre (it would be cut off at the screen edge). Never pinch the
+          // range below zero for an image wider than the box.
+          const half = node.bbox ? Math.min(node.bbox[1][0], bounds.xMax) : 0;
+          const xMin = bounds.xMin + half;
+          const xMax = bounds.xMax - half;
+          if (node.x < xMin || node.x > xMax) {
+            node.vx = node.x < xMin ? Math.abs(node.vx) : -Math.abs(node.vx);
           }
 
           if (node.y < bounds.yMin || node.y > bounds.yMax) {

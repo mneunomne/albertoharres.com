@@ -52,6 +52,30 @@ $mobile-max: 767px;
   }
 }
 
+/**
+  * Up to $nav-bar-max the site uses the plain text nav bar (MobileNav)
+  * instead of the three.js menu graph: phones, and tablets in portrait, where
+  * the small menu canvas cut its labels off. Keep equal to
+  * NAV_BAR_BREAKPOINT - 1 in utils/index.js.
+  */
+$nav-bar-max: 1023px;
+// Rendered height of that bar (MobileNav), border included.
+$nav-bar-height: 70px;
+
+// Tablets: the nav bar is fixed over the full-screen graph, so overlay pages
+// must fit in the space below it.
+@mixin tablet-nav-bar {
+  @media (min-width: $mobile-max + 1px) and (max-width: $nav-bar-max) {
+    @content;
+  }
+}
+
+@mixin nav-bar {
+  @media (max-width: $nav-bar-max) {
+    @content;
+  }
+}
+
 @mixin desktop {
   @media (min-width: $mobile-max + 1px) {
     @content;

@@ -58,6 +58,13 @@ export default {
     display: block;
     color: black;
     text-decoration: none;
+
+    // A whole card, not a text link: no inverted hover (it blacked out the
+    // card and left the white title box with white text).
+    &:hover {
+      background: none;
+      color: black;
+    }
   }
 
   .work-thumb {

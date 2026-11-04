@@ -17,10 +17,11 @@ import { otherLocale } from "~/utils/i18n";
 // Per viewport tier: canvas side length, the camera distance that keeps the
 // labels at a readable, consistent scale, and the link length that keeps the
 // whole graph inside the un-faded part of a canvas that size. First match wins.
+// The menu graph is only mounted from NAV_BAR_BREAKPOINT (1024px) up; smaller
+// canvases than the last tier's cut the outer labels off.
 const SIZE_TIERS = [
   { minWidth: 1200, size: 300, cameraDistance: 170, linkDistance: 40 },
-  { minWidth: 900, size: 180, cameraDistance: 120, linkDistance: 36 },
-  { minWidth: 0, size: 150, cameraDistance: 100, linkDistance: 32 },
+  { minWidth: 0, size: 260, cameraDistance: 160, linkDistance: 36 },
 ];
 
 // Declared in assets/css/_fonts.scss. The labels are rasterised onto canvases,

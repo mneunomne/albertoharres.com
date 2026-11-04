@@ -14,7 +14,9 @@
           <!-- Baked blur of the (paused) graph canvas, see paintBlur(). -->
           <canvas ref="blur" class="project-bg-blur" v-show="blurReady"></canvas>
         </div>
-        <Header />
+        <!-- Narrower than NAV_BAR_BREAKPOINT (tablet portrait) MobileNav is
+             the menu instead. -->
+        <Header v-if="menuGraph" />
         <ConnectionsGraph ref="graph" :gData="gData" @clickProject="onClickProject"
           @backToInitialView="onBackToInitialView" @idle="onGraphIdle" :currentProject="currentProject" />
       </div>
@@ -23,7 +25,8 @@
       </div>
     </client-only>
 
-    <!-- Phones: a plain sticky header nav (hidden above the breakpoint by CSS). -->
+    <!-- Phones and tablets in portrait: a plain header nav (hidden above
+         NAV_BAR_BREAKPOINT by CSS). -->
     <MobileNav />
 
     <!-- Fediverse profile verification; must stay in the static HTML. -->
@@ -36,7 +39,7 @@
 <script>
 import MobileNav from "~/components/MobileNav.vue";
 import _ from "lodash";
-import { MOBILE_BREAKPOINT, CAMERA_ANIMATION_DURATION } from "~/utils";
+import { MOBILE_BREAKPOINT, NAV_BAR_BREAKPOINT, CAMERA_ANIMATION_DURATION } from "~/utils";
 import { HTML_LANG, isLocale, LOCALE_STORAGE_KEY } from "~/utils/i18n";
 import { mapGetters } from "vuex";
 import { mapActions } from "vuex";
@@ -85,6 +88,8 @@ export default {
       showBackground: false,
       instantBg: false,
       blurReady: false,
+      // Wide enough for the three.js menu graph (else MobileNav is shown).
+      menuGraph: true,
     };
   },
   created() {
@@ -230,6 +235,7 @@ export default {
       // spam mutations to every component bound to these getters.
       const mobile = window.innerWidth < MOBILE_BREAKPOINT;
       const tablet = !mobile && window.innerWidth < 1200;
+      this.menuGraph = window.innerWidth >= NAV_BAR_BREAKPOINT;
       if (mobile !== this.$store.getters.getIsMobile) this.setIsMobile(mobile);
       if (tablet !== this.$store.getters.getIsTabletView) {
         this.setIsTabletView(tablet);

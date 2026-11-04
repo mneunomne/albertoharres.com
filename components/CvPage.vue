@@ -163,6 +163,17 @@ $rule: rgba(0, 0, 0, 0.18);
   }
 }
 
+// Tablets: centred in the space below the fixed nav bar, clear of the
+// bottom edge.
+@include tablet-nav-bar {
+  .cv:not(.mobile) {
+    top: calc(50% + #{$nav-bar-height * 0.5});
+    max-height: calc(100vh - #{$nav-bar-height} - 4em);
+    // The max-height above is the whole box, padding included.
+    box-sizing: border-box;
+  }
+}
+
 /* ----- head ----- */
 .cv-head {
   margin-bottom: 2.2em;

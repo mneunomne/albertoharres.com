@@ -3,6 +3,10 @@ export const COLOR_MODE_FALLBACK = "dark";
 // header nav and in-flow pages instead. Keep in sync with $mobile-max in
 // assets/css/_vars.scss (which is this value minus 1px).
 export const MOBILE_BREAKPOINT = 768;
+// Below this the menu is the text nav bar (components/MobileNav.vue) rather
+// than the three.js menu graph, on tablets too. Keep in sync with $nav-bar-max
+// in assets/css/_vars.scss (this value minus 1px).
+export const NAV_BAR_BREAKPOINT = 1024;
 export const CAMERA_FOV = 50;
 export const IMAGE_SCALE = 35;
 export const CANVAS_OUT_MARGIN = 200;
@@ -47,6 +51,21 @@ export const getImageHeightOnScreen = () => {
 	return objectHeightOnScreen;
 };
 
+// Widest an open project's image may be, as a share of the viewport width.
+// At the full IMAGE_SCALE height a landscape image is wider than a portrait
+// tablet's screen.
+export const PROJECT_IMAGE_MAX_WIDTH_RATIO = 0.9;
+
+// <= 1: how much an open project's image is shrunk to respect
+// PROJECT_IMAGE_MAX_WIDTH_RATIO. The camera framing the node backs off by the
+// inverse, so the sprite still lines up with the overlay image.
+export const getProjectImageFit = (img_width, img_height) => {
+	if (!img_width || !img_height) return 1;
+	const height = getImageHeightOnScreen();
+	const width = height * (img_width / img_height);
+	return Math.min(1, (window.innerWidth * PROJECT_IMAGE_MAX_WIDTH_RATIO) / width);
+};
+
 export const getImageSizeOnScreen = (img_width, img_height) => {
 	var canvasHeight = getCanvasHeight(window);
 	var vFOV = (CAMERA_FOV * Math.PI) / 180;
@@ -54,7 +73,8 @@ export const getImageSizeOnScreen = (img_width, img_height) => {
 
 	let aspect = img_width / img_height;
 	let height = IMAGE_SCALE;
-	let objectHeightOnScreen = (height / visibleHeight) * canvasHeight;
+	let fit = getProjectImageFit(img_width, img_height);
+	let objectHeightOnScreen = (height / visibleHeight) * canvasHeight * fit;
 	let objectWidthOnScreen = objectHeightOnScreen * aspect;
 	return { width: objectWidthOnScreen, height: objectHeightOnScreen };
 };

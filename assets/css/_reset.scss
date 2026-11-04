@@ -151,8 +151,12 @@ a {
 	/*  &:visited {
          color: initial;
      } */
-	&:hover {
-		background: black;
-		color: white;
+	// Only with a real pointer: touch screens keep :hover on the last tapped
+	// link, which stayed inverted.
+	@media (hover: hover) {
+		&:hover {
+			background: black;
+			color: white;
+		}
 	}
 }

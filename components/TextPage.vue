@@ -111,6 +111,17 @@ export default {
   }
 }
 
+// Tablets: centred in the space below the fixed nav bar, clear of the
+// bottom edge.
+@include tablet-nav-bar {
+  .project:not(.mobile) {
+    top: calc(50% + #{$nav-bar-height * 0.5});
+    max-height: calc(100vh - #{$nav-bar-height} - 4em);
+    // The max-height above is the whole box, padding included.
+    box-sizing: border-box;
+  }
+}
+
 .project-wrapper {
   z-index: 9999;
 
