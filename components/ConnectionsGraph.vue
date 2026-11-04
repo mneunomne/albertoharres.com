@@ -432,10 +432,22 @@ export default {
       g.renderer().debug.checkShaderErrors = false;
       this.g = g;
 
+      // No-op force that only observes the simulation's alpha (the library
+      // has no getter). Leaving 3d mid-settle remembers it so the return trip
+      // can resume the cool-down there instead of restarting it at alpha 1,
+      // which would spread the layout further than a normal load does. See
+      // finishMorph.
+      g.d3Force("alphaProbe", (alpha) => {
+        this._alpha = alpha;
+        if (this._resumeAlpha != null && alpha <= this._resumeAlpha) this.resumeLayout();
+      });
+
       // Once the layout settles, stop the perpetual render loop. It is woken
       // on demand by pointer activity / clicks / resize (see requestRender).
       this.g.onEngineStop(() => {
         this._settled = true;
+        // Cool-down budget ran out before alpha got back down: release anyway.
+        if (this._resumeAlpha != null) this.resumeLayout();
         if (this._pendingOpen) {
           // Positions are final now: frame the node instantly (no tween, the
           // overlay already covers the canvas), then reveal the graph.
@@ -526,7 +538,10 @@ export default {
       clearTimeout(this._sleepTimer);
       this._sleepTimer = setTimeout(() => {
         this._renderUntil = 0;
-        if (this.g && !this.openProject) this.sleep();
+        // Never pause under a running 3d<->2d morph: a pointermove over the
+        // canvas just before clicking the toggle would otherwise freeze the
+        // morph halfway. finishMorph() schedules the sleep once it is done.
+        if (this.g && !this.openProject && !this._morphing) this.sleep();
       }, ms);
     },
 
@@ -1287,10 +1302,17 @@ export default {
         // feeding it back would make the camera orbit a centre far behind the
         // graph.
         this._camera3d = { ...this.cameraState() };
-        // A snapshot taken before the first cool-down finished (2d persisted
-        // across a reload) is not a real layout; see finishMorph.
-        this._layout3dSettled = !!this._settled;
+        // A snapshot taken before the first cool-down finished (2d clicked
+        // while the graph was still spreading out, or the graph built
+        // straight into 2d) is not a final layout; see finishMorph. Remember
+        // how far the cool-down had got (alpha 1: not started).
+        const resuming = this._resumeAlpha != null;
+        this._layout3dSettled = !!this._settled && !resuming;
+        this._layout3dAlpha = resuming ? this._resumeAlpha : this._alpha != null ? this._alpha : 1;
       }
+      // Left again before a resumed cool-down released the pins: the morph
+      // owns them now.
+      this._resumeAlpha = null;
       const grid = to2d ? this.computeGridLayout() : null;
       this._grid = grid;
 
@@ -1431,18 +1453,27 @@ export default {
           this._unpinWhenStopped = true;
           g.d3ReheatSimulation();
         } else {
-          // We never had a settled 3d layout (page loaded straight into 2d):
-          // let the simulation lay the graph out now, like a first load.
+          // 3d was left before its first cool-down finished: finish it now.
+          // Reheating can only reset alpha to 1, so keep the nodes pinned
+          // until alpha has decayed back to where the cool-down was cut off;
+          // the alpha probe then releases them and the layout carries on
+          // exactly as if it had never been interrupted.
           this._unpinWhenStopped = false;
-          g.graphData().nodes.forEach((n) => {
-            n.fx = n.fy = n.fz = undefined;
-          });
+          this._resumeAlpha = this._layout3dAlpha;
           g.d3ReheatSimulation();
           this.requestRender(3000);
         }
       }
       if (!this.openProject && !this.textPageOpen) g.enablePointerInteraction(true);
       this.requestRender(2500);
+    },
+
+    // Release the pins held for a resumed cool-down (see finishMorph).
+    resumeLayout() {
+      this._resumeAlpha = null;
+      this.g.graphData().nodes.forEach((n) => {
+        n.fx = n.fy = n.fz = undefined;
+      });
     },
 
     onGridScroll() {
