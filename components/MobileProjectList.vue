@@ -60,7 +60,7 @@ export default {
     text-decoration: none;
 
     // A whole card, not a text link: no inverted hover (it blacked out the
-    // card and left the white title box with white text).
+    // card and left the title with white text).
     &:hover {
       background: none;
       color: black;
@@ -79,8 +79,6 @@ export default {
   .work-title {
     display: inline-block;
     margin-top: 0.9em;
-    padding: 4px 7px 2px;
-    background: white;
     font-family: "Libre Bodoni Italic";
     font-size: 16px;
     text-transform: uppercase;

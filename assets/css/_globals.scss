@@ -128,6 +128,16 @@ h2 {
 	background: white;
 }
 
+/* Phones: no canvas behind the text, so the white label boxes aren't needed. */
+@media (max-width: 767px) {
+	h1,
+	h2 {
+		background: none;
+		padding-left: 0;
+		padding-right: 0;
+	}
+}
+
 /* ===== COMPONENT STYLES ===== */
 iframe {
 	border: none;
